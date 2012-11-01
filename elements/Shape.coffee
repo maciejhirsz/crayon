@@ -23,7 +23,7 @@ define (require) ->
         lineJoin: 'miter' # miter|bevel|round
         erase: false
         fill: true
-        fillColor: '#ffffff'
+        color: '#000000'
         shadow: false
         shadowX: 0
         shadowY: 0
@@ -88,7 +88,7 @@ define (require) ->
       #
       # Fill and stroke if applicable
       #
-      @canvas.fill(@options.fillColor) if @options.fill
+      @canvas.fill(@options.color) if @options.fill
 
       @canvas.stroke(@options.stroke, @options.strokeColor) if @options.stroke > 0
       @canvas.ctx.closePath()
@@ -96,8 +96,7 @@ define (require) ->
     # -----------------------------------
 
     roundRect: (x, y, width, height, radius) ->
-      @canvas.ctx.moveTo(x + radius, y)
-      @canvas.ctx.lineTo(x + width - radius, y)
+      @canvas.ctx.moveTo(x + width - radius, y)
       @canvas.ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
       @canvas.ctx.lineTo(x + width, y + height - radius)
       @canvas.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)

@@ -10,10 +10,10 @@ define (require) ->
         label: 'Surface'
         align: 'center' # left|right|center
         baseline: 'middle' # top|hanging|middle|alphabetic|ideographic|bottom
+        color: '#000000'
+        fill: true
         stroke: 0
         strokeColor: '#000000'
-        fill: true
-        fillColor: '#000000'
         italic: false
         bold: false
         size: 12
@@ -37,7 +37,7 @@ define (require) ->
     render: ->
       @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 
-      @canvas.ctx.fillStyle = @options.fillColor if @options.fill
+      @canvas.ctx.fillStyle = @options.color if @options.fill
       @canvas.ctx.textAlign = @options.align
       @canvas.ctx.textBaseline = @options.baseline
 
