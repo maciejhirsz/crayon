@@ -39,7 +39,7 @@ define (require) ->
 
     # -----------------------------------
 
-    addCanvas: (canvas) ->
+    bind: (canvas) ->
       @canvas.push(canvas)
 
     # -----------------------------------
