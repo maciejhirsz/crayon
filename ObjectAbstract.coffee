@@ -83,6 +83,8 @@ define (require) ->
     # -----------------------------------
 
     trigger: (event, data) ->
+      return if @_eventHandlers is null
+
       #
       # triggers all listener callbacks of a given event, pass on the data from second argument
       #
