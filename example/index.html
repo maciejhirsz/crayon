@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rippl example!</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <canvas id="my-canvas" width="200" height="50"></canvas>
+
+    <script src="../rippl.js"></script>
+    <script>
+
+      var canvas = new rippl.Canvas({ id: "my-canvas" });
+
+      var textElement = canvas.createText({
+        label: "Hello World!",
+        x: 100,
+        y: 25,
+        size: 30
+      });
+
+      var timer = new rippl.Timer;
+
+      timer.bind(canvas);
+
+      timer.on('frame', function(time) {
+        var t = time / 1000;
+        var sin = Math.sin(t * 4);
+
+        textElement.setScale(0.95 + sin / 10, 0.95 - sin / 10);
+      });
+
+    </script>
+  </body>
+</html>
