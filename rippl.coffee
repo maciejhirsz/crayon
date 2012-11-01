@@ -752,7 +752,7 @@ class Text extends CanvasElementAbstract
     @canvas.ctx.font = font.join(' ')
 
     if @options.stroke
-      @canvas.ctx.lineWidth = @options.stroke
+      @canvas.ctx.lineWidth = @options.stroke * 2
       @canvas.ctx.strokeStyle = @options.strokeColor
       @canvas.ctx.strokeText(@options.label, 0, 0)
 

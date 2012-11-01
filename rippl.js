@@ -662,7 +662,7 @@
       font.push(this.options.font);
       this.canvas.ctx.font = font.join(' ');
       if (this.options.stroke) {
-        this.canvas.ctx.lineWidth = this.options.stroke;
+        this.canvas.ctx.lineWidth = this.options.stroke * 2;
         this.canvas.ctx.strokeStyle = this.options.strokeColor;
         this.canvas.ctx.strokeText(this.options.label, 0, 0);
       }
