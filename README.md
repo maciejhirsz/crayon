@@ -1,4 +1,8 @@
-# Installation
+# Rippl
+
+Rippl is a simple html5 canvas library written in CoffeeScript.
+
+## Installation
 
 Proper folder structure:
 
@@ -18,7 +22,7 @@ Root folder
 
 Add to require.js configuration:
 
-```
+```coffeescript
 ObjectAbstract: 'js/lib/Rippl/ObjectAbstract'
 rippl: 'js/lib/Rippl/rippl'
 ```
