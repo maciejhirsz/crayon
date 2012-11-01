@@ -3,9 +3,9 @@ define (require) ->
   $ = require('jquery')
   ObjectAbstract = require('ObjectAbstract')
 
-  Sprite = require('js/lib/Surface/Sprite')
-  Shape = require('js/lib/Surface/Shape')
-  Text = require('js/lib/Surface/Text')
+  Sprite = require('js/lib/Rippl/Sprite')
+  Shape = require('js/lib/Rippl/Shape')
+  Text = require('js/lib/Rippl/Text')
 
   ############################
 

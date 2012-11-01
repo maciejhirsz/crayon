@@ -1,6 +1,6 @@
 define (require) ->
 
-  CanvasElementAbstract = require('js/lib/Surface/CanvasElementAbstract')
+  CanvasElementAbstract = require('js/lib/Rippl/CanvasElementAbstract')
 
   ############################
 
