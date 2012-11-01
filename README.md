@@ -19,9 +19,13 @@ canvas = new rippl.Canvas(id: "my-canvas")
 #
 textElement = canvas.createText
   label: "Hello World!"
+  bold: true
   x: 100
   y: 25
   size: 30
+  color: '#ff8800'
+  stroke: 1
+  strokeColor: '#000000'
 
 #
 # Render the canvas to make the text visible
@@ -41,9 +45,13 @@ canvas = new rippl.Canvas(id: "my-canvas")
 
 textElement = canvas.createText
   label: "Hello World!"
+  bold: true
   x: 100
   y: 25
   size: 30
+  color: '#ff8800'
+  stroke: 1
+  strokeColor: '#000000'
 
 #
 # But instead of rendering the canvas we bind it to a timer
