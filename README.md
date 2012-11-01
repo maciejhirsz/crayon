@@ -22,9 +22,27 @@ textElement = canvas.createText
   size: 30
 
 #
-# Render the canvas to make the text visible, this process should be automated for animations, more on that later...
+# Render the canvas to make the text visible for static image or...
 #
 canvas.render()
+
+#
+# ...put it on animation timer!
+#
+timer = new rippl.Timer
+timer.bind(canvas)
+
+#
+# And do some crazy stuff with our label!
+#
+timer.on 'frame', (time) ->
+  #
+  # Original time is in milliseconds
+  #
+  t = time / 1000
+  sin = Math.sin(t * 4)
+
+  textElement.setScale(0.95 + sin / 10, 0.95 - sin / 10)
 ```
 
 ## Installation
