@@ -13,7 +13,7 @@ define (require) ->
         stroke: 0
         strokeColor: '#000000'
         fill: true
-        fillColor: '#ffffff'
+        fillColor: '#000000'
         italic: false
         bold: false
         size: 12
