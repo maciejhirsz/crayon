@@ -4,6 +4,8 @@ Rippl is a simple html5 canvas library written in CoffeeScript. Ripple works is 
 
 ## Basic use
 
+You can use Rippl to render static images:
+
 ```coffeescript
 rippl = require('rippl')
 
@@ -22,18 +24,37 @@ textElement = canvas.createText
   size: 30
 
 #
-# Render the canvas to make the text visible for static image or...
+# Render the canvas to make the text visible
 #
 canvas.render()
+```
+
+Or for animations:
+
+```coffeescript
+rippl = require('rippl')
 
 #
-# ...put it on animation timer!
+# Do everything as in the example above
+#
+canvas = new rippl.Canvas(id: "my-canvas")
+
+textElement = canvas.createText
+  label: "Hello World!"
+  x: 100
+  y: 25
+  size: 30
+
+#
+# But instead of rendering the canvas we bind it to a timer
+#
+#   note: you can bind more than one canvas to one timer
 #
 timer = new rippl.Timer
 timer.bind(canvas)
 
 #
-# And do some crazy stuff with our label!
+# Using the timer's "frame" event we can easily give our label a blob effect
 #
 timer.on 'frame', (time) ->
   #
