@@ -1,11 +1,10 @@
 define (require) ->
 
-  $ = require('jquery')
   ObjectAbstract = require('ObjectAbstract')
 
-  Sprite = require('js/lib/Rippl/Sprite')
-  Shape = require('js/lib/Rippl/Shape')
-  Text = require('js/lib/Rippl/Text')
+  Sprite = require('js/lib/Rippl/elements/Sprite')
+  Shape = require('js/lib/Rippl/elements/Shape')
+  Text = require('js/lib/Rippl/elements/Text')
 
   ############################
 
@@ -14,7 +13,7 @@ define (require) ->
     # Default options
     #
     options:
-      selector: null
+      id: null
       width: 0
       height: 0
 
@@ -27,11 +26,10 @@ define (require) ->
     constructor: (options) ->
       @setOptions(options)
 
-      if @options.selector isnt null
-        $canvas = $(@options.selector)
-        @canvas = $canvas[0]
-        @options.width = @canvas.width
-        @options.height = @canvas.height
+      if @options.id isnt null
+        @canvas = document.getElementById(@options.id)
+        @options.width = Number @canvas.width
+        @options.height = Number @canvas.height
       else
         @canvas = document.createElement('canvas')
         @canvas.setAttribute('width', @options.width)
