@@ -145,7 +145,6 @@ var __hasProp = {}.hasOwnProperty,
       var hash, l;
       if (typeof r === 'string' && r[0] === '#') {
         hash = r;
-        console.log(hash);
         l = hash.length;
         if (l === 7) {
           r = parseInt(hash.slice(1, 3), 16);

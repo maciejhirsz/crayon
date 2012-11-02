@@ -154,7 +154,6 @@ Rippl may be freely distributed under the MIT license.
     constructor: (r, g, b, a) ->
       if typeof r is 'string' and r[0] is '#'
         hash = r
-        console.log hash
 
         l = hash.length
         if l is 7
