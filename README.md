@@ -75,3 +75,5 @@ timer.on 'frame', (time) ->
     scaleX: 1 + sin / 10
     scaleY: 1 - sin / 10
 ```
+
+For more examples, and examples in javascript, view the examples folder.
