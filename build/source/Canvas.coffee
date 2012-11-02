@@ -36,6 +36,23 @@
       @elements = []
 
     # -----------------------------------
+    #
+    # Validator / converter
+    #
+    parseMaterial: (m) ->
+      if typeof m is 'string' and m[0] is '#'
+        l = m.length
+        return m if l is 7
+        return '#'+m[1]+m[1]+m[2]+m[2]+m[3]+m[3] if l is 4
+        throw "Invalid material string: "+m
+
+      if typeof m is 'object' and Array.isArray(m)
+        l = m.length
+        # add alpha to make full rgba
+        m.push(255) if l is 3
+        return 'rgba('+Math.round(m[0])+','+Math.round(m[1])+','+Math.round(m[2])+','+Math.round(m[3])+')'
+
+    # -----------------------------------
 
     getCanvas: ->
       @canvas
@@ -55,14 +72,14 @@
     # -----------------------------------
 
     fill: (color) ->
-      @ctx.fillStyle = color
+      @ctx.fillStyle = @parseMaterial(color)
       @ctx.fill()
 
     # -----------------------------------
 
     stroke: (width, color) ->
       @ctx.lineWidth = width
-      @ctx.strokeStyle = color
+      @ctx.strokeStyle = @parseMaterial(color)
       @ctx.stroke()
 
     # -----------------------------------
@@ -76,7 +93,7 @@
       @ctx.shadowOffsetX = x
       @ctx.shadowOffsetY = y
       @ctx.shadowBlur = blur
-      @ctx.shadowColor = color
+      @ctx.shadowColor = @parseMaterial(color)
 
     # -----------------------------------
 
