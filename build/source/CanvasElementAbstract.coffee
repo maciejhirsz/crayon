@@ -19,6 +19,10 @@ class CanvasElementAbstract extends ObjectAbstract
     hidden: false
 
   # -----------------------------------
+
+  tranformStack: []
+
+  # -----------------------------------
   #
   # This will be set by the addElement method of the Canvas class
   #
@@ -34,6 +38,8 @@ class CanvasElementAbstract extends ObjectAbstract
 
   constructor: (options) ->
     @setOptions(options)
+    @transformStack = []
+    @transformCount = 0
 
   # -----------------------------------
 
@@ -65,10 +71,39 @@ class CanvasElementAbstract extends ObjectAbstract
     return @options.hidden
 
   # -----------------------------------
+
+  transform: (options) ->
+    return if typeof options.to isnt 'object'
+
+    #
+    # Set starting values if not defined
+    #
+    options.from ? options.from = {}
+
+    for option of options.to
+      options.from[option] = @options[option] if options.from[option] is undefined
+
+    transform = new Transformation(options)
+
+    @transformStack.push(transform)
+    @transformCount += 1
+
+    transform
+
+  # -----------------------------------
   #
   # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
   #
-  prepare: ->
+  prepare: (frameTime) ->
+    if @transformCount
+      newStack = []
+      for transform in @transformStack
+        transform.progress(@, frameTime)
+        newStack.push(transform) if not transform.isFinished()
+
+      @transformStack = newStack
+      @transformCount = newStack.length
+
     @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
     @canvas.setPosition(@options.x, @options.y)
     @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1
