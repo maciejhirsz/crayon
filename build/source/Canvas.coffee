@@ -14,6 +14,10 @@ class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
+  unordered: false
+
+  # -----------------------------------
+
   constructor: (options) ->
     @setOptions(options)
 
@@ -100,8 +104,12 @@ class Canvas extends ObjectAbstract
     throw "Tried to add a non-CanvasElement to Canvas" if not element.__isCanvasElement
     element.canvas = @
     @elements.push(element)
-    @reorder()
     @touch()
+    @unordered = true
+
+    element.on('change', => @touch())
+    element.on('change:z', => @unordered = true)
+
     element
 
   # -----------------------------------
@@ -145,7 +153,8 @@ class Canvas extends ObjectAbstract
   # -----------------------------------
 
   reorder: ->
-    @elements.sort (a, b) -> a.getDepth() - b.getDepth()
+    @elements.sort (a, b) -> a.get('z') - b.get('z')
+    @unordered = false
 
   # -----------------------------------
 
@@ -164,6 +173,11 @@ class Canvas extends ObjectAbstract
     # Don't redraw if no changes were made
     #
     return if not @changed
+
+    #
+    # Reorder elements if needed
+    #
+    @reorder() if @unordered
 
     #
     # Clear the canvas
