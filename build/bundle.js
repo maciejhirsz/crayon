@@ -3,6 +3,7 @@ fs = require('fs');
 
 var i, l, path, className, file, files = [
   "ObjectAbstract",
+  "Transformation",
   "CanvasElementAbstract",
   "Timer",
   "elements/Sprite",
