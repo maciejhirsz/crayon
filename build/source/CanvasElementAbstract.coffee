@@ -19,6 +19,12 @@
       hidden: false
 
     # -----------------------------------
+    #
+    # Set this to an array with list of options that have to be changed to an instance of Color class
+    #
+    colors: null
+
+    # -----------------------------------
 
     tranformStack: []
 
@@ -38,8 +44,16 @@
 
     constructor: (options) ->
       @setOptions(options)
+      @validateColors()
       @transformStack = []
       @transformCount = 0
+
+    # -----------------------------------
+
+    validateColors: ->
+      return if @colors is null
+      for option in @colors
+        @options[option] = new Color(@options[option]) if not @options[option].__isColor
 
     # -----------------------------------
 
@@ -129,6 +143,7 @@
 
         if @options[option] isnt undefined and @options[option] isnt value
           @options[option] = value
+          @options[option] = new Color(value) if option in @colors
           @trigger("change:#{option}")
           @trigger("change")
           return
@@ -141,6 +156,7 @@
           change.push(option)
 
       if change.length
+        @validateColors()
         @trigger("change:#{option}") for option in change
         @trigger("change")
 

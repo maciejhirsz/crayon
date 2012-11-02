@@ -1,5 +1,9 @@
 
   rippl.Text = class Text extends CanvasElementAbstract
+    colors: ['color', 'strokeColor', 'shadowColor']
+
+    # -----------------------------------
+
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'
@@ -26,7 +30,7 @@
     render: ->
       @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 
-      @canvas.ctx.fillStyle = @canvas.parseMaterial(@options.color) if @options.fill
+      @canvas.ctx.fillStyle = @options.color.toString() if @options.fill
       @canvas.ctx.textAlign = @options.align
       @canvas.ctx.textBaseline = @options.baseline
 
@@ -41,7 +45,7 @@
 
       if @options.stroke
         @canvas.ctx.lineWidth = @options.stroke * 2
-        @canvas.ctx.strokeStyle = @canvas.parseMaterial(@options.strokeColor)
+        @canvas.ctx.strokeStyle = @options.strokeColor.toString()
         @canvas.ctx.strokeText(@options.label, 0, 0)
 
       @canvas.ctx.fillText(@options.label, 0, 0) if @options.fill

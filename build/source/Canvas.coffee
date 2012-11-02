@@ -36,14 +36,6 @@
       @elements = []
 
     # -----------------------------------
-    #
-    # Validator / converter
-    #
-    parseMaterial: (m) ->
-      return m.toString() if m.__isColor
-      return m
-
-    # -----------------------------------
 
     getCanvas: ->
       @canvas
@@ -63,14 +55,14 @@
     # -----------------------------------
 
     fill: (color) ->
-      @ctx.fillStyle = @parseMaterial(color)
+      @ctx.fillStyle = color.toString()
       @ctx.fill()
 
     # -----------------------------------
 
     stroke: (width, color) ->
       @ctx.lineWidth = width
-      @ctx.strokeStyle = @parseMaterial(color)
+      @ctx.strokeStyle = color.toString()
       @ctx.stroke()
 
     # -----------------------------------
@@ -84,7 +76,7 @@
       @ctx.shadowOffsetX = x
       @ctx.shadowOffsetY = y
       @ctx.shadowBlur = blur
-      @ctx.shadowColor = @parseMaterial(color)
+      @ctx.shadowColor = color.toString()
 
     # -----------------------------------
 

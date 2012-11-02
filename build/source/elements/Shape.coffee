@@ -1,5 +1,9 @@
 
   rippl.Shape = class Shape extends CanvasElementAbstract
+    colors: ['color', 'strokeColor', 'shadowColor']
+
+    # -----------------------------------
+
     constructor: (options, canvas) ->
       @addDefaults
         type: 'rectangle' # rectangle|circle|custom
