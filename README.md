@@ -72,6 +72,6 @@ timer.on 'frame', (time) ->
   sin = Math.sin(t * 4)
 
   textElement.set
-    scaleX: 0.95 + sin / 10
-    scaleY: 0.95 - sin / 10
+    scaleX: 1 + sin / 10
+    scaleY: 1 - sin / 10
 ```
