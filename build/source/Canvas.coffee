@@ -1,5 +1,5 @@
 
-  class Canvas extends ObjectAbstract
+  rippl.Canvas = class Canvas extends ObjectAbstract
     #
     # Default options
     #
@@ -40,17 +40,8 @@
     # Validator / converter
     #
     parseMaterial: (m) ->
-      if typeof m is 'string' and m[0] is '#'
-        l = m.length
-        return m if l is 7
-        return '#'+m[1]+m[1]+m[2]+m[2]+m[3]+m[3] if l is 4
-        throw "Invalid material string: "+m
-
-      if typeof m is 'object' and Array.isArray(m)
-        l = m.length
-        # add alpha to make full rgba
-        m.push(255) if l is 3
-        return 'rgba('+Math.round(m[0])+','+Math.round(m[1])+','+Math.round(m[2])+','+Math.round(m[3])+')'
+      return m.toString() if m.__isColor
+      return m
 
     # -----------------------------------
 
