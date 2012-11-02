@@ -1,108 +1,108 @@
 
-class Timer extends ObjectAbstract
-  #
-  # Default options
-  #
-  options:
-    fps: 40
-    autoStart: true
+  class Timer extends ObjectAbstract
     #
-    # Setting fixed frames to true enforces that every second you get exactly as many 'frame' events triggered as high fps is set
+    # Default options
     #
-    fixedFrames: false
+    options:
+      fps: 40
+      autoStart: true
+      #
+      # Setting fixed frames to true enforces that every second you get exactly as many 'frame' events triggered as high fps is set
+      #
+      fixedFrames: false
 
-  # -----------------------------------
+    # -----------------------------------
 
-  frameDuration: 0
+    frameDuration: 0
 
-  # -----------------------------------
+    # -----------------------------------
 
-  constructor: (options) ->
-    @setOptions(options)
+    constructor: (options) ->
+      @setOptions(options)
 
-    @frameDuration = 1000 / @options.fps
+      @frameDuration = 1000 / @options.fps
 
-    @canvas = []
+      @canvas = []
 
-    @start() if @options.autoStart
+      @start() if @options.autoStart
 
-  # -----------------------------------
+    # -----------------------------------
 
-  setFps: (fps) ->
-    @options.fps = fps
-    @frameDuration = 1000 / @options.fps
+    setFps: (fps) ->
+      @options.fps = fps
+      @frameDuration = 1000 / @options.fps
 
-  # -----------------------------------
+    # -----------------------------------
 
-  bind: (canvas) ->
-    @canvas.push(canvas)
+    bind: (canvas) ->
+      @canvas.push(canvas)
 
-  # -----------------------------------
+    # -----------------------------------
 
-  start: ->
-    @time = @getTime()
+    start: ->
+      @time = @getTime()
 
-    @timerid = setTimeout(
-      => @tick()
-      @frameDuration
-    )
+      @timerid = setTimeout(
+        => @tick()
+        @frameDuration
+      )
 
-  # -----------------------------------
+    # -----------------------------------
 
-  stop: ->
-    clearTimeout(@timerid)
+    stop: ->
+      clearTimeout(@timerid)
 
-  # -----------------------------------
+    # -----------------------------------
 
-  getTime: ->
-    (new Date).getTime()
+    getTime: ->
+      (new Date).getTime()
 
-  # -----------------------------------
+    # -----------------------------------
 
-  getSeconds: ->
-    Math.floor((new Date).getTime() / 1000)
+    getSeconds: ->
+      Math.floor((new Date).getTime() / 1000)
 
-  # -----------------------------------
+    # -----------------------------------
 
-  tick: ->
-    frameTime = @getTime()
-
-    #
-    # Handle fixed frames
-    #
-    if @fixedFrames
-      iterations = Math.floor((frameTime - @time) / @frameDuration)
-
-      iterations = 1 if iterations < 1
+    tick: ->
+      frameTime = @getTime()
 
       #
-      # Cap iterations
+      # Handle fixed frames
       #
-      iterations = 100 if iterations > 100
+      if @fixedFrames
+        iterations = Math.floor((frameTime - @time) / @frameDuration)
 
-      for i in [0..iterations-1]
+        iterations = 1 if iterations < 1
+
+        #
+        # Cap iterations
+        #
+        iterations = 100 if iterations > 100
+
+        for i in [0..iterations-1]
+          @trigger('frame', frameTime)
+          @time += @frameDuration
+
+      #
+      # Handle fluid frames
+      #
+      else
+        @time = frameTime
         @trigger('frame', frameTime)
-        @time += @frameDuration
 
-    #
-    # Handle fluid frames
-    #
-    else
-      @time = frameTime
-      @trigger('frame', frameTime)
+      #
+      # Render all attached Canvas instances
+      #
+      for canvas in @canvas
+        canvas.render(frameTime)
 
-    #
-    # Render all attached Canvas instances
-    #
-    for canvas in @canvas
-      canvas.render(frameTime)
+      #
+      # Measure time again for maximum precision
+      #
+      delay = @getTime() - @time
 
-    #
-    # Measure time again for maximum precision
-    #
-    delay = @getTime() - @time
-
-    setTimeout(
-      => @tick()
-      @frameDuration - delay
-    )
+      setTimeout(
+        => @tick()
+        @frameDuration - delay
+      )

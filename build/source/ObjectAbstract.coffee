@@ -1,127 +1,127 @@
 
-class ObjectAbstract
-  #
-  # Default options
-  #
-  options: {}
-
-  # -----------------------------------
-
-  _eventHandlers: null
-
-  # -----------------------------------
-
-  _validEventName: (event) ->
-    return false if typeof event isnt 'string'
-    return true
-
-  # -----------------------------------
-
-  _validCallback: (callback) ->
-    return false if typeof callback isnt 'function'
-    return true
-
-  # -----------------------------------
-
-  on: (event, callback) ->
+  class ObjectAbstract
     #
-    # sets up an event handler for a specific event
+    # Default options
     #
-    return if not @_validEventName(event)
-    return if not @_validCallback(callback)
+    options: {}
 
-    #
-    # Create a container for event handlers
-    #
-    @_eventHandlers = {} if @_eventHandlers is null
+    # -----------------------------------
 
-    #
-    # create a new stack for the callbacks if not defined yet
-    #
-    @_eventHandlers[event] = [] if @_eventHandlers[event] is undefined
+    _eventHandlers: null
 
-    #
-    # push the callback onto the stack
-    #
-    @_eventHandlers[event].push(callback)
+    # -----------------------------------
 
-  # -----------------------------------
+    _validEventName: (event) ->
+      return false if typeof event isnt 'string'
+      return true
 
-  off: (event, callbackToRemove) ->
-    return if @_eventHandlers is null
+    # -----------------------------------
 
-    if not @_validEventName(event)
+    _validCallback: (callback) ->
+      return false if typeof callback isnt 'function'
+      return true
+
+    # -----------------------------------
+
+    on: (event, callback) ->
       #
-      # Drop all listeners
+      # sets up an event handler for a specific event
       #
-      @_eventHandlers = {}
+      return if not @_validEventName(event)
+      return if not @_validCallback(callback)
 
-    else if not @_validCallback(callbackToRemove)
       #
-      # Drop all listeners for specified event
+      # Create a container for event handlers
       #
-      return if @_eventHandlers[event] is undefined
+      @_eventHandlers = {} if @_eventHandlers is null
 
-      delete @_eventHandlers[event]
-
-    else
       #
-      # Drop only the specified callback from the stack
+      # create a new stack for the callbacks if not defined yet
       #
-      return if @_eventHandlers[event] is undefined
+      @_eventHandlers[event] = [] if @_eventHandlers[event] is undefined
 
-      stack = []
+      #
+      # push the callback onto the stack
+      #
+      @_eventHandlers[event].push(callback)
 
-      for callback in @_eventHandlers[event]
-        stack.push(callback) if callback isnt callbackToRemove
+    # -----------------------------------
 
-      @_eventHandlers[event] = stack
+    off: (event, callbackToRemove) ->
+      return if @_eventHandlers is null
 
-  # -----------------------------------
+      if not @_validEventName(event)
+        #
+        # Drop all listeners
+        #
+        @_eventHandlers = {}
 
-  trigger: (event, data) ->
-    return if @_eventHandlers is null
+      else if not @_validCallback(callbackToRemove)
+        #
+        # Drop all listeners for specified event
+        #
+        return if @_eventHandlers[event] is undefined
 
-    #
-    # triggers all listener callbacks of a given event, pass on the data from second argument
-    #
-    return if not @_validEventName(event)
+        delete @_eventHandlers[event]
 
-    return false if @_eventHandlers[event] is undefined
+      else
+        #
+        # Drop only the specified callback from the stack
+        #
+        return if @_eventHandlers[event] is undefined
 
-    callback(data) for callback in @_eventHandlers[event]
+        stack = []
 
-    return true
+        for callback in @_eventHandlers[event]
+          stack.push(callback) if callback isnt callbackToRemove
 
-  # -----------------------------------
+        @_eventHandlers[event] = stack
 
-  addDefaults: (defaults) ->
-    #
-    # Adds new defaults
-    #
-    if @options isnt undefined
-      for option of @options
-        defaults[option] = @options[option] if defaults[option] is undefined
+    # -----------------------------------
 
-    @options = defaults
+    trigger: (event, data) ->
+      return if @_eventHandlers is null
 
-  # -----------------------------------
+      #
+      # triggers all listener callbacks of a given event, pass on the data from second argument
+      #
+      return if not @_validEventName(event)
 
-  setOptions: (options) ->
-    #
-    # Set the @option property with new options or use defaults
-    #
-    if options isnt undefined
+      return false if @_eventHandlers[event] is undefined
 
-      defaults = @options
-      @options = {}
-
-      for option of defaults
-        if options[option] isnt undefined
-          @options[option] = options[option]
-        else
-          @options[option] = defaults[option]
+      callback(data) for callback in @_eventHandlers[event]
 
       return true
 
-    return false
+    # -----------------------------------
+
+    addDefaults: (defaults) ->
+      #
+      # Adds new defaults
+      #
+      if @options isnt undefined
+        for option of @options
+          defaults[option] = @options[option] if defaults[option] is undefined
+
+      @options = defaults
+
+    # -----------------------------------
+
+    setOptions: (options) ->
+      #
+      # Set the @option property with new options or use defaults
+      #
+      if options isnt undefined
+
+        defaults = @options
+        @options = {}
+
+        for option of defaults
+          if options[option] isnt undefined
+            @options[option] = options[option]
+          else
+            @options[option] = defaults[option]
+
+        return true
+
+      return false
