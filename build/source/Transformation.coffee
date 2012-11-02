@@ -29,18 +29,8 @@
 
     parseColors: (value) ->
       if typeof value is 'string' and value[0] is '#'
-        color = []
-        color.__isColor = true
+        return new Color(value)
 
-        if value.length is 7
-          color.push(parseInt("0x#{value[1..2]}"))
-          color.push(parseInt("0x#{value[3..4]}"))
-          color.push(parseInt("0x#{value[5..6]}"))
-        else if value.length is 4
-          color.push(parseInt("0x#{value[1]+value[1]}"))
-          color.push(parseInt("0x#{value[2]+value[2]}"))
-          color.push(parseInt("0x#{value[3]+value[3]}"))
-        return color
       return value
 
     # -----------------------------------
@@ -49,6 +39,8 @@
       @setOptions(options)
       @startTime = (new Date).getTime()
       @endTime = @startTime + @options.duration
+
+      @
 
       @options.from[option] = @parseColors(value) for option, value of @options.from
       @options.to[option] = @parseColors(value) for option, value of @options.to
@@ -83,11 +75,13 @@
       #
       # Handle arrays (colors!)
       #
-      if typeof from is 'object' and Array.isArray(from)
-        value = []
-        for v, i in from
-          value.push(@getValue(v, to[i], stage))
-        return value
+      if from.__isColor
+        return new Color(
+          @getValue(from.r, to.r, stage)
+          @getValue(from.g, to.g, stage)
+          @getValue(from.b, to.b, stage)
+          @getValue(from.a, to.a, stage)
+        )
 
     # -----------------------------------
 
