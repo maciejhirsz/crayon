@@ -4,7 +4,10 @@ Rippl may be freely distributed under the MIT license.
 ###
 
 (->
+  window.rippl = rippl = {}
+
   #!include ObjectAbstract.coffee
+  #!include Color.coffee
   #!include Transformation.coffee
   #!include CanvasElementAbstract.coffee
   #!include Timer.coffee
@@ -13,13 +16,6 @@ Rippl may be freely distributed under the MIT license.
   #!include elements/Text.coffee
   #!include Canvas.coffee
 
-  window.rippl =
-    ObjectAbstract: ObjectAbstract
-    Timer: Timer
-    Canvas: Canvas
-    Sprite: Sprite
-    Shape: Shape
-    Text: Text
 )(window)
 
 define(window.rippl) if typeof define is 'function'
