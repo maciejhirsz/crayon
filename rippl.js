@@ -199,41 +199,36 @@
 
     CanvasElementAbstract.prototype.render = function() {};
 
-    CanvasElementAbstract.prototype.setPosition = function(x, y) {
-      if (x !== void 0 && y !== void 0) {
-        this.options.x = x;
-        this.options.y = y;
-        return this.canvas.touch();
+    CanvasElementAbstract.prototype.set = function(target, value) {
+      var change, option, _i, _len;
+      if (value !== void 0 && typeof target === 'string') {
+        option = target;
+        if (this.options[option] !== void 0 && this.options[option] !== value) {
+          this.options[option] = value;
+          this.trigger("change:" + option);
+          this.trigger("change");
+          return;
+        }
+      }
+      change = [];
+      for (option in target) {
+        value = target[option];
+        if (this.options[option] !== void 0 && this.options[option] !== value) {
+          this.options[option] = value;
+          change.push(option);
+        }
+      }
+      if (change.length) {
+        for (_i = 0, _len = change.length; _i < _len; _i++) {
+          option = change[_i];
+          this.trigger("change:" + option);
+        }
+        return this.trigger("change");
       }
     };
 
-    CanvasElementAbstract.prototype.getDepth = function() {
-      return this.options.z;
-    };
-
-    CanvasElementAbstract.prototype.setDepth = function(z) {
-      this.options.z = z;
-      this.canvas.reorder();
-      return this.canvas.touch();
-    };
-
-    CanvasElementAbstract.prototype.setRotation = function(rotation) {
-      this.options.rotation = rotation;
-      return this.canvas.touch();
-    };
-
-    CanvasElementAbstract.prototype.setScale = function(scaleX, scaleY) {
-      if (scaleY === void 0) {
-        scaleY = scaleX;
-      }
-      this.options.scaleX = scaleX;
-      this.options.scaleY = scaleY;
-      return this.canvas.touch();
-    };
-
-    CanvasElementAbstract.prototype.setAlpha = function(alpha) {
-      this.options.alpha = alpha;
-      return this.canvas.touch();
+    CanvasElementAbstract.prototype.get = function(option) {
+      return this.options[option];
     };
 
     return CanvasElementAbstract;
@@ -587,17 +582,6 @@
       return this.canvas.ctx.closePath();
     };
 
-    Shape.prototype.setRoot = function(x, y) {
-      this.options.rootX = x;
-      this.options.rootY = y;
-      return this.canvas.touch();
-    };
-
-    Shape.prototype.setRadius = function(radius) {
-      this.options.radius = radius;
-      return this.canvas.touch();
-    };
-
     Shape.prototype.addPoint = function(x, y) {
       return this.points.push([x, y]);
     };
@@ -635,11 +619,6 @@
       });
       Text.__super__.constructor.call(this, options, canvas);
     }
-
-    Text.prototype.setLabel = function(label) {
-      this.options.label = label;
-      return this.canvas.touch();
-    };
 
     Text.prototype.render = function() {
       var font;
@@ -686,6 +665,8 @@
     };
 
     Canvas.prototype.changed = false;
+
+    Canvas.prototype.unordered = false;
 
     function Canvas(options) {
       this.setOptions(options);
@@ -779,13 +760,20 @@
     };
 
     Canvas.prototype.addElement = function(element) {
+      var _this = this;
       if (!element.__isCanvasElement) {
         throw "Tried to add a non-CanvasElement to Canvas";
       }
       element.canvas = this;
       this.elements.push(element);
-      this.reorder();
       this.touch();
+      this.unordered = true;
+      element.on('change', function() {
+        return _this.touch();
+      });
+      element.on('change:z', function() {
+        return _this.unordered = true;
+      });
       return element;
     };
 
@@ -829,9 +817,10 @@
     };
 
     Canvas.prototype.reorder = function() {
-      return this.elements.sort(function(a, b) {
-        return a.getDepth() - b.getDepth();
+      this.elements.sort(function(a, b) {
+        return a.get('z') - b.get('z');
       });
+      return this.unordered = false;
     };
 
     Canvas.prototype.touch = function() {
@@ -846,6 +835,9 @@
       var element, _i, _len, _ref;
       if (!this.changed) {
         return;
+      }
+      if (this.unordered) {
+        this.reorder();
       }
       this.clear();
       _ref = this.elements;

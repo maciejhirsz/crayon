@@ -208,46 +208,32 @@ class CanvasElementAbstract extends ObjectAbstract
   render: ->
 
   # -----------------------------------
-  #
-  # Moves the element to a different position
-  #
-  setPosition: (x, y) ->
-    if x isnt undefined and y isnt undefined
-      @options.x = x
-      @options.y = y
-      @canvas.touch()
+
+  set: (target, value) ->
+    if value isnt undefined and typeof target is 'string'
+      option = target
+
+      if @options[option] isnt undefined and @options[option] isnt value
+        @options[option] = value
+        @trigger("change:#{option}")
+        @trigger("change")
+        return
+
+    change = []
+
+    for option, value of target
+      if @options[option] isnt undefined and @options[option] isnt value
+        @options[option] = value
+        change.push(option)
+
+    if change.length
+      @trigger("change:#{option}") for option in change
+      @trigger("change")
 
   # -----------------------------------
 
-  getDepth: ->
-    @options.z
-
-  # -----------------------------------
-
-  setDepth: (z) ->
-    @options.z = z
-    @canvas.reorder()
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setRotation: (rotation) ->
-    @options.rotation = rotation
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setScale: (scaleX, scaleY) ->
-    scaleY = scaleX if scaleY is undefined
-    @options.scaleX = scaleX
-    @options.scaleY = scaleY
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setAlpha: (alpha) ->
-    @options.alpha = alpha
-    @canvas.touch()
+  get: (option) ->
+    @options[option]
 
 class Timer extends ObjectAbstract
   #
@@ -684,19 +670,6 @@ class Shape extends CanvasElementAbstract
 
   # -----------------------------------
 
-  setRoot: (x, y) ->
-    @options.rootX = x
-    @options.rootY = y
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setRadius: (radius) ->
-    @options.radius = radius
-    @canvas.touch()
-
-  # -----------------------------------
-
   addPoint: (x, y) ->
     @points.push([x, y])
 
@@ -726,12 +699,6 @@ class Text extends CanvasElementAbstract
       shadowColor: '#000000'
 
     super(options, canvas)
-
-  # -----------------------------------
-
-  setLabel: (label) ->
-    @options.label = label
-    @canvas.touch()
 
   # -----------------------------------
 
@@ -770,6 +737,10 @@ class Canvas extends ObjectAbstract
   # -----------------------------------
 
   changed: false
+
+  # -----------------------------------
+
+  unordered: false
 
   # -----------------------------------
 
@@ -859,8 +830,12 @@ class Canvas extends ObjectAbstract
     throw "Tried to add a non-CanvasElement to Canvas" if not element.__isCanvasElement
     element.canvas = @
     @elements.push(element)
-    @reorder()
     @touch()
+    @unordered = true
+
+    element.on('change', => @touch())
+    element.on('change:z', => @unordered = true)
+
     element
 
   # -----------------------------------
@@ -904,7 +879,8 @@ class Canvas extends ObjectAbstract
   # -----------------------------------
 
   reorder: ->
-    @elements.sort (a, b) -> a.getDepth() - b.getDepth()
+    @elements.sort (a, b) -> a.get('z') - b.get('z')
+    @unordered = false
 
   # -----------------------------------
 
@@ -923,6 +899,11 @@ class Canvas extends ObjectAbstract
     # Don't redraw if no changes were made
     #
     return if not @changed
+
+    #
+    # Reorder elements if needed
+    #
+    @reorder() if @unordered
 
     #
     # Clear the canvas
