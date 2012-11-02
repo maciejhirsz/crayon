@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - slide down example</title>
+    <title>Rippl - zoom example</title>
     <meta charset="utf-8">
   </head>
   <body>
@@ -13,11 +13,13 @@
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
       var textElement = canvas.createText({
-        label: "Going down!",
+        label: "WHZOOOM!",
         bold: true,
         x: 200,
-        y: -50,
+        y: 50,
         size: 60,
+        scaleX: 0,
+        scaleY: 0,
         color: '#ff8800',
         stroke: 1,
         strokeColor: '#000000'
@@ -29,9 +31,10 @@
 
       textElement.transform({
         transition: 'easeOut',
-        duration: 3000,
+        duration: 1500,
         to: {
-          y: 50
+          scaleX: 1,
+          scaleY: 1
         }
       });
 
