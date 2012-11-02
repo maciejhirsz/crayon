@@ -296,21 +296,25 @@
       return transform;
     };
 
-    CanvasElementAbstract.prototype.prepare = function(frameTime) {
+    CanvasElementAbstract.prototype.progress = function(frameTime) {
       var newStack, transform, _i, _len, _ref;
-      if (this.transformCount) {
-        newStack = [];
-        _ref = this.transformStack;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          transform = _ref[_i];
-          transform.progress(this, frameTime);
-          if (!transform.isFinished()) {
-            newStack.push(transform);
-          }
-        }
-        this.transformStack = newStack;
-        this.transformCount = newStack.length;
+      if (!this.transformCount) {
+        return;
       }
+      newStack = [];
+      _ref = this.transformStack;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        transform = _ref[_i];
+        transform.progress(this, frameTime);
+        if (!transform.isFinished()) {
+          newStack.push(transform);
+        }
+      }
+      this.transformStack = newStack;
+      return this.transformCount = newStack.length;
+    };
+
+    CanvasElementAbstract.prototype.prepare = function() {
       if (this.options.alpha !== 1) {
         this.canvas.setAlpha(this.options.alpha);
       }
@@ -958,7 +962,12 @@
     };
 
     Canvas.prototype.render = function(frameTime) {
-      var element, _i, _len, _ref;
+      var element, _i, _j, _len, _len1, _ref, _ref1;
+      _ref = this.elements;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        element = _ref[_i];
+        element.progress(frameTime);
+      }
       if (!this.changed) {
         return;
       }
@@ -966,12 +975,12 @@
         this.reorder();
       }
       this.clear();
-      _ref = this.elements;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
+      _ref1 = this.elements;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        element = _ref1[_j];
         if (!element.isHidden()) {
           this.ctx.save();
-          element.prepare(frameTime);
+          element.prepare();
           element.render();
           this.ctx.restore();
         }

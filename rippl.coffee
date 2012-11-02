@@ -302,18 +302,24 @@ class CanvasElementAbstract extends ObjectAbstract
 
   # -----------------------------------
   #
+  # Used to progress current tranformation stack
+  #
+  progress: (frameTime) ->
+    return if not @transformCount
+
+    newStack = []
+    for transform in @transformStack
+      transform.progress(@, frameTime)
+      newStack.push(transform) if not transform.isFinished()
+
+    @transformStack = newStack
+    @transformCount = newStack.length
+
+  # -----------------------------------
+  #
   # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
   #
-  prepare: (frameTime) ->
-    if @transformCount
-      newStack = []
-      for transform in @transformStack
-        transform.progress(@, frameTime)
-        newStack.push(transform) if not transform.isFinished()
-
-      @transformStack = newStack
-      @transformCount = newStack.length
-
+  prepare: ->
     @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
     @canvas.setPosition(@options.x, @options.y)
     @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1
@@ -1014,6 +1020,11 @@ class Canvas extends ObjectAbstract
 
   render: (frameTime) ->
     #
+    # Progress transitions
+    #
+    element.progress(frameTime) for element in @elements
+
+    #
     # Don't redraw if no changes were made
     #
     return if not @changed
@@ -1031,7 +1042,7 @@ class Canvas extends ObjectAbstract
     for element in @elements
       if not element.isHidden()
         @ctx.save()
-        element.prepare(frameTime)
+        element.prepare()
         element.render()
         @ctx.restore()
 
