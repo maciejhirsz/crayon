@@ -10,7 +10,7 @@ You can use Rippl to render static images:
 rippl = require('rippl')
 
 #
-# Take an existing <canvas> tag with id "my-canvas", let's assume that canvas has dimensions of 200x50
+# Take an existing <canvas> tag with id "my-canvas", let's assume that canvas has dimensions of 400x100
 #
 canvas = new rippl.Canvas(id: "my-canvas")
 
@@ -20,9 +20,9 @@ canvas = new rippl.Canvas(id: "my-canvas")
 textElement = canvas.createText
   label: "Hello World!"
   bold: true
-  x: 100
-  y: 25
-  size: 30
+  x: 200
+  y: 50
+  size: 60
   color: '#ff8800'
   stroke: 1
   strokeColor: '#000000'
@@ -46,9 +46,9 @@ canvas = new rippl.Canvas(id: "my-canvas")
 textElement = canvas.createText
   label: "Hello World!"
   bold: true
-  x: 100
-  y: 25
-  size: 30
+  x: 200
+  y: 50
+  size: 60
   color: '#ff8800'
   stroke: 1
   strokeColor: '#000000'
@@ -71,5 +71,7 @@ timer.on 'frame', (time) ->
   t = time / 1000
   sin = Math.sin(t * 4)
 
-  textElement.setScale(0.95 + sin / 10, 0.95 - sin / 10)
+  textElement.set
+    scaleX: 0.95 + sin / 10
+    scaleY: 0.95 - sin / 10
 ```
