@@ -10,12 +10,10 @@
     <script src="../rippl.js"></script>
     <script>
 
-      // create a handler instance for the canvas
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
-      // create a text label
       var textElement = canvas.createText({
-        label: "Hello Rippl!",
+        label: "Going down!",
         bold: true,
         x: 200,
         y: -50,
@@ -25,24 +23,10 @@
         strokeColor: '#000000'
       });
 
-      // create a timer for animations
       var timer = new rippl.Timer;
 
-      // bind the canvas to the timer
       timer.bind(canvas);
 
-      // create a custom 'blobbing' animation
-      timer.on('frame', function(time) {
-        var t = time / 1000;
-        var sin = Math.sin(t * 4);
-
-        textElement.set({
-          scaleX: 1 + sin / 10,
-          scaleY: 1 - sin / 10
-        });
-      });
-
-      // slide the label down!
       textElement.transform({
         transition: 'easeOut',
         duration: 3000,
