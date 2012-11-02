@@ -1,5 +1,5 @@
 
-  class ObjectAbstract
+  rippl.ObjectAbstract = class ObjectAbstract
     #
     # Default options
     #

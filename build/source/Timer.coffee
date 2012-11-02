@@ -1,5 +1,5 @@
 
-  class Timer extends ObjectAbstract
+  rippl.Timer = class Timer extends ObjectAbstract
     #
     # Default options
     #

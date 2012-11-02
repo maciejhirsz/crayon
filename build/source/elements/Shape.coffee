@@ -1,5 +1,5 @@
 
-  class Shape extends CanvasElementAbstract
+  rippl.Shape = class Shape extends CanvasElementAbstract
     constructor: (options, canvas) ->
       @addDefaults
         type: 'rectangle' # rectangle|circle|custom

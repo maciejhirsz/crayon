@@ -1,5 +1,5 @@
 
-  class Text extends CanvasElementAbstract
+  rippl.Text = class Text extends CanvasElementAbstract
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'
