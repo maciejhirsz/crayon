@@ -81,43 +81,29 @@ class CanvasElementAbstract extends ObjectAbstract
   render: ->
 
   # -----------------------------------
-  #
-  # Moves the element to a different position
-  #
-  setPosition: (x, y) ->
-    if x isnt undefined and y isnt undefined
-      @options.x = x
-      @options.y = y
-      @canvas.touch()
+
+  set: (target, value) ->
+    if value isnt undefined and typeof target is 'string'
+      option = target
+
+      if @options[option] isnt undefined and @options[option] isnt value
+        @options[option] = value
+        @trigger("change:#{option}")
+        @trigger("change")
+        return
+
+    change = []
+
+    for option, value of target
+      if @options[option] isnt undefined and @options[option] isnt value
+        @options[option] = value
+        change.push(option)
+
+    if change.length
+      @trigger("change:#{option}") for option in change
+      @trigger("change")
 
   # -----------------------------------
 
-  getDepth: ->
-    @options.z
-
-  # -----------------------------------
-
-  setDepth: (z) ->
-    @options.z = z
-    @canvas.reorder()
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setRotation: (rotation) ->
-    @options.rotation = rotation
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setScale: (scaleX, scaleY) ->
-    scaleY = scaleX if scaleY is undefined
-    @options.scaleX = scaleX
-    @options.scaleY = scaleY
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setAlpha: (alpha) ->
-    @options.alpha = alpha
-    @canvas.touch()
+  get: (option) ->
+    @options[option]
