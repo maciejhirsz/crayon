@@ -878,13 +878,13 @@ var __hasProp = {}.hasOwnProperty,
       font.push("" + this.options.size + "px");
       font.push(this.options.font);
       this.canvas.ctx.font = font.join(' ');
-      if (this.options.stroke) {
-        this.canvas.ctx.lineWidth = this.options.stroke * 2;
-        this.canvas.ctx.strokeStyle = this.options.strokeColor.toString();
-        this.canvas.ctx.strokeText(this.options.label, 0, 0);
-      }
       if (this.options.fill) {
-        return this.canvas.ctx.fillText(this.options.label, 0, 0);
+        this.canvas.ctx.fillText(this.options.label, 0, 0);
+      }
+      if (this.options.stroke) {
+        this.canvas.ctx.lineWidth = this.options.stroke;
+        this.canvas.ctx.strokeStyle = this.options.strokeColor.toString();
+        return this.canvas.ctx.strokeText(this.options.label, 0, 0);
       }
     };
 
@@ -1144,7 +1144,7 @@ var __hasProp = {}.hasOwnProperty,
       var b, component, g, hprime, r, sextant, x;
       hprime = hue / (Math.PI / 3);
       x = chroma * (1 - Math.abs(hprime % 2 - 1));
-      sextant = Math.floor(hprime);
+      sextant = ~~hprime;
       switch (sextant) {
         case 0:
           r = chroma;
