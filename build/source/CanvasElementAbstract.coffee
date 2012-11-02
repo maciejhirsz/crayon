@@ -92,9 +92,9 @@ class CanvasElementAbstract extends ObjectAbstract
 
   # -----------------------------------
   #
-  # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
+  # Used to progress current tranformation stack
   #
-  prepare: (frameTime) ->
+  progress: (frameTime) ->
     if @transformCount
       newStack = []
       for transform in @transformStack
@@ -104,6 +104,11 @@ class CanvasElementAbstract extends ObjectAbstract
       @transformStack = newStack
       @transformCount = newStack.length
 
+  # -----------------------------------
+  #
+  # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
+  #
+  prepare: ->
     @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
     @canvas.setPosition(@options.x, @options.y)
     @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1

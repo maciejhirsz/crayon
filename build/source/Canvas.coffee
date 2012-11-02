@@ -170,6 +170,11 @@ class Canvas extends ObjectAbstract
 
   render: (frameTime) ->
     #
+    # Progress transitions
+    #
+    element.progress(frameTime) for element in @elements
+
+    #
     # Don't redraw if no changes were made
     #
     return if not @changed
@@ -187,7 +192,7 @@ class Canvas extends ObjectAbstract
     for element in @elements
       if not element.isHidden()
         @ctx.save()
-        element.prepare(frameTime)
+        element.prepare()
         element.render()
         @ctx.restore()
 
