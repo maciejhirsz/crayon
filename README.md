@@ -18,7 +18,7 @@ canvas = new rippl.Canvas(id: "my-canvas")
 # Add a text label to it and position it at the center of the canvas
 #
 textElement = canvas.createText
-  label: "Hello World!"
+  label: "Hello Rippl!"
   bold: true
   x: 200
   y: 50
@@ -44,7 +44,7 @@ rippl = require('rippl')
 canvas = new rippl.Canvas(id: "my-canvas")
 
 textElement = canvas.createText
-  label: "Hello World!"
+  label: "Hello Rippl!"
   bold: true
   x: 200
   y: 50
