@@ -20,6 +20,6 @@ Rippl may be freely distributed under the MIT license.
     Sprite: Sprite
     Shape: Shape
     Text: Text
-)()
+)(window)
 
 define(window.rippl) if typeof define is 'function'
