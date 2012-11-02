@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rippl - color change example</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <canvas id="my-canvas" width="400" height="100"></canvas>
+
+    <script src="../rippl.min.js"></script>
+    <script>
+
+      var canvas = new rippl.Canvas({ id: "my-canvas" });
+
+      var textElement = canvas.createText({
+        label: "Colour color",
+        bold: true,
+        x: 200,
+        y: 50,
+        size: 60,
+        color: '#ff8800',
+        stroke: 1,
+        strokeColor: '#000000'
+      });
+
+      var timer = new rippl.Timer;
+
+      timer.bind(canvas);
+
+      textElement.transform({
+        duration: 5000,
+        to: {
+          color: '#0088ff',
+          strokeColor: '#00ff00'
+        }
+      });
+
+    </script>
+  </body>
+</html>
