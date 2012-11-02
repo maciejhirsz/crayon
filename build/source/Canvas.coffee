@@ -168,7 +168,7 @@ class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  render: ->
+  render: (frameTime) ->
     #
     # Don't redraw if no changes were made
     #
@@ -187,7 +187,7 @@ class Canvas extends ObjectAbstract
     for element in @elements
       if not element.isHidden()
         @ctx.save()
-        element.prepare()
+        element.prepare(frameTime)
         element.render()
         @ctx.restore()
 
