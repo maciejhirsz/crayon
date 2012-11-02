@@ -4,8 +4,10 @@ Rippl may be freely distributed under the MIT license.
 ###
 
 (->
+  window.rippl = rippl = {}
 
-  class ObjectAbstract
+
+  rippl.ObjectAbstract = class ObjectAbstract
     #
     # Default options
     #
@@ -133,6 +135,62 @@ Rippl may be freely distributed under the MIT license.
       return false
 
 
+  rippl.Color = class Color
+    r: 255
+    g: 255
+    b: 255
+    a: 255
+
+    # -----------------------------------
+
+    __isColor: true
+
+    # -----------------------------------
+
+    string: '#ffffff'
+
+    # -----------------------------------
+
+    constructor: (r, g, b, a) ->
+      if typeof r is 'string' and r[0] is '#'
+        hash = r
+        console.log hash
+
+        l = hash.length
+        if l is 7
+          r = parseInt(hash[1..2], 16)
+          g = parseInt(hash[3..4], 16)
+          b = parseInt(hash[5..6], 16)
+        else if l is 4
+          r = parseInt(hash[1]+hash[1], 16)
+          g = parseInt(hash[2]+hash[2], 16)
+          b = parseInt(hash[3]+hash[3], 16)
+
+      @set(r, g, b, a)
+
+    # -----------------------------------
+
+    set: (r, g, b, a) ->
+      #
+      # Tilde is way more performant than Math.floor
+      #
+      @r = ~~r
+      @g = ~~g
+      @b = ~~b
+      @a = ~~a if a isnt undefined
+      @cacheString()
+
+    # -----------------------------------
+
+    cacheString: ->
+      @string = "rgba(#{@r},#{@g},#{@b},#{@a})"
+
+    # -----------------------------------
+
+    toString: ->
+      @string
+
+
   class Transformation extends ObjectAbstract
     startTime: 0
 
@@ -163,18 +221,8 @@ Rippl may be freely distributed under the MIT license.
 
     parseColors: (value) ->
       if typeof value is 'string' and value[0] is '#'
-        color = []
-        color.__isColor = true
+        return new Color(value)
 
-        if value.length is 7
-          color.push(parseInt("0x#{value[1..2]}"))
-          color.push(parseInt("0x#{value[3..4]}"))
-          color.push(parseInt("0x#{value[5..6]}"))
-        else if value.length is 4
-          color.push(parseInt("0x#{value[1]+value[1]}"))
-          color.push(parseInt("0x#{value[2]+value[2]}"))
-          color.push(parseInt("0x#{value[3]+value[3]}"))
-        return color
       return value
 
     # -----------------------------------
@@ -183,6 +231,8 @@ Rippl may be freely distributed under the MIT license.
       @setOptions(options)
       @startTime = (new Date).getTime()
       @endTime = @startTime + @options.duration
+
+      @
 
       @options.from[option] = @parseColors(value) for option, value of @options.from
       @options.to[option] = @parseColors(value) for option, value of @options.to
@@ -217,11 +267,13 @@ Rippl may be freely distributed under the MIT license.
       #
       # Handle arrays (colors!)
       #
-      if typeof from is 'object' and Array.isArray(from)
-        value = []
-        for v, i in from
-          value.push(@getValue(v, to[i], stage))
-        return value
+      if from.__isColor
+        return new Color(
+          @getValue(from.r, to.r, stage)
+          @getValue(from.g, to.g, stage)
+          @getValue(from.b, to.b, stage)
+          @getValue(from.a, to.a, stage)
+        )
 
     # -----------------------------------
 
@@ -402,7 +454,7 @@ Rippl may be freely distributed under the MIT license.
       @options[option]
 
 
-  class Timer extends ObjectAbstract
+  rippl.Timer = class Timer extends ObjectAbstract
     #
     # Default options
     #
@@ -511,7 +563,7 @@ Rippl may be freely distributed under the MIT license.
       )
 
 
-  class Sprite extends CanvasElementAbstract
+  rippl.Sprite = class Sprite extends CanvasElementAbstract
     #
     # An extra buffer canvas created to handle any filters on the image
     #
@@ -735,7 +787,7 @@ Rippl may be freely distributed under the MIT license.
       @frames.push [cropX, cropY]
 
 
-  class Shape extends CanvasElementAbstract
+  rippl.Shape = class Shape extends CanvasElementAbstract
     constructor: (options, canvas) ->
       @addDefaults
         type: 'rectangle' # rectangle|circle|custom
@@ -848,7 +900,7 @@ Rippl may be freely distributed under the MIT license.
       @points.push(null)
 
 
-  class Text extends CanvasElementAbstract
+  rippl.Text = class Text extends CanvasElementAbstract
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'
@@ -896,7 +948,7 @@ Rippl may be freely distributed under the MIT license.
       @canvas.ctx.fillText(@options.label, 0, 0) if @options.fill
 
 
-  class Canvas extends ObjectAbstract
+  rippl.Canvas = class Canvas extends ObjectAbstract
     #
     # Default options
     #
@@ -937,17 +989,8 @@ Rippl may be freely distributed under the MIT license.
     # Validator / converter
     #
     parseMaterial: (m) ->
-      if typeof m is 'string' and m[0] is '#'
-        l = m.length
-        return m if l is 7
-        return '#'+m[1]+m[1]+m[2]+m[2]+m[3]+m[3] if l is 4
-        throw "Invalid material string: "+m
-
-      if typeof m is 'object' and Array.isArray(m)
-        l = m.length
-        # add alpha to make full rgba
-        m.push(255) if l is 3
-        return 'rgba('+Math.round(m[0])+','+Math.round(m[1])+','+Math.round(m[2])+','+Math.round(m[3])+')'
+      return m.toString() if m.__isColor
+      return m
 
     # -----------------------------------
 
@@ -1316,13 +1359,6 @@ Rippl may be freely distributed under the MIT license.
     # -----------------------------------
 
 
-  window.rippl =
-    ObjectAbstract: ObjectAbstract
-    Timer: Timer
-    Canvas: Canvas
-    Sprite: Sprite
-    Shape: Shape
-    Text: Text
 )(window)
 
 define(window.rippl) if typeof define is 'function'

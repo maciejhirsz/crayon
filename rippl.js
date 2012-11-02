@@ -8,8 +8,9 @@ var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
-  var Canvas, CanvasElementAbstract, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation;
-  ObjectAbstract = (function() {
+  var Canvas, CanvasElementAbstract, Color, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
+  window.rippl = rippl = {};
+  rippl.ObjectAbstract = ObjectAbstract = (function() {
 
     function ObjectAbstract() {}
 
@@ -126,6 +127,60 @@ var __hasProp = {}.hasOwnProperty,
     return ObjectAbstract;
 
   })();
+  rippl.Color = Color = (function() {
+
+    Color.prototype.r = 255;
+
+    Color.prototype.g = 255;
+
+    Color.prototype.b = 255;
+
+    Color.prototype.a = 255;
+
+    Color.prototype.__isColor = true;
+
+    Color.prototype.string = '#ffffff';
+
+    function Color(r, g, b, a) {
+      var hash, l;
+      if (typeof r === 'string' && r[0] === '#') {
+        hash = r;
+        console.log(hash);
+        l = hash.length;
+        if (l === 7) {
+          r = parseInt(hash.slice(1, 3), 16);
+          g = parseInt(hash.slice(3, 5), 16);
+          b = parseInt(hash.slice(5, 7), 16);
+        } else if (l === 4) {
+          r = parseInt(hash[1] + hash[1], 16);
+          g = parseInt(hash[2] + hash[2], 16);
+          b = parseInt(hash[3] + hash[3], 16);
+        }
+      }
+      this.set(r, g, b, a);
+    }
+
+    Color.prototype.set = function(r, g, b, a) {
+      this.r = ~~r;
+      this.g = ~~g;
+      this.b = ~~b;
+      if (a !== void 0) {
+        this.a = ~~a;
+      }
+      return this.cacheString();
+    };
+
+    Color.prototype.cacheString = function() {
+      return this.string = "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
+    };
+
+    Color.prototype.toString = function() {
+      return this.string;
+    };
+
+    return Color;
+
+  })();
   Transformation = (function(_super) {
 
     __extends(Transformation, _super);
@@ -158,20 +213,8 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Transformation.prototype.parseColors = function(value) {
-      var color;
       if (typeof value === 'string' && value[0] === '#') {
-        color = [];
-        color.__isColor = true;
-        if (value.length === 7) {
-          color.push(parseInt("0x" + value.slice(1, 3)));
-          color.push(parseInt("0x" + value.slice(3, 5)));
-          color.push(parseInt("0x" + value.slice(5, 7)));
-        } else if (value.length === 4) {
-          color.push(parseInt("0x" + (value[1] + value[1])));
-          color.push(parseInt("0x" + (value[2] + value[2])));
-          color.push(parseInt("0x" + (value[3] + value[3])));
-        }
-        return color;
+        return new Color(value);
       }
       return value;
     };
@@ -181,6 +224,8 @@ var __hasProp = {}.hasOwnProperty,
       this.setOptions(options);
       this.startTime = (new Date).getTime();
       this.endTime = this.startTime + this.options.duration;
+      this;
+
       _ref = this.options.from;
       for (option in _ref) {
         value = _ref[option];
@@ -215,17 +260,11 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Transformation.prototype.getValue = function(from, to, stage) {
-      var i, v, value, _i, _len;
       if (typeof from === 'number') {
         return (from * (1 - stage)) + (to * stage);
       }
-      if (typeof from === 'object' && Array.isArray(from)) {
-        value = [];
-        for (i = _i = 0, _len = from.length; _i < _len; i = ++_i) {
-          v = from[i];
-          value.push(this.getValue(v, to[i], stage));
-        }
-        return value;
+      if (from.__isColor) {
+        return new Color(this.getValue(from.r, to.r, stage), this.getValue(from.g, to.g, stage), this.getValue(from.b, to.b, stage), this.getValue(from.a, to.a, stage));
       }
     };
 
@@ -408,7 +447,7 @@ var __hasProp = {}.hasOwnProperty,
     return CanvasElementAbstract;
 
   })(ObjectAbstract);
-  Timer = (function(_super) {
+  rippl.Timer = Timer = (function(_super) {
 
     __extends(Timer, _super);
 
@@ -492,7 +531,7 @@ var __hasProp = {}.hasOwnProperty,
     return Timer;
 
   })(ObjectAbstract);
-  Sprite = (function(_super) {
+  rippl.Sprite = Sprite = (function(_super) {
 
     __extends(Sprite, _super);
 
@@ -658,7 +697,7 @@ var __hasProp = {}.hasOwnProperty,
     return Sprite;
 
   })(CanvasElementAbstract);
-  Shape = (function(_super) {
+  rippl.Shape = Shape = (function(_super) {
 
     __extends(Shape, _super);
 
@@ -764,7 +803,7 @@ var __hasProp = {}.hasOwnProperty,
     return Shape;
 
   })(CanvasElementAbstract);
-  Text = (function(_super) {
+  rippl.Text = Text = (function(_super) {
 
     __extends(Text, _super);
 
@@ -823,7 +862,7 @@ var __hasProp = {}.hasOwnProperty,
     return Text;
 
   })(CanvasElementAbstract);
-  Canvas = (function(_super) {
+  return rippl.Canvas = Canvas = (function(_super) {
 
     __extends(Canvas, _super);
 
@@ -854,24 +893,10 @@ var __hasProp = {}.hasOwnProperty,
     }
 
     Canvas.prototype.parseMaterial = function(m) {
-      var l;
-      if (typeof m === 'string' && m[0] === '#') {
-        l = m.length;
-        if (l === 7) {
-          return m;
-        }
-        if (l === 4) {
-          return '#' + m[1] + m[1] + m[2] + m[2] + m[3] + m[3];
-        }
-        throw "Invalid material string: " + m;
+      if (m.__isColor) {
+        return m.toString();
       }
-      if (typeof m === 'object' && Array.isArray(m)) {
-        l = m.length;
-        if (l === 3) {
-          m.push(255);
-        }
-        return 'rgba(' + Math.round(m[0]) + ',' + Math.round(m[1]) + ',' + Math.round(m[2]) + ',' + Math.round(m[3]) + ')';
-      }
+      return m;
     };
 
     Canvas.prototype.getCanvas = function() {
@@ -1250,14 +1275,6 @@ var __hasProp = {}.hasOwnProperty,
     return Canvas;
 
   })(ObjectAbstract);
-  return window.rippl = {
-    ObjectAbstract: ObjectAbstract,
-    Timer: Timer,
-    Canvas: Canvas,
-    Sprite: Sprite,
-    Shape: Shape,
-    Text: Text
-  };
 })(window);
 
 if (typeof define === 'function') {
