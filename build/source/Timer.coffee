@@ -95,7 +95,7 @@ class Timer extends ObjectAbstract
     # Render all attached Canvas instances
     #
     for canvas in @canvas
-      canvas.render()
+      canvas.render(frameTime)
 
     #
     # Measure time again for maximum precision
