@@ -126,6 +126,89 @@ class ObjectAbstract
 
     return false
 
+class Transformation extends ObjectAbstract
+  startTime: 0
+
+  # -----------------------------------
+
+  finished: false
+
+  # -----------------------------------
+
+  options:
+    duration: 1000
+    from: null
+    to: null
+    transition: 'linear'
+
+  # -----------------------------------
+
+  transitions:
+    linear: (stage) -> stage
+    easeOut: (stage) -> Math.sin(stage * Math.PI / 2)
+    easeIn: (stage) -> 1 - Math.sin((1 - stage) * Math.PI / 2)
+    easeInOut: (stage) ->
+      stage = stage * 2 - 1
+      (Math.sin(stage * Math.PI / 2) + 1) / 2
+    #elastic: (stage) -> stage
+
+  # -----------------------------------
+
+  constructor: (options) ->
+    @setOptions(options)
+    @startTime = (new Date).getTime()
+    @endTime = @startTime + @options.duration
+
+  # -----------------------------------
+
+  isFinished: ->
+    @finished
+
+  # -----------------------------------
+
+  getStage: (time) ->
+    stage = (time - @startTime) / @options.duration
+    stage = 1 if stage > 1
+    stage = 0 if stage < 0
+
+    transition = @transitions[@options.transition]
+    if typeof transition is 'function'
+      return transition(stage)
+    else
+      throw "Unknown transition: #{@options.transition}"
+
+  # -----------------------------------
+
+  getValue: (from, to, stage) ->
+    (from * (1 - stage)) + (to * stage)
+
+  # -----------------------------------
+
+  progress: (element, time) ->
+    return if @finished
+
+    options = {}
+    stage = @getStage(time)
+
+    from = @options.from
+    to = @options.to
+
+    for option of to
+      options[option] = @getValue(from[option], to[option], stage)
+
+    element.set(options)
+
+    #
+    # Finish the transformation
+    #
+    if time >= @endTime
+      @finished = true
+      #
+      # Avoid memleaks
+      #
+      delete @options.to
+      delete @options.from
+
 class CanvasElementAbstract extends ObjectAbstract
   #
   # Default options
@@ -146,6 +229,10 @@ class CanvasElementAbstract extends ObjectAbstract
     hidden: false
 
   # -----------------------------------
+
+  tranformStack: []
+
+  # -----------------------------------
   #
   # This will be set by the addElement method of the Canvas class
   #
@@ -161,6 +248,8 @@ class CanvasElementAbstract extends ObjectAbstract
 
   constructor: (options) ->
     @setOptions(options)
+    @transformStack = []
+    @transformCount = 0
 
   # -----------------------------------
 
@@ -192,10 +281,39 @@ class CanvasElementAbstract extends ObjectAbstract
     return @options.hidden
 
   # -----------------------------------
+
+  transform: (options) ->
+    return if typeof options.to isnt 'object'
+
+    #
+    # Set starting values if not defined
+    #
+    options.from ? options.from = {}
+
+    for option of options.to
+      options.from[option] = @options[option] if options.from[option] is undefined
+
+    transform = new Transformation(options)
+
+    @transformStack.push(transform)
+    @transformCount += 1
+
+    transform
+
+  # -----------------------------------
   #
   # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
   #
-  prepare: ->
+  prepare: (frameTime) ->
+    if @transformCount
+      newStack = []
+      for transform in @transformStack
+        transform.progress(@, frameTime)
+        newStack.push(transform) if not transform.isFinished()
+
+      @transformStack = newStack
+      @transformCount = newStack.length
+
     @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
     @canvas.setPosition(@options.x, @options.y)
     @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1
@@ -331,7 +449,7 @@ class Timer extends ObjectAbstract
     # Render all attached Canvas instances
     #
     for canvas in @canvas
-      canvas.render()
+      canvas.render(frameTime)
 
     #
     # Measure time again for maximum precision
@@ -894,7 +1012,7 @@ class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  render: ->
+  render: (frameTime) ->
     #
     # Don't redraw if no changes were made
     #
@@ -913,7 +1031,7 @@ class Canvas extends ObjectAbstract
     for element in @elements
       if not element.isHidden()
         @ctx.save()
-        element.prepare()
+        element.prepare(frameTime)
         element.render()
         @ctx.restore()
 
