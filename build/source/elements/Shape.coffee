@@ -17,17 +17,17 @@
         #
         radius: 0
         stroke: 0
-        strokeColor: '#000000'
+        strokeColor: '#000'
         lineCap: 'butt' # butt|round|square
         lineJoin: 'miter' # miter|bevel|round
         erase: false
         fill: true
-        color: '#000000'
+        color: '#000'
         shadow: false
         shadowX: 0
         shadowY: 0
         shadowBlur: 0
-        shadowColor: '#000000'
+        shadowColor: '#000'
 
       @points = []
 

@@ -9,10 +9,10 @@
         label: 'Surface'
         align: 'center' # left|right|center
         baseline: 'middle' # top|hanging|middle|alphabetic|ideographic|bottom
-        color: '#000000'
+        color: '#000'
         fill: true
         stroke: 0
-        strokeColor: '#000000'
+        strokeColor: '#000'
         italic: false
         bold: false
         size: 12
@@ -21,7 +21,7 @@
         shadowX: 0
         shadowY: 0
         shadowBlur: 0
-        shadowColor: '#000000'
+        shadowColor: '#000'
 
       super(options, canvas)
 
