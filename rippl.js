@@ -5,7 +5,8 @@ Rippl may be freely distributed under the MIT license.
 */
 
 var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 (function() {
   var Canvas, CanvasElementAbstract, Color, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
@@ -310,6 +311,8 @@ var __hasProp = {}.hasOwnProperty,
       hidden: false
     };
 
+    CanvasElementAbstract.prototype.colors = null;
+
     CanvasElementAbstract.prototype.tranformStack = [];
 
     CanvasElementAbstract.prototype.canvas = null;
@@ -318,9 +321,28 @@ var __hasProp = {}.hasOwnProperty,
 
     function CanvasElementAbstract(options) {
       this.setOptions(options);
+      this.validateColors();
       this.transformStack = [];
       this.transformCount = 0;
     }
+
+    CanvasElementAbstract.prototype.validateColors = function() {
+      var option, _i, _len, _ref, _results;
+      if (this.colors === null) {
+        return;
+      }
+      _ref = this.colors;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
+        if (!this.options[option].__isColor) {
+          _results.push(this.options[option] = new Color(this.options[option]));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
 
     CanvasElementAbstract.prototype.getAnchor = function() {
       if (this.options.anchorInPixels) {
@@ -417,6 +439,9 @@ var __hasProp = {}.hasOwnProperty,
         option = target;
         if (this.options[option] !== void 0 && this.options[option] !== value) {
           this.options[option] = value;
+          if (__indexOf.call(this.colors, option) >= 0) {
+            this.options[option] = new Color(value);
+          }
           this.trigger("change:" + option);
           this.trigger("change");
           return;
@@ -431,6 +456,7 @@ var __hasProp = {}.hasOwnProperty,
         }
       }
       if (change.length) {
+        this.validateColors();
         for (_i = 0, _len = change.length; _i < _len; _i++) {
           option = change[_i];
           this.trigger("change:" + option);
@@ -700,6 +726,8 @@ var __hasProp = {}.hasOwnProperty,
 
     __extends(Shape, _super);
 
+    Shape.prototype.colors = ['color', 'strokeColor', 'shadowColor'];
+
     function Shape(options, canvas) {
       this.addDefaults({
         type: 'rectangle',
@@ -707,17 +735,17 @@ var __hasProp = {}.hasOwnProperty,
         rootY: 0,
         radius: 0,
         stroke: 0,
-        strokeColor: '#000000',
+        strokeColor: '#000',
         lineCap: 'butt',
         lineJoin: 'miter',
         erase: false,
         fill: true,
-        color: '#000000',
+        color: '#000',
         shadow: false,
         shadowX: 0,
         shadowY: 0,
         shadowBlur: 0,
-        shadowColor: '#000000'
+        shadowColor: '#000'
       });
       this.points = [];
       Shape.__super__.constructor.call(this, options, canvas);
@@ -806,15 +834,17 @@ var __hasProp = {}.hasOwnProperty,
 
     __extends(Text, _super);
 
+    Text.prototype.colors = ['color', 'strokeColor', 'shadowColor'];
+
     function Text(options, canvas) {
       this.addDefaults({
         label: 'Surface',
         align: 'center',
         baseline: 'middle',
-        color: '#000000',
+        color: '#000',
         fill: true,
         stroke: 0,
-        strokeColor: '#000000',
+        strokeColor: '#000',
         italic: false,
         bold: false,
         size: 12,
@@ -823,7 +853,7 @@ var __hasProp = {}.hasOwnProperty,
         shadowX: 0,
         shadowY: 0,
         shadowBlur: 0,
-        shadowColor: '#000000'
+        shadowColor: '#000'
       });
       Text.__super__.constructor.call(this, options, canvas);
     }
@@ -834,7 +864,7 @@ var __hasProp = {}.hasOwnProperty,
         this.canvas.setShadow(this.options.shadowX, this.options.shadowY, this.options.shadowBlur, this.options.shadowColor);
       }
       if (this.options.fill) {
-        this.canvas.ctx.fillStyle = this.canvas.parseMaterial(this.options.color);
+        this.canvas.ctx.fillStyle = this.options.color.toString();
       }
       this.canvas.ctx.textAlign = this.options.align;
       this.canvas.ctx.textBaseline = this.options.baseline;
@@ -850,7 +880,7 @@ var __hasProp = {}.hasOwnProperty,
       this.canvas.ctx.font = font.join(' ');
       if (this.options.stroke) {
         this.canvas.ctx.lineWidth = this.options.stroke * 2;
-        this.canvas.ctx.strokeStyle = this.canvas.parseMaterial(this.options.strokeColor);
+        this.canvas.ctx.strokeStyle = this.options.strokeColor.toString();
         this.canvas.ctx.strokeText(this.options.label, 0, 0);
       }
       if (this.options.fill) {
@@ -891,13 +921,6 @@ var __hasProp = {}.hasOwnProperty,
       this.elements = [];
     }
 
-    Canvas.prototype.parseMaterial = function(m) {
-      if (m.__isColor) {
-        return m.toString();
-      }
-      return m;
-    };
-
     Canvas.prototype.getCanvas = function() {
       return this.canvas;
     };
@@ -916,13 +939,13 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Canvas.prototype.fill = function(color) {
-      this.ctx.fillStyle = this.parseMaterial(color);
+      this.ctx.fillStyle = color.toString();
       return this.ctx.fill();
     };
 
     Canvas.prototype.stroke = function(width, color) {
       this.ctx.lineWidth = width;
-      this.ctx.strokeStyle = this.parseMaterial(color);
+      this.ctx.strokeStyle = color.toString();
       return this.ctx.stroke();
     };
 
@@ -954,7 +977,7 @@ var __hasProp = {}.hasOwnProperty,
       this.ctx.shadowOffsetX = x;
       this.ctx.shadowOffsetY = y;
       this.ctx.shadowBlur = blur;
-      return this.ctx.shadowColor = this.parseMaterial(color);
+      return this.ctx.shadowColor = color.toString();
     };
 
     Canvas.prototype.setScale = function(x, y) {

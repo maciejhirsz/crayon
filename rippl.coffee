@@ -322,6 +322,12 @@ Rippl may be freely distributed under the MIT license.
       hidden: false
 
     # -----------------------------------
+    #
+    # Set this to an array with list of options that have to be changed to an instance of Color class
+    #
+    colors: null
+
+    # -----------------------------------
 
     tranformStack: []
 
@@ -341,8 +347,16 @@ Rippl may be freely distributed under the MIT license.
 
     constructor: (options) ->
       @setOptions(options)
+      @validateColors()
       @transformStack = []
       @transformCount = 0
+
+    # -----------------------------------
+
+    validateColors: ->
+      return if @colors is null
+      for option in @colors
+        @options[option] = new Color(@options[option]) if not @options[option].__isColor
 
     # -----------------------------------
 
@@ -432,6 +446,7 @@ Rippl may be freely distributed under the MIT license.
 
         if @options[option] isnt undefined and @options[option] isnt value
           @options[option] = value
+          @options[option] = new Color(value) if option in @colors
           @trigger("change:#{option}")
           @trigger("change")
           return
@@ -444,6 +459,7 @@ Rippl may be freely distributed under the MIT license.
           change.push(option)
 
       if change.length
+        @validateColors()
         @trigger("change:#{option}") for option in change
         @trigger("change")
 
@@ -787,6 +803,10 @@ Rippl may be freely distributed under the MIT license.
 
 
   rippl.Shape = class Shape extends CanvasElementAbstract
+    colors: ['color', 'strokeColor', 'shadowColor']
+
+    # -----------------------------------
+
     constructor: (options, canvas) ->
       @addDefaults
         type: 'rectangle' # rectangle|circle|custom
@@ -800,17 +820,17 @@ Rippl may be freely distributed under the MIT license.
         #
         radius: 0
         stroke: 0
-        strokeColor: '#000000'
+        strokeColor: '#000'
         lineCap: 'butt' # butt|round|square
         lineJoin: 'miter' # miter|bevel|round
         erase: false
         fill: true
-        color: '#000000'
+        color: '#000'
         shadow: false
         shadowX: 0
         shadowY: 0
         shadowBlur: 0
-        shadowColor: '#000000'
+        shadowColor: '#000'
 
       @points = []
 
@@ -900,15 +920,19 @@ Rippl may be freely distributed under the MIT license.
 
 
   rippl.Text = class Text extends CanvasElementAbstract
+    colors: ['color', 'strokeColor', 'shadowColor']
+
+    # -----------------------------------
+
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'
         align: 'center' # left|right|center
         baseline: 'middle' # top|hanging|middle|alphabetic|ideographic|bottom
-        color: '#000000'
+        color: '#000'
         fill: true
         stroke: 0
-        strokeColor: '#000000'
+        strokeColor: '#000'
         italic: false
         bold: false
         size: 12
@@ -917,7 +941,7 @@ Rippl may be freely distributed under the MIT license.
         shadowX: 0
         shadowY: 0
         shadowBlur: 0
-        shadowColor: '#000000'
+        shadowColor: '#000'
 
       super(options, canvas)
 
@@ -926,7 +950,7 @@ Rippl may be freely distributed under the MIT license.
     render: ->
       @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 
-      @canvas.ctx.fillStyle = @canvas.parseMaterial(@options.color) if @options.fill
+      @canvas.ctx.fillStyle = @options.color.toString() if @options.fill
       @canvas.ctx.textAlign = @options.align
       @canvas.ctx.textBaseline = @options.baseline
 
@@ -941,7 +965,7 @@ Rippl may be freely distributed under the MIT license.
 
       if @options.stroke
         @canvas.ctx.lineWidth = @options.stroke * 2
-        @canvas.ctx.strokeStyle = @canvas.parseMaterial(@options.strokeColor)
+        @canvas.ctx.strokeStyle = @options.strokeColor.toString()
         @canvas.ctx.strokeText(@options.label, 0, 0)
 
       @canvas.ctx.fillText(@options.label, 0, 0) if @options.fill
@@ -984,14 +1008,6 @@ Rippl may be freely distributed under the MIT license.
       @elements = []
 
     # -----------------------------------
-    #
-    # Validator / converter
-    #
-    parseMaterial: (m) ->
-      return m.toString() if m.__isColor
-      return m
-
-    # -----------------------------------
 
     getCanvas: ->
       @canvas
@@ -1011,14 +1027,14 @@ Rippl may be freely distributed under the MIT license.
     # -----------------------------------
 
     fill: (color) ->
-      @ctx.fillStyle = @parseMaterial(color)
+      @ctx.fillStyle = color.toString()
       @ctx.fill()
 
     # -----------------------------------
 
     stroke: (width, color) ->
       @ctx.lineWidth = width
-      @ctx.strokeStyle = @parseMaterial(color)
+      @ctx.strokeStyle = color.toString()
       @ctx.stroke()
 
     # -----------------------------------
@@ -1032,7 +1048,7 @@ Rippl may be freely distributed under the MIT license.
       @ctx.shadowOffsetX = x
       @ctx.shadowOffsetY = y
       @ctx.shadowBlur = blur
-      @ctx.shadowColor = @parseMaterial(color)
+      @ctx.shadowColor = color.toString()
 
     # -----------------------------------
 
