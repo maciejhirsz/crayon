@@ -95,14 +95,15 @@ class CanvasElementAbstract extends ObjectAbstract
   # Used to progress current tranformation stack
   #
   progress: (frameTime) ->
-    if @transformCount
-      newStack = []
-      for transform in @transformStack
-        transform.progress(@, frameTime)
-        newStack.push(transform) if not transform.isFinished()
+    return if not @transformCount
 
-      @transformStack = newStack
-      @transformCount = newStack.length
+    newStack = []
+    for transform in @transformStack
+      transform.progress(@, frameTime)
+      newStack.push(transform) if not transform.isFinished()
+
+    @transformStack = newStack
+    @transformCount = newStack.length
 
   # -----------------------------------
   #
