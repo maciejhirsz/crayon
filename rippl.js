@@ -157,10 +157,40 @@ var __hasProp = {}.hasOwnProperty,
       }
     };
 
+    Transformation.prototype.parseColors = function(value) {
+      var color;
+      if (typeof value === 'string' && value[0] === '#') {
+        color = [];
+        color.__isColor = true;
+        if (value.length === 7) {
+          color.push(parseInt("0x" + value.slice(1, 3)));
+          color.push(parseInt("0x" + value.slice(3, 5)));
+          color.push(parseInt("0x" + value.slice(5, 7)));
+        } else if (value.length === 4) {
+          color.push(parseInt("0x" + (value[1] + value[1])));
+          color.push(parseInt("0x" + (value[2] + value[2])));
+          color.push(parseInt("0x" + (value[3] + value[3])));
+        }
+        return color;
+      }
+      return value;
+    };
+
     function Transformation(options) {
+      var option, value, _ref, _ref1;
       this.setOptions(options);
       this.startTime = (new Date).getTime();
       this.endTime = this.startTime + this.options.duration;
+      _ref = this.options.from;
+      for (option in _ref) {
+        value = _ref[option];
+        this.options.from[option] = this.parseColors(value);
+      }
+      _ref1 = this.options.to;
+      for (option in _ref1) {
+        value = _ref1[option];
+        this.options.to[option] = this.parseColors(value);
+      }
     }
 
     Transformation.prototype.isFinished = function() {
@@ -185,7 +215,18 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Transformation.prototype.getValue = function(from, to, stage) {
-      return (from * (1 - stage)) + (to * stage);
+      var i, v, value, _i, _len;
+      if (typeof from === 'number') {
+        return (from * (1 - stage)) + (to * stage);
+      }
+      if (typeof from === 'object' && Array.isArray(from)) {
+        value = [];
+        for (i = _i = 0, _len = from.length; _i < _len; i = ++_i) {
+          v = from[i];
+          value.push(this.getValue(v, to[i], stage));
+        }
+        return value;
+      }
     };
 
     Transformation.prototype.progress = function(element, time) {
@@ -755,7 +796,7 @@ var __hasProp = {}.hasOwnProperty,
         this.canvas.setShadow(this.options.shadowX, this.options.shadowY, this.options.shadowBlur, this.options.shadowColor);
       }
       if (this.options.fill) {
-        this.canvas.ctx.fillStyle = this.options.color;
+        this.canvas.ctx.fillStyle = this.canvas.parseMaterial(this.options.color);
       }
       this.canvas.ctx.textAlign = this.options.align;
       this.canvas.ctx.textBaseline = this.options.baseline;
@@ -771,7 +812,7 @@ var __hasProp = {}.hasOwnProperty,
       this.canvas.ctx.font = font.join(' ');
       if (this.options.stroke) {
         this.canvas.ctx.lineWidth = this.options.stroke * 2;
-        this.canvas.ctx.strokeStyle = this.options.strokeColor;
+        this.canvas.ctx.strokeStyle = this.canvas.parseMaterial(this.options.strokeColor);
         this.canvas.ctx.strokeText(this.options.label, 0, 0);
       }
       if (this.options.fill) {
@@ -812,6 +853,27 @@ var __hasProp = {}.hasOwnProperty,
       this.elements = [];
     }
 
+    Canvas.prototype.parseMaterial = function(m) {
+      var l;
+      if (typeof m === 'string' && m[0] === '#') {
+        l = m.length;
+        if (l === 7) {
+          return m;
+        }
+        if (l === 4) {
+          return '#' + m[1] + m[1] + m[2] + m[2] + m[3] + m[3];
+        }
+        throw "Invalid material string: " + m;
+      }
+      if (typeof m === 'object' && Array.isArray(m)) {
+        l = m.length;
+        if (l === 3) {
+          m.push(255);
+        }
+        return 'rgba(' + Math.round(m[0]) + ',' + Math.round(m[1]) + ',' + Math.round(m[2]) + ',' + Math.round(m[3]) + ')';
+      }
+    };
+
     Canvas.prototype.getCanvas = function() {
       return this.canvas;
     };
@@ -830,13 +892,13 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Canvas.prototype.fill = function(color) {
-      this.ctx.fillStyle = color;
+      this.ctx.fillStyle = this.parseMaterial(color);
       return this.ctx.fill();
     };
 
     Canvas.prototype.stroke = function(width, color) {
       this.ctx.lineWidth = width;
-      this.ctx.strokeStyle = color;
+      this.ctx.strokeStyle = this.parseMaterial(color);
       return this.ctx.stroke();
     };
 
@@ -868,7 +930,7 @@ var __hasProp = {}.hasOwnProperty,
       this.ctx.shadowOffsetX = x;
       this.ctx.shadowOffsetY = y;
       this.ctx.shadowBlur = blur;
-      return this.ctx.shadowColor = color;
+      return this.ctx.shadowColor = this.parseMaterial(color);
     };
 
     Canvas.prototype.setScale = function(x, y) {
@@ -1196,7 +1258,7 @@ var __hasProp = {}.hasOwnProperty,
     Shape: Shape,
     Text: Text
   };
-})();
+})(window);
 
 if (typeof define === 'function') {
   define(window.rippl);

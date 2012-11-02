@@ -161,10 +161,31 @@ Rippl may be freely distributed under the MIT license.
 
     # -----------------------------------
 
+    parseColors: (value) ->
+      if typeof value is 'string' and value[0] is '#'
+        color = []
+        color.__isColor = true
+
+        if value.length is 7
+          color.push(parseInt("0x#{value[1..2]}"))
+          color.push(parseInt("0x#{value[3..4]}"))
+          color.push(parseInt("0x#{value[5..6]}"))
+        else if value.length is 4
+          color.push(parseInt("0x#{value[1]+value[1]}"))
+          color.push(parseInt("0x#{value[2]+value[2]}"))
+          color.push(parseInt("0x#{value[3]+value[3]}"))
+        return color
+      return value
+
+    # -----------------------------------
+
     constructor: (options) ->
       @setOptions(options)
       @startTime = (new Date).getTime()
       @endTime = @startTime + @options.duration
+
+      @options.from[option] = @parseColors(value) for option, value of @options.from
+      @options.to[option] = @parseColors(value) for option, value of @options.to
 
     # -----------------------------------
 
@@ -187,7 +208,20 @@ Rippl may be freely distributed under the MIT license.
     # -----------------------------------
 
     getValue: (from, to, stage) ->
-      (from * (1 - stage)) + (to * stage)
+      #
+      # Handle numbers
+      #
+      if typeof from is 'number'
+        return (from * (1 - stage)) + (to * stage)
+
+      #
+      # Handle arrays (colors!)
+      #
+      if typeof from is 'object' and Array.isArray(from)
+        value = []
+        for v, i in from
+          value.push(@getValue(v, to[i], stage))
+        return value
 
     # -----------------------------------
 
@@ -841,7 +875,7 @@ Rippl may be freely distributed under the MIT license.
     render: ->
       @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 
-      @canvas.ctx.fillStyle = @options.color if @options.fill
+      @canvas.ctx.fillStyle = @canvas.parseMaterial(@options.color) if @options.fill
       @canvas.ctx.textAlign = @options.align
       @canvas.ctx.textBaseline = @options.baseline
 
@@ -856,7 +890,7 @@ Rippl may be freely distributed under the MIT license.
 
       if @options.stroke
         @canvas.ctx.lineWidth = @options.stroke * 2
-        @canvas.ctx.strokeStyle = @options.strokeColor
+        @canvas.ctx.strokeStyle = @canvas.parseMaterial(@options.strokeColor)
         @canvas.ctx.strokeText(@options.label, 0, 0)
 
       @canvas.ctx.fillText(@options.label, 0, 0) if @options.fill
@@ -899,6 +933,23 @@ Rippl may be freely distributed under the MIT license.
       @elements = []
 
     # -----------------------------------
+    #
+    # Validator / converter
+    #
+    parseMaterial: (m) ->
+      if typeof m is 'string' and m[0] is '#'
+        l = m.length
+        return m if l is 7
+        return '#'+m[1]+m[1]+m[2]+m[2]+m[3]+m[3] if l is 4
+        throw "Invalid material string: "+m
+
+      if typeof m is 'object' and Array.isArray(m)
+        l = m.length
+        # add alpha to make full rgba
+        m.push(255) if l is 3
+        return 'rgba('+Math.round(m[0])+','+Math.round(m[1])+','+Math.round(m[2])+','+Math.round(m[3])+')'
+
+    # -----------------------------------
 
     getCanvas: ->
       @canvas
@@ -918,14 +969,14 @@ Rippl may be freely distributed under the MIT license.
     # -----------------------------------
 
     fill: (color) ->
-      @ctx.fillStyle = color
+      @ctx.fillStyle = @parseMaterial(color)
       @ctx.fill()
 
     # -----------------------------------
 
     stroke: (width, color) ->
       @ctx.lineWidth = width
-      @ctx.strokeStyle = color
+      @ctx.strokeStyle = @parseMaterial(color)
       @ctx.stroke()
 
     # -----------------------------------
@@ -939,7 +990,7 @@ Rippl may be freely distributed under the MIT license.
       @ctx.shadowOffsetX = x
       @ctx.shadowOffsetY = y
       @ctx.shadowBlur = blur
-      @ctx.shadowColor = color
+      @ctx.shadowColor = @parseMaterial(color)
 
     # -----------------------------------
 
@@ -1272,6 +1323,6 @@ Rippl may be freely distributed under the MIT license.
     Sprite: Sprite
     Shape: Shape
     Text: Text
-)()
+)(window)
 
 define(window.rippl) if typeof define is 'function'
