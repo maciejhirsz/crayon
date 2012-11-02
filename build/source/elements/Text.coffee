@@ -23,12 +23,6 @@ class Text extends CanvasElementAbstract
 
   # -----------------------------------
 
-  setLabel: (label) ->
-    @options.label = label
-    @canvas.touch()
-
-  # -----------------------------------
-
   render: ->
     @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 

@@ -103,19 +103,6 @@ class Shape extends CanvasElementAbstract
 
   # -----------------------------------
 
-  setRoot: (x, y) ->
-    @options.rootX = x
-    @options.rootY = y
-    @canvas.touch()
-
-  # -----------------------------------
-
-  setRadius: (radius) ->
-    @options.radius = radius
-    @canvas.touch()
-
-  # -----------------------------------
-
   addPoint: (x, y) ->
     @points.push([x, y])
 
