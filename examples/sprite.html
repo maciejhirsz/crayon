@@ -7,7 +7,7 @@
   <body>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../rippl.js"></script>
     <script>
 
       var canvas = new rippl.Canvas({ id: "my-canvas" });
@@ -16,69 +16,65 @@
 
       timer.bind(canvas);
 
-      canvas.createImage('img/html5.png', function(image){
+      var i, limit = 250;
+      var sprites = [];
 
-        var i, limit = 250;
-        var sprites = [];
+      for(i=0; i<limit; i+=1){
+        sprites.push(
+          canvas.createSprite({
+            src: 'img/html5.png',
+            x: 200 + (Math.random() - 0.5) * 400,
+            y: 200 + (Math.random() - 0.5) * 400,
+            alpha: 0.25,
+            width: 128,
+            height: 128
+          })
+        );
+      }
 
-        for(i=0; i<limit; i+=1){
-          sprites.push(
-            canvas.createSprite({
-              image: image,
-              x: 200 + (Math.random() - 0.5) * 400,
-              y: 200 + (Math.random() - 0.5) * 400,
-              alpha: 0.25,
-              width: 128,
-              height: 128
-            })
-          );
+      counter = canvas.createText({
+        label: "FPS: 0",
+        align: 'left',
+        bold: true,
+        x: 10,
+        y: 20,
+        size: 20,
+        z: 1,
+        shadow: true,
+        shadowBlur: 5,
+        shadowColor: '#fff'
+      });
+
+      var fps, totalTime, lastTime = (new Date).getTime();
+      var times = [0, 0, 0, 0, 0, 0];
+
+      timer.on('frame', function(time) {
+
+        times.shift();
+        times.push(time - lastTime);
+        lastTime = time;
+
+        totalTime = 0;
+        for(i=0; i<6; i+=1){
+          totalTime += times[i];
         }
 
-        counter = canvas.createText({
-          label: "FPS: 0",
-          align: 'left',
-          bold: true,
-          x: 10,
-          y: 20,
-          size: 20,
-          z: 1,
-          shadow: true,
-          shadowBlur: 5,
-          shadowColor: '#fff'
-        });
+        fps = (Math.round(600000 / totalTime)) / 100;
 
-        var fps, totalTime, lastTime = (new Date).getTime();
-        var times = [0, 0, 0, 0, 0, 0];
+        counter.set('label', 'FPS: ' + fps)
 
-        timer.on('frame', function(time) {
+        var t = time / 1000;
+        var sin = Math.sin(t * 4);
 
-          times.shift();
-          times.push(time - lastTime);
-          lastTime = time;
+        var x = 1 + sin / 10;
+        var y = 1 - sin / 10;
 
-          totalTime = 0;
-          for(i=0; i<6; i+=1){
-            totalTime += times[i];
-          }
-
-          fps = (Math.round(600000 / totalTime)) / 100;
-
-          counter.set('label', 'FPS: ' + fps)
-
-          var t = time / 1000;
-          var sin = Math.sin(t * 4);
-
-          var x = 1 + sin / 10;
-          var y = 1 - sin / 10;
-
-          for(i=0; i<limit; i+=1){
-            sprites[i].set({
-              scaleX: x,
-              scaleY: y
-            });
-          }
-        });
-
+        for(i=0; i<limit; i+=1){
+          sprites[i].set({
+            scaleX: x,
+            scaleY: y
+          });
+        }
       });
 
     </script>
