@@ -53,7 +53,10 @@ rippl.Sprite = class Sprite extends CanvasElementAbstract
 
   validate: (options) ->
     throw "Sprite: src option can't be null" if options.src is null
-    options.src = rippl.assets.get(options.src) if typeof options.src is 'string'
+    if typeof options.src is 'string'
+      options.src = asset = rippl.assets.get(options.src)
+      if not asset.__isLoaded
+        asset.on('loaded', => @canvas.touch())
 
   # -----------------------------------
 
