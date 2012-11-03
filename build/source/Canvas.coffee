@@ -10,6 +10,10 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
+  __isAsset: true
+
+  # -----------------------------------
+
   changed: false
 
   # -----------------------------------
@@ -22,23 +26,28 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     @setOptions(options)
 
     if @options.id isnt null
-      @canvas = document.getElementById(@options.id)
-      @options.width = Number @canvas.width
-      @options.height = Number @canvas.height
+      @_canvas = document.getElementById(@options.id)
+      @options.width = Number @_canvas.width
+      @options.height = Number @_canvas.height
     else
-      @canvas = document.createElement('canvas')
-      @canvas.setAttribute('width', @options.width)
-      @canvas.setAttribute('height', @options.height)
+      @_canvas = document.createElement('canvas')
+      @_canvas.setAttribute('width', @options.width)
+      @_canvas.setAttribute('height', @options.height)
 
-    @ctx = @canvas.getContext('2d')
+    @ctx = @_canvas.getContext('2d')
     @ctx.save()
 
     @elements = []
 
   # -----------------------------------
 
+  getAsset: ->
+    @_canvas
+
+  # -----------------------------------
+
   getCanvas: ->
-    @canvas
+    @_canvas
 
   # -----------------------------------
 
@@ -209,7 +218,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
   # -----------------------------------
 
   toDataUrl: ->
-    @canvas.toDataURL()
+    @_canvas.toDataURL()
 
   # -----------------------------------
   #
