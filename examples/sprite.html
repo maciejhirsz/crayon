@@ -7,7 +7,7 @@
   <body>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
-    <script src="../rippl.js"></script>
+    <script src="../rippl.min.js"></script>
     <script>
 
       var canvas = new rippl.Canvas({ id: "my-canvas" });
@@ -61,7 +61,7 @@
 
         fps = (Math.round(600000 / totalTime)) / 100;
 
-        counter.set('label', 'FPS: ' + fps)
+        counter.set('label', 'FPS: ' + fps);
 
         var t = time / 1000;
         var sin = Math.sin(t * 4);
