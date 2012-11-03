@@ -19,12 +19,6 @@ class CanvasElementAbstract extends ObjectAbstract
     hidden: false
 
   # -----------------------------------
-  #
-  # Set this to an array with list of options that have to be changed to an instance of Color class
-  #
-  colors: null
-
-  # -----------------------------------
 
   tranformStack: []
 
@@ -44,16 +38,21 @@ class CanvasElementAbstract extends ObjectAbstract
 
   constructor: (options) ->
     @setOptions(options)
-    @validateColors()
+    @validate(@options)
     @transformStack = []
     @transformCount = 0
 
   # -----------------------------------
+  #
+  # Override to validate specific options, such as colors or images
+  #
+  validate: (options) ->
 
-  validateColors: ->
-    return if @colors is null
-    for option in @colors
-      @options[option] = new Color(@options[option]) if not @options[option].__isColor
+  # -----------------------------------
+
+  validateColor: (value) ->
+    value = new Color(value) if not value.__isColor
+    value
 
   # -----------------------------------
 
@@ -93,9 +92,16 @@ class CanvasElementAbstract extends ObjectAbstract
     # Set starting values if not defined
     #
     options.from ? options.from = {}
+    options.to ? options.to = {}
 
     for option of options.to
       options.from[option] = @options[option] if options.from[option] is undefined
+
+    for option of options.from
+      options.to[option] = @options[option] if options.to[option] is undefined
+
+    @validate(options.from)
+    @validate(options.to)
 
     transform = new Transformation(options)
 
@@ -143,7 +149,8 @@ class CanvasElementAbstract extends ObjectAbstract
 
       if @options[option] isnt undefined and @options[option] isnt value
         @options[option] = value
-        @options[option] = new Color(value) if option in @colors
+        @validate(@options)
+
         @trigger("change:#{option}")
         @trigger("change")
         return
@@ -156,7 +163,7 @@ class CanvasElementAbstract extends ObjectAbstract
         change.push(option)
 
     if change.length
-      @validateColors()
+      @validate(@options)
       @trigger("change:#{option}") for option in change
       @trigger("change")
 
