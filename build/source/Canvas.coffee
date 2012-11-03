@@ -41,7 +41,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  getAsset: ->
+  getDocumentElement: ->
     @_canvas
 
   # -----------------------------------
@@ -209,11 +209,16 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  drawSprite: (image, x, y, width, height, cropX, cropY) ->
+  drawSprite: (asset, x, y, width, height, cropX, cropY) ->
+    throw "Canvas.drawSprite: invalid asset" if not asset.__isAsset
+
+    element = asset.getDocumentElement()
+    return if not element
+
     cropX ? cropX = 0
     cropY ? cropY = 0
 
-    @ctx.drawImage(image, cropX, cropY, width, height, x, y, width, height)
+    @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
 
   # -----------------------------------
 
