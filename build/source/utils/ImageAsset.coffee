@@ -17,6 +17,6 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
 
   # -----------------------------------
 
-  getAsset: ->
+  getDocumentElement: ->
     return @_image if @isLoaded
     return null
