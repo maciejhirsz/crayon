@@ -7,10 +7,12 @@ Rippl may be freely distributed under the MIT license.
   window.rippl = rippl = {}
 
   #!include ObjectAbstract.coffee
-  #!include Color.coffee
-  #!include Transformation.coffee
+  #!include utils/Timer.coffee
+  #!include utils/Color.coffee
+  #!include utils/Transformation.coffee
+  #!include utils/ImageAsset.coffee
+  #!include utils/assets.coffee
   #!include CanvasElementAbstract.coffee
-  #!include Timer.coffee
   #!include elements/Sprite.coffee
   #!include elements/Shape.coffee
   #!include elements/Text.coffee
