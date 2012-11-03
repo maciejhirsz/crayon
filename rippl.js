@@ -8,7 +8,7 @@ var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
-  var Canvas, CanvasElementAbstract, Color, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
+  var Canvas, CanvasElementAbstract, Color, ImageAsset, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
   window.rippl = rippl = {};
   rippl.ObjectAbstract = ObjectAbstract = (function() {
 
@@ -127,6 +127,98 @@ var __hasProp = {}.hasOwnProperty,
     return ObjectAbstract;
 
   })();
+  rippl.Timer = Timer = (function(_super) {
+
+    __extends(Timer, _super);
+
+    Timer.prototype.options = {
+      fps: 40,
+      autoStart: true,
+      fixedFrames: false
+    };
+
+    Timer.prototype.frameDuration = 0;
+
+    function Timer(options) {
+      this.setOptions(options);
+      this.frameDuration = 1000 / this.options.fps;
+      this.canvas = [];
+      if (this.options.autoStart) {
+        this.start();
+      }
+    }
+
+    Timer.prototype.setFps = function(fps) {
+      this.options.fps = fps;
+      return this.frameDuration = 1000 / this.options.fps;
+    };
+
+    Timer.prototype.bind = function(canvas) {
+      return this.canvas.push(canvas);
+    };
+
+    Timer.prototype.start = function() {
+      var _this = this;
+      this.time = this.getTime();
+      return this.timerid = setTimeout(function() {
+        return _this.tick();
+      }, this.frameDuration);
+    };
+
+    Timer.prototype.stop = function() {
+      return clearTimeout(this.timerid);
+    };
+
+    Timer.prototype.getTime = function() {
+      return (new Date).getTime();
+    };
+
+    Timer.prototype.getSeconds = function() {
+      return Math.floor((new Date).getTime() / 1000);
+    };
+
+    Timer.prototype.tick = function() {
+      var canvas, delay, frameTime, iterations, postRenderTime, _i, _len, _ref,
+        _this = this;
+      frameTime = this.getTime();
+      if (this.options.fixedFrames) {
+        iterations = ~~((frameTime - this.time) / this.frameDuration) + 1;
+        if (iterations < 1) {
+          iterations = 1;
+        }
+        if (iterations > 100) {
+          iterations = 100;
+        }
+        this.time += this.frameDuration * iterations;
+        while (iterations) {
+          this.trigger('frame', frameTime);
+          iterations -= 1;
+        }
+      } else {
+        this.time += this.frameDuration;
+        this.trigger('frame', frameTime);
+      }
+      _ref = this.canvas;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        canvas = _ref[_i];
+        canvas.render(frameTime);
+      }
+      postRenderTime = this.getTime();
+      delay = this.time - postRenderTime;
+      if (delay < 0) {
+        delay = 0;
+        if (!this.options.fixedFrames) {
+          this.time = postRenderTime;
+        }
+      }
+      return setTimeout(function() {
+        return _this.tick();
+      }, delay);
+    };
+
+    return Timer;
+
+  })(ObjectAbstract);
   rippl.Color = Color = (function() {
 
     Color.prototype.r = 255;
@@ -290,6 +382,43 @@ var __hasProp = {}.hasOwnProperty,
     return Transformation;
 
   })(ObjectAbstract);
+  rippl.ImageAsset = ImageAsset = (function(_super) {
+
+    __extends(ImageAsset, _super);
+
+    ImageAsset.prototype.__isAsset = true;
+
+    ImageAsset.prototype.__isLoaded = false;
+
+    function ImageAsset(url) {
+      var _this = this;
+      this._image = new Image;
+      this._image.onload = function() {
+        _this.__isLoaded = true;
+        return _this.trigger('loaded');
+      };
+      this._image.src = url;
+    }
+
+    ImageAsset.prototype.getDocumentElement = function() {
+      if (this.__isLoaded) {
+        return this._image;
+      }
+      return null;
+    };
+
+    return ImageAsset;
+
+  })(ObjectAbstract);
+  rippl.assets = {
+    _assets: {},
+    get: function(url) {
+      if (this._assets[url] !== void 0) {
+        return this._assets[url];
+      }
+      return this._assets[url] = new ImageAsset(url);
+    }
+  };
   CanvasElementAbstract = (function(_super) {
 
     __extends(CanvasElementAbstract, _super);
@@ -471,98 +600,6 @@ var __hasProp = {}.hasOwnProperty,
     return CanvasElementAbstract;
 
   })(ObjectAbstract);
-  rippl.Timer = Timer = (function(_super) {
-
-    __extends(Timer, _super);
-
-    Timer.prototype.options = {
-      fps: 40,
-      autoStart: true,
-      fixedFrames: false
-    };
-
-    Timer.prototype.frameDuration = 0;
-
-    function Timer(options) {
-      this.setOptions(options);
-      this.frameDuration = 1000 / this.options.fps;
-      this.canvas = [];
-      if (this.options.autoStart) {
-        this.start();
-      }
-    }
-
-    Timer.prototype.setFps = function(fps) {
-      this.options.fps = fps;
-      return this.frameDuration = 1000 / this.options.fps;
-    };
-
-    Timer.prototype.bind = function(canvas) {
-      return this.canvas.push(canvas);
-    };
-
-    Timer.prototype.start = function() {
-      var _this = this;
-      this.time = this.getTime();
-      return this.timerid = setTimeout(function() {
-        return _this.tick();
-      }, this.frameDuration);
-    };
-
-    Timer.prototype.stop = function() {
-      return clearTimeout(this.timerid);
-    };
-
-    Timer.prototype.getTime = function() {
-      return (new Date).getTime();
-    };
-
-    Timer.prototype.getSeconds = function() {
-      return Math.floor((new Date).getTime() / 1000);
-    };
-
-    Timer.prototype.tick = function() {
-      var canvas, delay, frameTime, iterations, postRenderTime, _i, _len, _ref,
-        _this = this;
-      frameTime = this.getTime();
-      if (this.options.fixedFrames) {
-        iterations = ~~((frameTime - this.time) / this.frameDuration) + 1;
-        if (iterations < 1) {
-          iterations = 1;
-        }
-        if (iterations > 100) {
-          iterations = 100;
-        }
-        this.time += this.frameDuration * iterations;
-        while (iterations) {
-          this.trigger('frame', frameTime);
-          iterations -= 1;
-        }
-      } else {
-        this.time += this.frameDuration;
-        this.trigger('frame', frameTime);
-      }
-      _ref = this.canvas;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        canvas = _ref[_i];
-        canvas.render(frameTime);
-      }
-      postRenderTime = this.getTime();
-      delay = this.time - postRenderTime;
-      if (delay < 0) {
-        delay = 0;
-        if (!this.options.fixedFrames) {
-          this.time = postRenderTime;
-        }
-      }
-      return setTimeout(function() {
-        return _this.tick();
-      }, delay);
-    };
-
-    return Timer;
-
-  })(ObjectAbstract);
   rippl.Sprite = Sprite = (function(_super) {
 
     __extends(Sprite, _super);
@@ -579,13 +616,29 @@ var __hasProp = {}.hasOwnProperty,
 
     function Sprite(options, canvas) {
       this.addDefaults({
-        image: null,
+        src: null,
         cropX: 0,
         cropY: 0
       });
       Sprite.__super__.constructor.call(this, options, canvas);
       this.frames = [];
     }
+
+    Sprite.prototype.validate = function(options) {
+      var asset,
+        _this = this;
+      if (options.src === null) {
+        throw "Sprite: src option can't be null";
+      }
+      if (typeof options.src === 'string') {
+        options.src = asset = rippl.assets.get(options.src);
+        if (!asset.__isLoaded) {
+          return asset.on('loaded', function() {
+            return _this.canvas.touch();
+          });
+        }
+      }
+    };
 
     Sprite.prototype.setFrame = function(index) {
       var frame;
@@ -606,9 +659,9 @@ var __hasProp = {}.hasOwnProperty,
       }
       anchor = this.getAnchor();
       if (this.buffer != null) {
-        return this.canvas.drawSprite(this.buffer.canvas, -anchor.x, -anchor.y, this.options.width, this.options.height);
+        return this.canvas.drawSprite(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
       } else {
-        return this.canvas.drawSprite(this.options.image, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+        return this.canvas.drawSprite(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
       }
     };
 
@@ -618,7 +671,7 @@ var __hasProp = {}.hasOwnProperty,
         width: this.options.width,
         height: this.options.height
       });
-      return this.buffer.drawSprite(this.options.image, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
     };
 
     Sprite.prototype.clearFilters = function() {
@@ -626,7 +679,7 @@ var __hasProp = {}.hasOwnProperty,
         return;
       }
       this.buffer.clear();
-      return this.buffer.drawSprite(this.options.image, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
     };
 
     Sprite.prototype.removeFilters = function() {
@@ -928,6 +981,8 @@ var __hasProp = {}.hasOwnProperty,
       height: 0
     };
 
+    Canvas.prototype.__isAsset = true;
+
     Canvas.prototype.changed = false;
 
     Canvas.prototype.unordered = false;
@@ -935,21 +990,25 @@ var __hasProp = {}.hasOwnProperty,
     function Canvas(options) {
       this.setOptions(options);
       if (this.options.id !== null) {
-        this.canvas = document.getElementById(this.options.id);
-        this.options.width = Number(this.canvas.width);
-        this.options.height = Number(this.canvas.height);
+        this._canvas = document.getElementById(this.options.id);
+        this.options.width = Number(this._canvas.width);
+        this.options.height = Number(this._canvas.height);
       } else {
-        this.canvas = document.createElement('canvas');
-        this.canvas.setAttribute('width', this.options.width);
-        this.canvas.setAttribute('height', this.options.height);
+        this._canvas = document.createElement('canvas');
+        this._canvas.setAttribute('width', this.options.width);
+        this._canvas.setAttribute('height', this.options.height);
       }
-      this.ctx = this.canvas.getContext('2d');
+      this.ctx = this._canvas.getContext('2d');
       this.ctx.save();
       this.elements = [];
     }
 
+    Canvas.prototype.getDocumentElement = function() {
+      return this._canvas;
+    };
+
     Canvas.prototype.getCanvas = function() {
-      return this.canvas;
+      return this._canvas;
     };
 
     Canvas.prototype.newCanvas = function(options) {
@@ -1122,7 +1181,15 @@ var __hasProp = {}.hasOwnProperty,
       return this.changed = false;
     };
 
-    Canvas.prototype.drawSprite = function(image, x, y, width, height, cropX, cropY) {
+    Canvas.prototype.drawSprite = function(asset, x, y, width, height, cropX, cropY) {
+      var element;
+      if (!asset.__isAsset) {
+        throw "Canvas.drawSprite: invalid asset";
+      }
+      element = asset.getDocumentElement();
+      if (!element) {
+        return;
+      }
             if (cropX != null) {
         cropX;
 
@@ -1135,11 +1202,11 @@ var __hasProp = {}.hasOwnProperty,
       } else {
         cropY = 0;
       };
-      return this.ctx.drawImage(image, cropX, cropY, width, height, x, y, width, height);
+      return this.ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height);
     };
 
     Canvas.prototype.toDataUrl = function() {
-      return this.canvas.toDataURL();
+      return this._canvas.toDataURL();
     };
 
     Canvas.prototype.rgbToLuma = function(r, g, b) {

@@ -135,6 +135,121 @@ Rippl may be freely distributed under the MIT license.
       return false
 
   
+  rippl.Timer = class Timer extends ObjectAbstract
+    #
+    # Default options
+    #
+    options:
+      fps: 40
+      autoStart: true
+      #
+      # Setting fixed frames to true enforces that every second you get exactly as many 'frame' events triggered as high fps is set
+      #
+      fixedFrames: false
+  
+    # -----------------------------------
+  
+    frameDuration: 0
+  
+    # -----------------------------------
+  
+    constructor: (options) ->
+      @setOptions(options)
+  
+      @frameDuration = 1000 / @options.fps
+  
+      @canvas = []
+  
+      @start() if @options.autoStart
+  
+    # -----------------------------------
+  
+    setFps: (fps) ->
+      @options.fps = fps
+      @frameDuration = 1000 / @options.fps
+  
+    # -----------------------------------
+  
+    bind: (canvas) ->
+      @canvas.push(canvas)
+  
+    # -----------------------------------
+  
+    start: ->
+      @time = @getTime()
+  
+      @timerid = setTimeout(
+        => @tick()
+        @frameDuration
+      )
+  
+    # -----------------------------------
+  
+    stop: ->
+      clearTimeout(@timerid)
+  
+    # -----------------------------------
+  
+    getTime: ->
+      (new Date).getTime()
+  
+    # -----------------------------------
+  
+    getSeconds: ->
+      Math.floor((new Date).getTime() / 1000)
+  
+    # -----------------------------------
+  
+    tick: ->
+      frameTime = @getTime()
+  
+      #
+      # Handle fixed frames
+      #
+      if @options.fixedFrames
+        iterations = ~~((frameTime - @time) / @frameDuration) + 1
+  
+        iterations = 1 if iterations < 1
+  
+        #
+        # Cap iterations
+        #
+        iterations = 100 if iterations > 100
+  
+        @time += @frameDuration * iterations
+  
+        while iterations
+          @trigger('frame', frameTime)
+          iterations -= 1
+  
+      #
+      # Handle fluid frames
+      #
+      else
+        @time += @frameDuration
+        @trigger('frame', frameTime)
+  
+      #
+      # Render all attached Canvas instances
+      #
+      for canvas in @canvas
+        canvas.render(frameTime)
+  
+      #
+      # Measure time again for maximum precision
+      #
+      postRenderTime = @getTime()
+      delay = @time - postRenderTime
+      if delay < 0
+        delay = 0
+        @time = postRenderTime if not @options.fixedFrames
+  
+      setTimeout(
+        => @tick()
+        delay
+      )
+
+  
   rippl.Color = class Color
     r: 255
     g: 255
@@ -301,6 +416,38 @@ Rippl may be freely distributed under the MIT license.
         delete @options.to
         delete @options.from
 
+  
+  rippl.ImageAsset = class ImageAsset extends ObjectAbstract
+    __isAsset: true
+  
+    # -----------------------------------
+  
+    __isLoaded: false
+  
+    # -----------------------------------
+  
+    constructor: (url) ->
+      @_image = new Image
+      @_image.onload = =>
+        @__isLoaded = true
+        @trigger('loaded')
+      @_image.src = url
+  
+    # -----------------------------------
+  
+    getDocumentElement: ->
+      return @_image if @__isLoaded
+      return null
+  
+  rippl.assets =
+    _assets: {}
+  
+    # -----------------------------------
+  
+    get: (url) ->
+      return @_assets[url] if @_assets[url] isnt undefined
+  
+      return @_assets[url] = new ImageAsset(url)
   
   class CanvasElementAbstract extends ObjectAbstract
     #
@@ -476,121 +623,6 @@ Rippl may be freely distributed under the MIT license.
       @options[option]
 
   
-  rippl.Timer = class Timer extends ObjectAbstract
-    #
-    # Default options
-    #
-    options:
-      fps: 40
-      autoStart: true
-      #
-      # Setting fixed frames to true enforces that every second you get exactly as many 'frame' events triggered as high fps is set
-      #
-      fixedFrames: false
-  
-    # -----------------------------------
-  
-    frameDuration: 0
-  
-    # -----------------------------------
-  
-    constructor: (options) ->
-      @setOptions(options)
-  
-      @frameDuration = 1000 / @options.fps
-  
-      @canvas = []
-  
-      @start() if @options.autoStart
-  
-    # -----------------------------------
-  
-    setFps: (fps) ->
-      @options.fps = fps
-      @frameDuration = 1000 / @options.fps
-  
-    # -----------------------------------
-  
-    bind: (canvas) ->
-      @canvas.push(canvas)
-  
-    # -----------------------------------
-  
-    start: ->
-      @time = @getTime()
-  
-      @timerid = setTimeout(
-        => @tick()
-        @frameDuration
-      )
-  
-    # -----------------------------------
-  
-    stop: ->
-      clearTimeout(@timerid)
-  
-    # -----------------------------------
-  
-    getTime: ->
-      (new Date).getTime()
-  
-    # -----------------------------------
-  
-    getSeconds: ->
-      Math.floor((new Date).getTime() / 1000)
-  
-    # -----------------------------------
-  
-    tick: ->
-      frameTime = @getTime()
-  
-      #
-      # Handle fixed frames
-      #
-      if @options.fixedFrames
-        iterations = ~~((frameTime - @time) / @frameDuration) + 1
-  
-        iterations = 1 if iterations < 1
-  
-        #
-        # Cap iterations
-        #
-        iterations = 100 if iterations > 100
-  
-        @time += @frameDuration * iterations
-  
-        while iterations
-          @trigger('frame', frameTime)
-          iterations -= 1
-  
-      #
-      # Handle fluid frames
-      #
-      else
-        @time += @frameDuration
-        @trigger('frame', frameTime)
-  
-      #
-      # Render all attached Canvas instances
-      #
-      for canvas in @canvas
-        canvas.render(frameTime)
-  
-      #
-      # Measure time again for maximum precision
-      #
-      postRenderTime = @getTime()
-      delay = @time - postRenderTime
-      if delay < 0
-        delay = 0
-        @time = postRenderTime if not @options.fixedFrames
-  
-      setTimeout(
-        => @tick()
-        delay
-      )
-
-  
   rippl.Sprite = class Sprite extends CanvasElementAbstract
     #
     # An extra buffer canvas created to handle any filters on the image
@@ -630,7 +662,7 @@ Rippl may be freely distributed under the MIT license.
   
     constructor: (options, canvas) ->
       @addDefaults
-        image: null
+        src: null
         cropX: 0
         cropY: 0
   
@@ -640,6 +672,15 @@ Rippl may be freely distributed under the MIT license.
       # Set of animation frames the sprite supports, can be empty
       #
       @frames = []
+  
+    # -----------------------------------
+  
+    validate: (options) ->
+      throw "Sprite: src option can't be null" if options.src is null
+      if typeof options.src is 'string'
+        options.src = asset = rippl.assets.get(options.src)
+        if not asset.__isLoaded
+          asset.on('loaded', => @canvas.touch())
   
     # -----------------------------------
   
@@ -676,19 +717,10 @@ Rippl may be freely distributed under the MIT license.
   
       anchor = @getAnchor()
   
-      #buffer = @canvas.createBuffer
-      #  width: @options.width
-      #  height: @options.height
-  
-      #buffer.drawSprite(@options.image, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
-      #buffer.invert()
-  
-      #@canvas.drawSprite(buffer.canvas, -anchor.x, -anchor.y, @options.width, @options.height, 0, 0)
-  
       if @buffer?
-        @canvas.drawSprite(@buffer.canvas, -anchor.x, -anchor.y, @options.width, @options.height)
+        @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
       else
-        @canvas.drawSprite(@options.image, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+        @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
   
     # -----------------------------------
   
@@ -698,14 +730,14 @@ Rippl may be freely distributed under the MIT license.
         width: @options.width
         height: @options.height
   
-      @buffer.drawSprite(@options.image, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+      @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
   
     # -----------------------------------
   
     clearFilters: ->
       return if not @buffer?
       @buffer.clear()
-      @buffer.drawSprite(@options.image, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+      @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
   
     # -----------------------------------
   
@@ -1001,6 +1033,10 @@ Rippl may be freely distributed under the MIT license.
   
     # -----------------------------------
   
+    __isAsset: true
+  
+    # -----------------------------------
+  
     changed: false
   
     # -----------------------------------
@@ -1013,23 +1049,28 @@ Rippl may be freely distributed under the MIT license.
       @setOptions(options)
   
       if @options.id isnt null
-        @canvas = document.getElementById(@options.id)
-        @options.width = Number @canvas.width
-        @options.height = Number @canvas.height
+        @_canvas = document.getElementById(@options.id)
+        @options.width = Number @_canvas.width
+        @options.height = Number @_canvas.height
       else
-        @canvas = document.createElement('canvas')
-        @canvas.setAttribute('width', @options.width)
-        @canvas.setAttribute('height', @options.height)
+        @_canvas = document.createElement('canvas')
+        @_canvas.setAttribute('width', @options.width)
+        @_canvas.setAttribute('height', @options.height)
   
-      @ctx = @canvas.getContext('2d')
+      @ctx = @_canvas.getContext('2d')
       @ctx.save()
   
       @elements = []
   
     # -----------------------------------
   
+    getDocumentElement: ->
+      @_canvas
+  
+    # -----------------------------------
+  
     getCanvas: ->
-      @canvas
+      @_canvas
   
     # -----------------------------------
   
@@ -1191,16 +1232,21 @@ Rippl may be freely distributed under the MIT license.
   
     # -----------------------------------
   
-    drawSprite: (image, x, y, width, height, cropX, cropY) ->
+    drawSprite: (asset, x, y, width, height, cropX, cropY) ->
+      throw "Canvas.drawSprite: invalid asset" if not asset.__isAsset
+  
+      element = asset.getDocumentElement()
+      return if not element
+  
       cropX ? cropX = 0
       cropY ? cropY = 0
   
-      @ctx.drawImage(image, cropX, cropY, width, height, x, y, width, height)
+      @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
   
     # -----------------------------------
   
     toDataUrl: ->
-      @canvas.toDataURL()
+      @_canvas.toDataURL()
   
     # -----------------------------------
     #
