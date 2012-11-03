@@ -70,7 +70,7 @@ rippl.Timer = class Timer extends ObjectAbstract
     #
     # Handle fixed frames
     #
-    if @fixedFrames
+    if @options.fixedFrames
       iterations = Math.floor((frameTime - @time) / @frameDuration)
 
       iterations = 1 if iterations < 1
@@ -81,14 +81,14 @@ rippl.Timer = class Timer extends ObjectAbstract
       iterations = 100 if iterations > 100
 
       for i in [0..iterations-1]
-        @trigger('frame', frameTime)
         @time += @frameDuration
+        @trigger('frame', frameTime)
 
     #
     # Handle fluid frames
     #
     else
-      @time = frameTime
+      @time += @frameDuration
       @trigger('frame', frameTime)
 
     #
@@ -100,9 +100,13 @@ rippl.Timer = class Timer extends ObjectAbstract
     #
     # Measure time again for maximum precision
     #
-    delay = @getTime() - @time
+    postRenderTime = @getTime()
+    delay = @time - postRenderTime
+    if delay < 0
+      delay = 0
+      @time = postRenderTime if not @options.fixedFrames
 
     setTimeout(
       => @tick()
-      @frameDuration - delay
+      delay
     )
