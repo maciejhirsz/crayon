@@ -541,7 +541,7 @@ Rippl may be freely distributed under the MIT license.
       # Handle fixed frames
       #
       if @options.fixedFrames
-        iterations = Math.floor((frameTime - @time) / @frameDuration)
+        iterations = ~~((frameTime - @time) / @frameDuration) + 1
   
         iterations = 1 if iterations < 1
   
@@ -550,9 +550,11 @@ Rippl may be freely distributed under the MIT license.
         #
         iterations = 100 if iterations > 100
   
-        for i in [0..iterations-1]
-          @time += @frameDuration
+        @time += @frameDuration * iterations
+  
+        while iterations
           @trigger('frame', frameTime)
+          iterations -= 1
   
       #
       # Handle fluid frames

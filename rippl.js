@@ -523,28 +523,29 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Timer.prototype.tick = function() {
-      var canvas, delay, frameTime, i, iterations, postRenderTime, _i, _j, _len, _ref, _ref1,
+      var canvas, delay, frameTime, iterations, postRenderTime, _i, _len, _ref,
         _this = this;
       frameTime = this.getTime();
       if (this.options.fixedFrames) {
-        iterations = Math.floor((frameTime - this.time) / this.frameDuration);
+        iterations = ~~((frameTime - this.time) / this.frameDuration) + 1;
         if (iterations < 1) {
           iterations = 1;
         }
         if (iterations > 100) {
           iterations = 100;
         }
-        for (i = _i = 0, _ref = iterations - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          this.time += this.frameDuration;
+        this.time += this.frameDuration * iterations;
+        while (iterations) {
           this.trigger('frame', frameTime);
+          iterations -= 1;
         }
       } else {
         this.time += this.frameDuration;
         this.trigger('frame', frameTime);
       }
-      _ref1 = this.canvas;
-      for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
-        canvas = _ref1[_j];
+      _ref = this.canvas;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        canvas = _ref[_i];
         canvas.render(frameTime);
       }
       postRenderTime = this.getTime();
