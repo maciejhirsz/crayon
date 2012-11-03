@@ -322,12 +322,6 @@ Rippl may be freely distributed under the MIT license.
       hidden: false
   
     # -----------------------------------
-    #
-    # Set this to an array with list of options that have to be changed to an instance of Color class
-    #
-    colors: null
-  
-    # -----------------------------------
   
     tranformStack: []
   
@@ -347,16 +341,21 @@ Rippl may be freely distributed under the MIT license.
   
     constructor: (options) ->
       @setOptions(options)
-      @validateColors()
+      @validate(@options)
       @transformStack = []
       @transformCount = 0
   
     # -----------------------------------
+    #
+    # Override to validate specific options, such as colors or images
+    #
+    validate: (options) ->
   
-    validateColors: ->
-      return if @colors is null
-      for option in @colors
-        @options[option] = new Color(@options[option]) if not @options[option].__isColor
+    # -----------------------------------
+  
+    validateColor: (value) ->
+      value = new Color(value) if not value.__isColor
+      value
   
     # -----------------------------------
   
@@ -396,9 +395,16 @@ Rippl may be freely distributed under the MIT license.
       # Set starting values if not defined
       #
       options.from ? options.from = {}
+      options.to ? options.to = {}
   
       for option of options.to
         options.from[option] = @options[option] if options.from[option] is undefined
+  
+      for option of options.from
+        options.to[option] = @options[option] if options.to[option] is undefined
+  
+      @validate(options.from)
+      @validate(options.to)
   
       transform = new Transformation(options)
   
@@ -446,7 +452,8 @@ Rippl may be freely distributed under the MIT license.
   
         if @options[option] isnt undefined and @options[option] isnt value
           @options[option] = value
-          @options[option] = new Color(value) if option in @colors
+          @validate(@options)
+  
           @trigger("change:#{option}")
           @trigger("change")
           return
@@ -459,7 +466,7 @@ Rippl may be freely distributed under the MIT license.
           change.push(option)
   
       if change.length
-        @validateColors()
+        @validate(@options)
         @trigger("change:#{option}") for option in change
         @trigger("change")
   
@@ -809,10 +816,6 @@ Rippl may be freely distributed under the MIT license.
 
   
   rippl.Shape = class Shape extends CanvasElementAbstract
-    colors: ['color', 'strokeColor', 'shadowColor']
-  
-    # -----------------------------------
-  
     constructor: (options, canvas) ->
       @addDefaults
         type: 'rectangle' # rectangle|circle|custom
@@ -843,6 +846,13 @@ Rippl may be freely distributed under the MIT license.
       super(options, canvas)
   
       @options.anchorInPixels = true if @options.type is 'custom'
+  
+    # -----------------------------------
+  
+    validate: (options) ->
+      options.color = @validateColor(options.color) if options.color isnt undefined
+      options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
+      options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
   
     # -----------------------------------
   
@@ -926,10 +936,6 @@ Rippl may be freely distributed under the MIT license.
 
   
   rippl.Text = class Text extends CanvasElementAbstract
-    colors: ['color', 'strokeColor', 'shadowColor']
-  
-    # -----------------------------------
-  
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'
@@ -950,6 +956,13 @@ Rippl may be freely distributed under the MIT license.
         shadowColor: '#000'
   
       super(options, canvas)
+  
+    # -----------------------------------
+  
+    validate: (options) ->
+      options.color = @validateColor(options.color) if options.color isnt undefined
+      options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
+      options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
   
     # -----------------------------------
   

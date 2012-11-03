@@ -5,8 +5,7 @@ Rippl may be freely distributed under the MIT license.
 */
 
 var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
   var Canvas, CanvasElementAbstract, Color, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
@@ -311,8 +310,6 @@ var __hasProp = {}.hasOwnProperty,
       hidden: false
     };
 
-    CanvasElementAbstract.prototype.colors = null;
-
     CanvasElementAbstract.prototype.tranformStack = [];
 
     CanvasElementAbstract.prototype.canvas = null;
@@ -321,27 +318,18 @@ var __hasProp = {}.hasOwnProperty,
 
     function CanvasElementAbstract(options) {
       this.setOptions(options);
-      this.validateColors();
+      this.validate(this.options);
       this.transformStack = [];
       this.transformCount = 0;
     }
 
-    CanvasElementAbstract.prototype.validateColors = function() {
-      var option, _i, _len, _ref, _results;
-      if (this.colors === null) {
-        return;
+    CanvasElementAbstract.prototype.validate = function(options) {};
+
+    CanvasElementAbstract.prototype.validateColor = function(value) {
+      if (!value.__isColor) {
+        value = new Color(value);
       }
-      _ref = this.colors;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        option = _ref[_i];
-        if (!this.options[option].__isColor) {
-          _results.push(this.options[option] = new Color(this.options[option]));
-        } else {
-          _results.push(void 0);
-        }
-      }
-      return _results;
+      return value;
     };
 
     CanvasElementAbstract.prototype.getAnchor = function() {
@@ -379,7 +367,7 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     CanvasElementAbstract.prototype.transform = function(options) {
-      var option, transform, _ref;
+      var option, transform, _ref, _ref1;
       if (typeof options.to !== 'object') {
         return;
       }
@@ -389,11 +377,24 @@ var __hasProp = {}.hasOwnProperty,
       } else {
         options.from = {};
       };
+            if ((_ref1 = options.to) != null) {
+        _ref1;
+
+      } else {
+        options.to = {};
+      };
       for (option in options.to) {
         if (options.from[option] === void 0) {
           options.from[option] = this.options[option];
         }
       }
+      for (option in options.from) {
+        if (options.to[option] === void 0) {
+          options.to[option] = this.options[option];
+        }
+      }
+      this.validate(options.from);
+      this.validate(options.to);
       transform = new Transformation(options);
       this.transformStack.push(transform);
       this.transformCount += 1;
@@ -439,9 +440,7 @@ var __hasProp = {}.hasOwnProperty,
         option = target;
         if (this.options[option] !== void 0 && this.options[option] !== value) {
           this.options[option] = value;
-          if (__indexOf.call(this.colors, option) >= 0) {
-            this.options[option] = new Color(value);
-          }
+          this.validate(this.options);
           this.trigger("change:" + option);
           this.trigger("change");
           return;
@@ -456,7 +455,7 @@ var __hasProp = {}.hasOwnProperty,
         }
       }
       if (change.length) {
-        this.validateColors();
+        this.validate(this.options);
         for (_i = 0, _len = change.length; _i < _len; _i++) {
           option = change[_i];
           this.trigger("change:" + option);
@@ -734,8 +733,6 @@ var __hasProp = {}.hasOwnProperty,
 
     __extends(Shape, _super);
 
-    Shape.prototype.colors = ['color', 'strokeColor', 'shadowColor'];
-
     function Shape(options, canvas) {
       this.addDefaults({
         type: 'rectangle',
@@ -761,6 +758,18 @@ var __hasProp = {}.hasOwnProperty,
         this.options.anchorInPixels = true;
       }
     }
+
+    Shape.prototype.validate = function(options) {
+      if (options.color !== void 0) {
+        options.color = this.validateColor(options.color);
+      }
+      if (options.strokeColor !== void 0) {
+        options.strokeColor = this.validateColor(options.strokeColor);
+      }
+      if (options.shadowColor !== void 0) {
+        return options.shadowColor = this.validateColor(options.shadowColor);
+      }
+    };
 
     Shape.prototype.render = function() {
       var anchor, point, x, y, _i, _len, _ref;
@@ -842,8 +851,6 @@ var __hasProp = {}.hasOwnProperty,
 
     __extends(Text, _super);
 
-    Text.prototype.colors = ['color', 'strokeColor', 'shadowColor'];
-
     function Text(options, canvas) {
       this.addDefaults({
         label: 'Surface',
@@ -865,6 +872,18 @@ var __hasProp = {}.hasOwnProperty,
       });
       Text.__super__.constructor.call(this, options, canvas);
     }
+
+    Text.prototype.validate = function(options) {
+      if (options.color !== void 0) {
+        options.color = this.validateColor(options.color);
+      }
+      if (options.strokeColor !== void 0) {
+        options.strokeColor = this.validateColor(options.strokeColor);
+      }
+      if (options.shadowColor !== void 0) {
+        return options.shadowColor = this.validateColor(options.shadowColor);
+      }
+    };
 
     Text.prototype.render = function() {
       var font;
