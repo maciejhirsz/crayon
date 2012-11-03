@@ -38,7 +38,7 @@ rippl.Sprite = class Sprite extends CanvasElementAbstract
 
   constructor: (options, canvas) ->
     @addDefaults
-      image: null
+      src: null
       cropX: 0
       cropY: 0
 
@@ -48,6 +48,12 @@ rippl.Sprite = class Sprite extends CanvasElementAbstract
     # Set of animation frames the sprite supports, can be empty
     #
     @frames = []
+
+  # -----------------------------------
+
+  validate: (options) ->
+    throw "Sprite: src option can't be null" if options.src is null
+    options.src = rippl.assets.get(options.src) if typeof options.src is 'string'
 
   # -----------------------------------
 
@@ -84,19 +90,10 @@ rippl.Sprite = class Sprite extends CanvasElementAbstract
 
     anchor = @getAnchor()
 
-    #buffer = @canvas.createBuffer
-    #  width: @options.width
-    #  height: @options.height
-
-    #buffer.drawSprite(@options.image, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
-    #buffer.invert()
-
-    #@canvas.drawSprite(buffer.canvas, -anchor.x, -anchor.y, @options.width, @options.height, 0, 0)
-
     if @buffer?
-      @canvas.drawSprite(@buffer.canvas, -anchor.x, -anchor.y, @options.width, @options.height)
+      @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
-      @canvas.drawSprite(@options.image, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+      @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
@@ -106,14 +103,14 @@ rippl.Sprite = class Sprite extends CanvasElementAbstract
       width: @options.width
       height: @options.height
 
-    @buffer.drawSprite(@options.image, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
   clearFilters: ->
     return if not @buffer?
     @buffer.clear()
-    @buffer.drawSprite(@options.image, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
