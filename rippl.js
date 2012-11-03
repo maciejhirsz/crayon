@@ -523,10 +523,10 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Timer.prototype.tick = function() {
-      var canvas, delay, frameTime, i, iterations, _i, _j, _len, _ref, _ref1,
+      var canvas, delay, frameTime, i, iterations, postRenderTime, _i, _j, _len, _ref, _ref1,
         _this = this;
       frameTime = this.getTime();
-      if (this.fixedFrames) {
+      if (this.options.fixedFrames) {
         iterations = Math.floor((frameTime - this.time) / this.frameDuration);
         if (iterations < 1) {
           iterations = 1;
@@ -535,11 +535,11 @@ var __hasProp = {}.hasOwnProperty,
           iterations = 100;
         }
         for (i = _i = 0, _ref = iterations - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          this.trigger('frame', frameTime);
           this.time += this.frameDuration;
+          this.trigger('frame', frameTime);
         }
       } else {
-        this.time = frameTime;
+        this.time += this.frameDuration;
         this.trigger('frame', frameTime);
       }
       _ref1 = this.canvas;
@@ -547,10 +547,17 @@ var __hasProp = {}.hasOwnProperty,
         canvas = _ref1[_j];
         canvas.render(frameTime);
       }
-      delay = this.getTime() - this.time;
+      postRenderTime = this.getTime();
+      delay = this.time - postRenderTime;
+      if (delay < 0) {
+        delay = 0;
+        if (!this.options.fixedFrames) {
+          this.time = postRenderTime;
+        }
+      }
       return setTimeout(function() {
         return _this.tick();
-      }, this.frameDuration - delay);
+      }, delay);
     };
 
     return Timer;

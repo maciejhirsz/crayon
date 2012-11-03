@@ -540,7 +540,7 @@ Rippl may be freely distributed under the MIT license.
       #
       # Handle fixed frames
       #
-      if @fixedFrames
+      if @options.fixedFrames
         iterations = Math.floor((frameTime - @time) / @frameDuration)
   
         iterations = 1 if iterations < 1
@@ -551,14 +551,14 @@ Rippl may be freely distributed under the MIT license.
         iterations = 100 if iterations > 100
   
         for i in [0..iterations-1]
-          @trigger('frame', frameTime)
           @time += @frameDuration
+          @trigger('frame', frameTime)
   
       #
       # Handle fluid frames
       #
       else
-        @time = frameTime
+        @time += @frameDuration
         @trigger('frame', frameTime)
   
       #
@@ -570,11 +570,15 @@ Rippl may be freely distributed under the MIT license.
       #
       # Measure time again for maximum precision
       #
-      delay = @getTime() - @time
+      postRenderTime = @getTime()
+      delay = @time - postRenderTime
+      if delay < 0
+        delay = 0
+        @time = postRenderTime if not @options.fixedFrames
   
       setTimeout(
         => @tick()
-        @frameDuration - delay
+        delay
       )
 
   
