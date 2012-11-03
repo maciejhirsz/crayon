@@ -1,9 +1,5 @@
 
 rippl.Shape = class Shape extends CanvasElementAbstract
-  colors: ['color', 'strokeColor', 'shadowColor']
-
-  # -----------------------------------
-
   constructor: (options, canvas) ->
     @addDefaults
       type: 'rectangle' # rectangle|circle|custom
@@ -34,6 +30,13 @@ rippl.Shape = class Shape extends CanvasElementAbstract
     super(options, canvas)
 
     @options.anchorInPixels = true if @options.type is 'custom'
+
+  # -----------------------------------
+
+  validate: (options) ->
+    options.color = @validateColor(options.color) if options.color isnt undefined
+    options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
+    options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
 
   # -----------------------------------
 

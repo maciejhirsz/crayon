@@ -1,9 +1,5 @@
 
 rippl.Text = class Text extends CanvasElementAbstract
-  colors: ['color', 'strokeColor', 'shadowColor']
-
-  # -----------------------------------
-
   constructor: (options, canvas) ->
     @addDefaults
       label: 'Surface'
@@ -24,6 +20,13 @@ rippl.Text = class Text extends CanvasElementAbstract
       shadowColor: '#000'
 
     super(options, canvas)
+
+  # -----------------------------------
+
+  validate: (options) ->
+    options.color = @validateColor(options.color) if options.color isnt undefined
+    options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
+    options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
 
   # -----------------------------------
 
