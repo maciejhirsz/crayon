@@ -1,5 +1,5 @@
 
-rippl.Text = class Text extends CanvasElementAbstract
+rippl.Text = class Text extends Element
   constructor: (options, canvas) ->
     @addDefaults
       label: 'Surface'

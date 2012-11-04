@@ -1,5 +1,5 @@
 
-rippl.Sprite = class Sprite extends CanvasElementAbstract
+rippl.Sprite = class Sprite extends Element
   #
   # An extra buffer canvas created to handle any filters on the image
   #
