@@ -537,11 +537,11 @@ Rippl may be freely distributed under the MIT license.
 
   # =============================================
   #
-  # Begin contents of CanvasElementAbstract.coffee
+  # Begin contents of elements/Element.coffee
   #
   # =============================================
   
-  class CanvasElementAbstract extends ObjectAbstract
+  class Element extends ObjectAbstract
     #
     # Default options
     #
@@ -718,7 +718,7 @@ Rippl may be freely distributed under the MIT license.
 
   # =============================================
   #
-  # End contents of CanvasElementAbstract.coffee
+  # End contents of elements/Element.coffee
   #
   # =============================================
 
@@ -728,7 +728,7 @@ Rippl may be freely distributed under the MIT license.
   #
   # =============================================
   
-  rippl.Sprite = class Sprite extends CanvasElementAbstract
+  rippl.Sprite = class Sprite extends Element
     #
     # An extra buffer canvas created to handle any filters on the image
     #
@@ -963,7 +963,7 @@ Rippl may be freely distributed under the MIT license.
   #
   # =============================================
   
-  rippl.Shape = class Shape extends CanvasElementAbstract
+  rippl.Shape = class Shape extends Element
     constructor: (options, canvas) ->
       @addDefaults
         type: 'rectangle' # rectangle|circle|custom
@@ -1094,7 +1094,7 @@ Rippl may be freely distributed under the MIT license.
   #
   # =============================================
   
-  rippl.Text = class Text extends CanvasElementAbstract
+  rippl.Text = class Text extends Element
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'

@@ -8,7 +8,7 @@ var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
-  var Canvas, CanvasElementAbstract, Color, ImageAsset, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
+  var Canvas, Color, Element, ImageAsset, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
   window.rippl = rippl = {};
   rippl.ObjectAbstract = ObjectAbstract = (function() {
 
@@ -448,11 +448,11 @@ var __hasProp = {}.hasOwnProperty,
       return _results;
     }
   };
-  CanvasElementAbstract = (function(_super) {
+  Element = (function(_super) {
 
-    __extends(CanvasElementAbstract, _super);
+    __extends(Element, _super);
 
-    CanvasElementAbstract.prototype.options = {
+    Element.prototype.options = {
       x: 0,
       y: 0,
       z: 0,
@@ -469,29 +469,29 @@ var __hasProp = {}.hasOwnProperty,
       composition: 'source-over'
     };
 
-    CanvasElementAbstract.prototype.tranformStack = [];
+    Element.prototype.tranformStack = [];
 
-    CanvasElementAbstract.prototype.canvas = null;
+    Element.prototype.canvas = null;
 
-    CanvasElementAbstract.prototype.__isCanvasElement = true;
+    Element.prototype.__isCanvasElement = true;
 
-    function CanvasElementAbstract(options) {
+    function Element(options) {
       this.setOptions(options);
       this.validate(this.options);
       this.transformStack = [];
       this.transformCount = 0;
     }
 
-    CanvasElementAbstract.prototype.validate = function(options) {};
+    Element.prototype.validate = function(options) {};
 
-    CanvasElementAbstract.prototype.validateColor = function(value) {
+    Element.prototype.validateColor = function(value) {
       if (!value.__isColor) {
         value = new Color(value);
       }
       return value;
     };
 
-    CanvasElementAbstract.prototype.getAnchor = function() {
+    Element.prototype.getAnchor = function() {
       if (this.options.anchorInPixels) {
         return {
           x: this.options.anchorX,
@@ -505,7 +505,7 @@ var __hasProp = {}.hasOwnProperty,
       }
     };
 
-    CanvasElementAbstract.prototype.hide = function() {
+    Element.prototype.hide = function() {
       if (this.options.hidden) {
         return;
       }
@@ -513,7 +513,7 @@ var __hasProp = {}.hasOwnProperty,
       return this.canvas.touch();
     };
 
-    CanvasElementAbstract.prototype.show = function() {
+    Element.prototype.show = function() {
       if (!this.options.hidden) {
         return;
       }
@@ -521,11 +521,11 @@ var __hasProp = {}.hasOwnProperty,
       return this.canvas.touch();
     };
 
-    CanvasElementAbstract.prototype.isHidden = function() {
+    Element.prototype.isHidden = function() {
       return this.options.hidden;
     };
 
-    CanvasElementAbstract.prototype.transform = function(options) {
+    Element.prototype.transform = function(options) {
       var option, transform, _ref, _ref1;
       if (typeof options.to !== 'object') {
         return;
@@ -560,7 +560,7 @@ var __hasProp = {}.hasOwnProperty,
       return transform;
     };
 
-    CanvasElementAbstract.prototype.progress = function(frameTime) {
+    Element.prototype.progress = function(frameTime) {
       var newStack, transform, _i, _len, _ref;
       if (!this.transformCount) {
         return;
@@ -578,7 +578,7 @@ var __hasProp = {}.hasOwnProperty,
       return this.transformCount = newStack.length;
     };
 
-    CanvasElementAbstract.prototype.prepare = function() {
+    Element.prototype.prepare = function() {
       if (this.options.alpha !== 1) {
         this.canvas.setAlpha(this.options.alpha);
       }
@@ -594,9 +594,9 @@ var __hasProp = {}.hasOwnProperty,
       }
     };
 
-    CanvasElementAbstract.prototype.render = function() {};
+    Element.prototype.render = function() {};
 
-    CanvasElementAbstract.prototype.set = function(target, value) {
+    Element.prototype.set = function(target, value) {
       var change, option, _i, _len;
       if (value !== void 0 && typeof target === 'string') {
         option = target;
@@ -626,11 +626,11 @@ var __hasProp = {}.hasOwnProperty,
       }
     };
 
-    CanvasElementAbstract.prototype.get = function(option) {
+    Element.prototype.get = function(option) {
       return this.options[option];
     };
 
-    return CanvasElementAbstract;
+    return Element;
 
   })(ObjectAbstract);
   rippl.Sprite = Sprite = (function(_super) {
@@ -814,7 +814,7 @@ var __hasProp = {}.hasOwnProperty,
 
     return Sprite;
 
-  })(CanvasElementAbstract);
+  })(Element);
   rippl.Shape = Shape = (function(_super) {
 
     __extends(Shape, _super);
@@ -932,7 +932,7 @@ var __hasProp = {}.hasOwnProperty,
 
     return Shape;
 
-  })(CanvasElementAbstract);
+  })(Element);
   rippl.Text = Text = (function(_super) {
 
     __extends(Text, _super);
@@ -1003,7 +1003,7 @@ var __hasProp = {}.hasOwnProperty,
 
     return Text;
 
-  })(CanvasElementAbstract);
+  })(Element);
   return rippl.Canvas = Canvas = (function(_super) {
 
     __extends(Canvas, _super);
