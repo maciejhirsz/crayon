@@ -6,6 +6,11 @@ Rippl may be freely distributed under the MIT license.
 (->
   window.rippl = rippl = {}
 
+  # =============================================
+  #
+  # Begin contents of ObjectAbstract.coffee
+  #
+  # =============================================
   
   rippl.ObjectAbstract = class ObjectAbstract
     #
@@ -134,6 +139,17 @@ Rippl may be freely distributed under the MIT license.
   
       return false
 
+  # =============================================
+  #
+  # End contents of ObjectAbstract.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of utils/Timer.coffee
+  #
+  # =============================================
   
   rippl.Timer = class Timer extends ObjectAbstract
     #
@@ -249,6 +265,17 @@ Rippl may be freely distributed under the MIT license.
         delay
       )
 
+  # =============================================
+  #
+  # End contents of utils/Timer.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of utils/Color.coffee
+  #
+  # =============================================
   
   rippl.Color = class Color
     r: 255
@@ -304,6 +331,17 @@ Rippl may be freely distributed under the MIT license.
     toString: ->
       @string
 
+  # =============================================
+  #
+  # End contents of utils/Color.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of utils/Transformation.coffee
+  #
+  # =============================================
   
   class Transformation extends ObjectAbstract
     startTime: 0
@@ -416,6 +454,17 @@ Rippl may be freely distributed under the MIT license.
         delete @options.to
         delete @options.from
 
+  # =============================================
+  #
+  # End contents of utils/Transformation.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of utils/ImageAsset.coffee
+  #
+  # =============================================
   
   rippl.ImageAsset = class ImageAsset extends ObjectAbstract
     __isAsset: true
@@ -438,6 +487,17 @@ Rippl may be freely distributed under the MIT license.
     getDocumentElement: ->
       return @_image if @__isLoaded
       return null
+  # =============================================
+  #
+  # End contents of utils/ImageAsset.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of utils/assets.coffee
+  #
+  # =============================================
   
   rippl.assets =
     _assets: {}
@@ -448,6 +508,17 @@ Rippl may be freely distributed under the MIT license.
       return @_assets[url] if @_assets[url] isnt undefined
   
       return @_assets[url] = new ImageAsset(url)
+  # =============================================
+  #
+  # End contents of utils/assets.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of CanvasElementAbstract.coffee
+  #
+  # =============================================
   
   class CanvasElementAbstract extends ObjectAbstract
     #
@@ -622,6 +693,17 @@ Rippl may be freely distributed under the MIT license.
     get: (option) ->
       @options[option]
 
+  # =============================================
+  #
+  # End contents of CanvasElementAbstract.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of elements/Sprite.coffee
+  #
+  # =============================================
   
   rippl.Sprite = class Sprite extends CanvasElementAbstract
     #
@@ -846,6 +928,17 @@ Rippl may be freely distributed under the MIT license.
       #
       @frames.push [cropX, cropY]
 
+  # =============================================
+  #
+  # End contents of elements/Sprite.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of elements/Shape.coffee
+  #
+  # =============================================
   
   rippl.Shape = class Shape extends CanvasElementAbstract
     constructor: (options, canvas) ->
@@ -966,6 +1059,17 @@ Rippl may be freely distributed under the MIT license.
     close: ->
       @points.push(null)
 
+  # =============================================
+  #
+  # End contents of elements/Shape.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of elements/Text.coffee
+  #
+  # =============================================
   
   rippl.Text = class Text extends CanvasElementAbstract
     constructor: (options, canvas) ->
@@ -1021,6 +1125,17 @@ Rippl may be freely distributed under the MIT license.
         @canvas.ctx.strokeStyle = @options.strokeColor.toString()
         @canvas.ctx.strokeText(@options.label, 0, 0)
 
+  # =============================================
+  #
+  # End contents of elements/Text.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of Canvas.coffee
+  #
+  # =============================================
   
   rippl.Canvas = class Canvas extends ObjectAbstract
     #
@@ -1437,6 +1552,12 @@ Rippl may be freely distributed under the MIT license.
     # End: Filters
     #
     # -----------------------------------
+
+  # =============================================
+  #
+  # End contents of Canvas.coffee
+  #
+  # =============================================
 
 
 )(window)
