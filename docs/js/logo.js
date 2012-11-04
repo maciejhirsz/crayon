@@ -11,8 +11,9 @@ rippl.assets.preload('img/rippl.png', function(){
   timer = new rippl.Timer({ fps: 60 });
   timer.bind(canvas);
 
-  canvas.createSprite({
+  var logo = canvas.createSprite({
     src: 'img/rippl.png',
+    alpha: 0,
     x: 0,
     y: 0,
     width: 269,
@@ -21,9 +22,9 @@ rippl.assets.preload('img/rippl.png', function(){
     anchorY: 0
   });
 
-  mask = canvas.createShape({
+  var mask = canvas.createShape({
     alpha: 1,
-    color: '#eee',
+    color: '#000',
     composition: 'source-atop',
     x: 0,
     y: 0,
@@ -33,7 +34,7 @@ rippl.assets.preload('img/rippl.png', function(){
     anchorY: 0
   });
 
-  bling = canvas.createShape({
+  var bling = canvas.createShape({
     alpha: 0.66,
     color: '#fff',
     composition: 'source-atop',
@@ -44,12 +45,12 @@ rippl.assets.preload('img/rippl.png', function(){
     height: 150
   });
 
-  mask.transform({
+  logo.transform({
     duration: 500,
     transition: 'easeIn',
     delay: 300,
     to: {
-      color: '#000'
+      alpha: 1
     }
   });
 
@@ -64,7 +65,7 @@ rippl.assets.preload('img/rippl.png', function(){
 
   bling.transform({
     duration: 600,
-    delay: 1000,
+    delay: 1100,
     transition: 'easeInOut',
     from: {
       x: -40
