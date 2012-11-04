@@ -12,12 +12,12 @@
       <h1 id="logo">
         Rippl
       </h1>
-      <p class="alert alert-error">THIS IS NOT A FINISHED DOCUMENT</p>
+      <p class="alert alert-error"><strong>THIS IS NOT A FINISHED DOCUMENT</strong></p>
 
 
       <h3>What is <em>Rippl</em>?</h3>
       <p>
-        <em>Rippl</em> is a <code>&lt;canvas&gt;</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. <em>Rippl</em> is build with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>. <em>Rippl</em> is entirely antagonistic regarding how you structure your application &mdash; it will stay out of your way and be there for you when you need it.
+        <em>Rippl</em> is a <code>&lt;canvas&gt;</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. <em>Rippl</em> is built with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>. <em>Rippl</em> is entirely antagonistic regarding how you structure your application &mdash; it will stay out of your way and be there for you when you need it.
       </p>
 
 
@@ -61,17 +61,17 @@ canvas.render();</pre>
 
       <h4>Options</h4>
       <div class="indented">
-        <h5>id <small class="muted">(String or null) default: null</small></h5>
+        <h5>id <small>(String or null) default: null</small></h5>
         <p>
-          document id of canvas tag to grab, if <code>null</code> then a blank canvas is created.
+          Document id of canvas tag to grab, if <code>null</code> then a blank canvas is created.
         </p>
-        <h5>width <small class="muted">(Number) default: 0</small></h5>
+        <h5>width <small>(Number) default: 0</small></h5>
         <p>
-          width of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
+          Width of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
         </p>
-        <h5>height</strong> <small class="muted">(Number) default: 0</small></h5>
+        <h5>height</strong> <small>(Number) default: 0</small></h5>
         <p>
-          height of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
+          Height of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
         </p>
       </div>
 
@@ -144,19 +144,19 @@ timer.on("frame", function(time){
 
       <h4>Options</h4>
       <div class="indented">
-        <h5>fps <small class="muted">(Number) default: 40</small></h5>
+        <h5>fps <small>(Number) default: 40</small></h5>
         <p>
-          frames per second at which the <strong>Timer</strong> <em>should</em> work. If performance drops for any reason, the actual fps will become fluid.
+          Frames per second at which the <strong>Timer</strong> <em>should</em> work. If performance drops for any reason, the actual fps will become fluid.
         </p>
-        <h5>fixedFrames <small class="muted">(Boolean) default: false</small></h5>
+        <h5>fixedFrames <small>(Boolean) default: false</small></h5>
         <p>
-          turning this setting to <code>true</code> will trigger multiple <code>"frame"</code> events to be fired per actual frame rendering if system performance drops. Turn this on if you intend to do manual animations that depend on consistent fps.
+          Turning this setting to <code>true</code> will trigger multiple <code>"frame"</code> events to be fired per actual frame rendering if system performance drops. Turn this on if you intend to do manual animations that depend on consistent fps.
         </p>
         <p>
           <span class="label label-warning">Heads up!</span>
           <small>You really, <em>really</em>, shouldn't use this option if it can be avoided. Doing animations and calculations based on time produces less overhead and more fluid looking animations.</small>
         </p>
-        <h5>autoStart</strong> <small class="muted">(Boolean) default: true</small></h5>
+        <h5>autoStart</strong> <small>(Boolean) default: true</small></h5>
         <p>
           If set to <code>true</code> will start the timer without calling the actual <strong>start</strong> method.
         </p>
@@ -166,7 +166,7 @@ timer.on("frame", function(time){
       <div class="indented">
         <h5>frame <small class="muted">propagates: (Number) time in milliseconds</small></h5>
         <p>
-          triggers on each frame right before rendering, best place to do manual animations and / or game logic.
+          Triggers on each frame right before rendering, best place to do manual animations and / or game logic.
         </p>
       </div>
 
@@ -179,6 +179,120 @@ timer.on("frame", function(time){
         <small><strong>Canvas</strong> will only re-render if there have been changes made to one of it's elements, or you manually call <strong>touch</strong> method on it between frames.</small>
       </p>
 
+
+
+      <h3>Element</h3>
+      <p>
+        All <em>Rippl</em> elements inherit from this class, thus they all share some common options and methods.
+      </p>
+      <p>
+        <span class="label label">Note</span>
+        <small>This is an abstract class and as such you will never encounter it, nor be able to use it anywhere but in the source code of <em>Rippl</em>.</small>
+      </p>
+
+      <h4>Options</h4>
+      <div class="indented">
+        <h5>hidden <small>(Boolean) default: false</small></h5>
+        <p>
+          Set to <code>true</code> to skip this element in rendering queue.
+        </p>
+        <h5>x <small>(Number) default: 0</small></h5>
+        <p>
+          Horizontal position of the element, left to right.
+        </p>
+        <h5>y <small>(Number) default: 0</small></h5>
+        <p>
+          Vertical position of the element, top to bottom.
+        </p>
+        <h5>z</strong> <small>(Number) default: 0</small></h5>
+        <p>
+          Depth of the element. By default elements sorted by the order you add them to the <strong>Canvas</strong>, changing <strong>z</strong> changes that order &mdash; elements with higher value of <strong>z</strong> are rendered on top. Can take any floating point value, including negative numbers.
+        </p>
+        <h5>width <small>(Number) default: 0</small></h5>
+        <p>
+          Width of the element in pixels.
+        </p>
+        <h5>height <small>(Number) default: 0</small></h5>
+        <p>
+          Height of the element in pixels.
+        </p>
+        <h5>alpha <small>(Number) default: 1</small></h5>
+        <p>
+          Allows to change transparency of any element, value ranges from <code>0</code> (transparent) to <code>1</code> (opaque).
+        </p>
+        <h5>scaleX <small>and</small> scaleY <small>(Number) default: 1</small></h5>
+        <p>
+          All elements can be scaled to be larger or smaller than their original size. You can scale element independently on x and y axes, <code>1</code> is the original size, <code>-1</code> creates a mirror effect.
+        </p>
+        <h5>rotation <small>(Number) default: 0</small></h5>
+        <p>
+          Rotation of the element as factor of <em>pi</em> where <code>Math.PI</code> is 180 degrees.
+        </p>
+        <h5>anchorX <small>and</small> anchorY <small>(Number) default: 0.5</small></h5>
+        <p>
+          Defines the position of an anchor point according to which the element is placed on the <strong>Canvas</strong>. Default <code>0.5</code> value for both axes is center of the element, <code>0</code> is left (for x) or top (for y), <code>1</code> is right (for x) or bottom (for y).
+        </p>
+        <h5>anchorInPixels <small>(Boolean) default: false</small></h5>
+        <p>
+          Setting this option to <code>true</code> will turn the <strong>anchorX</strong> and <strong>anchorY</strong> options from being a percentage of elements width and height, to being absolute pixel positions.
+        </p>
+        <h5>composition <small>(string) default: "source-over"</small></h5>
+        <p>
+          Defines how the element should be rendered on the canvas in relation the scene, useful for creating masks, values are analogous to <a href="https://developer.mozilla.org/en-US/docs/Canvas_tutorial/Compositing">globalCompositeOperation</a> in native canvas specification.
+        </p>
+        <p>
+          <span class="label label-important">Warning</span>
+          <small><code>"darker"</code> value may or may not be supported depending on your browser, <strong>do not use it</strong>.</small>
+        </p>
+      </div>
+
+      <h4>Events</h4>
+      <div class="indented">
+        <h5>change</h5>
+        <p>
+          Triggers when an option or multiple options of the element have been changed.
+        </p>
+        <h5>change:*</h5>
+        <p>
+          Triggers when a specific option of the element has been changed, f.e. changing <strong>alpha</strong> will trigger a <strong>change:alpha</strong> event.
+        </p>
+      </div>
+
+      <h4>set <code>element.set({ options });</code> <small>or</small> <code>element.set(option, value);</code></h4>
+      <p class="indented">
+        Changes one or multiple options of the element.
+      </p>
+
+      <h4>transform <code>element.transform({ params });</code></h4>
+      <div class="indented">
+        <p>
+          Animates one or more option of the element over time. Params are:
+        </p>
+        <ul class="unstyled">
+          <li><strong>duration</strong> <small class="muted">(Number) default: 1000</small> &mdash; duration of the animation in milliseconds.</li>
+          <li><strong>delay</strong> <small class="muted">(Number) default: 0</small> &mdash; time to wait before starting the transition in milliseconds.</li>
+          <li><strong>from</strong> <small class="muted">(Object) optional</small> &mdash; starting value or values of element options. If omitted then element's current options are used.</li>
+          <li><strong>to</strong> <small class="muted">(Object) optional</small> &mdash; ending value or values of element options. If omitted then element's current options are used.</li>
+          <li><strong>transition</strong> <small class="muted">(String) default: "linear"</small> &mdash; smoothing transition to be used, allowed values are <code>"linear"</code>, <code>"easeIn"</code>, <code>"easeOut"</code> and <code>"easeInOut"</code>.</li>
+        </ul>
+        <p>
+          Example:
+        </p>
+<pre class="prettyprint linenums lang-js">
+// move an element from point (0, 50) to (200, 75) over 3 seconds:
+element.transform({
+  duration: 3000,
+  from: {
+    x: 0,
+    y: 50
+  },
+  to: {
+    x: 200,
+    y: 75
+  }
+});</pre>
+
+        </div>
 
       <p><br><br><br><br></p>
     </div>
