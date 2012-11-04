@@ -1235,6 +1235,8 @@ var __hasProp = {}.hasOwnProperty,
       } else {
         cropY = 0;
       };
+      x = Math.round(x);
+      y = Math.round(y);
       return this.ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height);
     };
 
