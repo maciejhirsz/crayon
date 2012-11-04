@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rippl - the &lt;canvas&gt; library</title>
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/prettify.css" rel="stylesheet" />
+    <link href="css/rippl.css" rel="stylesheet" />
+  </head>
+  <body onload="prettyPrint()">
+    <div class="container">
+      <h1 class="text-error">WORK IN PROGRESS</h1>
+
+
+      <h3>What is <em>Rippl</em>?</h3>
+      <p>
+        <em>Rippl</em> is a <code>&lt;canvas&gt;</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. Ripple is build with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>, but you don't have to! <em>Rippl</em> is entirely antagonistic regarding how you strucutre your application &mdash; it will stay out of your way and be there for you when you need it.
+      </p>
+
+
+      <h3>Downloads <small>Right Click &rarr; Save As</small></h3>
+      <div class="row-fluid row-download">
+        <a href="../rippl.min.js" class="btn btn-primary btn-large span4">Minimized JavaScript</a>
+        <div class="span8 download-description">
+          For production.
+        </div>
+      </div>
+      <div class="row-fluid row-download">
+        <a href="../rippl.js" class="btn btn-inverse btn-large span4">JavaScript</a>
+        <div class="span8 download-description">
+          For development and debugging.
+        </div>
+      </div>
+      <div class="row-fluid row-download">
+        <a href="../rippl.coffee" class="btn btn-inverse btn-large span4">CoffeScript</a>
+        <div class="span8 download-description">
+          Bundled source with comments.
+        </div>
+      </div>
+      <p>
+        Or <a href="https://github.com/maciejhirsz/Rippl">get it from GitHub</a>!
+      </p>
+
+
+
+      <h3>rippl.Canvas <code>new rippl.Canvas({ options });</code></h3>
+
+      <p>
+        The <strong>Canvas</strong> class is the heart of <em>Rippl</em>, it wraps the native <code>&lt;canvas&gt;</code> <abbr title="Document Object Model">DOM</abbr> element API and gives you all the power of drawing on it with none of the headache! In most cases you will only need one of these, but keep in mind sacking multiple <code>&lt;canvas&gt;</code> elements to create layers &mdash; separating static and dynamic content &mdash; can increase performance. Basic use:
+      </p>
+
+<pre class="prettyprint linenums lang-js">
+canvas = new rippl.Canvas({ id: "my-canvas" });
+
+// add some elements here
+
+canvas.render();</pre>
+
+      <h4>Options</h4>
+      <div class="indented">
+        <h5>id <small class="muted">(String or null) default: null</small></h5>
+        <p>
+          document id of canvas tag to grab, if <code>null</code> then a blank canvas is created.
+        </p>
+        <h5>width <small class="muted">(Number) default: 0</small></h5>
+        <p>
+          width of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
+        </p>
+        <h5>height</strong> <small class="muted">(Number) default: 0</small></h5>
+        <p>
+          height of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
+        </p>
+      </div>
+
+      <h4>getDocumentElement <code>canvas.getDocumentElement();</code></h4>
+      <p class="indented">
+        Returns the DOM element, useful if you create a blank canvas with <em>Rippl</em> and want to append it to DOM tree later.
+      </p>
+
+      <h4>render <code>canvas.render();</code></h4>
+      <p class="indented">
+        Renders a frame. Unline raw canvas API elements added to the <strong>Canvas</strong> are not drawn until <strong>render</strong> method is called.
+      </p>
+      <p class="indented">
+        <span class="label label-important">Warning</span>
+        <small>If you are using a <strong>Timer</strong> you should <em>never</em> call this method.</small>
+      </p>
+
+      <h4>touch <code>canvas.touch();</code></h4>
+      <p class="indented">
+        This method is normally used internally to mark if anything on given <strong>Canvas</strong> has changed and a render is require. You generally shouldn't need to use this yourself, but there is no harm in doing so. Calling <strong>touch</strong> multiple times between frames has no effect on performance.
+      </p>
+      <p class="indented">
+        <span class="label label-info">Heads up!</span>
+        <small>Unlike <strong>render</strong>, using <strong>touch</strong> alone does nothing but flags to render the canvas on the next frame, use only with <strong>Timer</strong>.</small>
+      </p>
+
+      <h4>addElement <code>canvas.addElement(element);</code></h4>
+      <p class="indented">
+        Adds a new <strong>Element</strong>, such as <strong>Text</strong> or <strong>Sprite</strong> to the canvas.
+      </p>
+
+      <h4>createSprite <code>canvas.createSprite({ options });</code></h4>
+      <p class="indented">
+        Creates, adds and returns a new <strong>Sprite</strong> element. For options see <a href="#rippl.Text">rippl.Sprite</a>.
+      </p>
+
+      <h4>createText <code>canvas.createText({ options });</code></h4>
+      <p class="indented">
+        Creates, adds and returns a new <strong>Text</strong> element. For options see <a href="#rippl.Text">rippl.Text</a>.
+      </p>
+
+      <h4>createShape <code>canvas.createShape({ options });</code></h4>
+      <p class="indented">
+        Creates, adds and returns a new <strong>Shape</strong> element. For options see <a href="#rippl.Shape">rippl.Shape</a>.
+      </p>
+      <p class="indented">
+        <span class="label label-important">Warning</span>
+        <small>This method as well as the whole <strong>Shape</strong> class will likely to get removed in favor of into multiple classes for rectangles, circles and so on.</small>
+      </p>
+
+
+
+      <h3>rippl.Timer <code>new rippl.Timer({ options });</code></h3>
+      <p>
+        <strong>Timer</strong> is another important building block of <em>Rippl</em>. You should always initiate one (and preferably <strong>only one</strong>) timer instance for your application if you intend to do animations and use built in transformations. Basic use:
+      </p>
+
+<pre class="prettyprint linenums lang-js">
+canvas = new rippl.Canvas({ id: "my-canvas" });
+
+timer = new rippl.Timer({ fps: 60 });
+timer.bind(canvas)
+
+// add some elements
+
+timer.on("frame", function(time){
+  // do stuff on the elements
+});
+</pre>
+
+      <h4>Options</h4>
+      <div class="indented">
+        <h5>fps <small class="muted">(Number) default: 40</small></h5>
+        <p>
+          frames per second at which the <strong>Timer</strong> <em>should</em> work. If performance drops for any reason, the actual fps will become fluid.
+        </p>
+        <h5>fixedFrames <small class="muted">(Boolean) default: false</small></h5>
+        <p>
+          turning this setting to <code>true</code> will trigger multiple <code>"frame"</code> events to be fired per actual frame rendering if system performance drops. Turn this on if you intend to do manual animations that depend on consistent fps.
+        </p>
+        <p>
+          <span class="label label-warning">Heads up!</span>
+          <small>You really, <em>really</em>, shouldn't use this option if it can be avoided. Doing animations and calculations based on time produces less overhead and more fluid looking animations.</small>
+        </p>
+        <h5>autoStart</strong> <small class="muted">(Boolean) default: true</small></h5>
+        <p>
+          If set to <code>true</code> will start the timer without calling the actual <strong>start</strong> method.
+        </p>
+      </div>
+
+      <h4>Events</h4>
+      <div class="indented">
+        <h5>frame <small class="muted">propagates: (Number) time in milliseconds</small></h5>
+        <p>
+          triggers on each frame right before rendering, best place to do manual animations and / or game logic.
+        </p>
+      </div>
+
+      <h4>bind <code>timer.bind(canvas);</code></h4>
+      <p class="indented">
+        Binds an instance of <strong>Canvas</strong> to the <strong>Timer</strong> making it render on (hopefully) static intervals. You can bind as many instances to a single <strong>Timer</strong> as you want (and you <em>really</em> should use just one).
+      </p>
+      <p class="indented">
+        <span class="label label-info">Heads up!</span>
+        <small><strong>Canvas</strong> will only re-render if there have been changes made to one of it's elements, or you manually call <strong>touch</strong> method on it between frames.</small>
+      </p>
+
+
+      <p><br><br><br><br></p>
+    </div>
+    <script src="js/prettify.js"></script>
+    <script src="../rippl.min.js"></script>
+  </body>
+</html>

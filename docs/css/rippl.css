@@ -1,0 +1,31 @@
+h3 {
+  margin-top: 50px;
+}
+
+h4 {
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  margin-top: 20px;
+}
+
+h4 code, h3 code {
+  font-weight: normal;
+  position: relative;
+  top: -2px;
+}
+
+h5 {
+  margin-bottom: 0;
+}
+
+.row-download {
+  margin-bottom: 10px;
+}
+
+.download-description {
+  line-height: 44px;
+}
+
+.indented {
+  padding-left: 10px;
+}
