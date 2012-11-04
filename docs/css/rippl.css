@@ -1,3 +1,19 @@
+#logo {
+  height: 170px;
+  /* background: url('../img/rippl.png') left bottom no-repeat; */
+  font-size: 10px;
+  line-height: 10px;
+  margin-top: 0;
+  position: relative;
+  top: -20px;
+}
+
+#logo canvas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
 h3 {
   margin-top: 50px;
 }
