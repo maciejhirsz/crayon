@@ -29,25 +29,21 @@
 
         for(i=0; i<limit; i+=1){
 
-          var sprite = new Kinetic.Sprite({
-            x: 200-64 + (Math.random() - 0.5) * 400,
-            y: 200-64 + (Math.random() - 0.5) * 400,
+          var sprite = new Kinetic.Image({
+            image: imageObj,
+            x: 200 + (Math.random() - 0.5) * 400,
+            y: 200 + (Math.random() - 0.5) * 400,
             opacity: 0.25,
-            animations: {
-              idle: [{
-                x: 0,
-                y: 0,
-                width: 128,
-                height: 128
-              }]
+            offset: {
+              x: 64,
+              y: 64
             },
-            animation: 'idle',
-            frameRate: 0,
-            image: imageObj
+            width: 128,
+            height: 128
           });
+
           layer.add(sprite);
           sprites.push(sprite);
-          sprite.start();
         }
 
         var fps, totalTime, lastTime = (new Date).getTime();
@@ -68,31 +64,37 @@
 
         layer.add(counter);
 
-        layer.beforeDraw(function(){
-          var time = (new Date).getTime();
-          times.shift();
-          times.push(time - lastTime);
-          lastTime = time;
+        animation = new Kinetic.Animation({
+          func: function(){
+            var time = (new Date).getTime();
+            times.shift();
+            times.push(time - lastTime);
+            lastTime = time;
 
-          totalTime = 0;
-          for(i=0; i<6; i+=1){
-            totalTime += times[i];
-          }
+            totalTime = 0;
+            for(i=0; i<6; i+=1){
+              totalTime += times[i];
+            }
 
-          fps = (Math.round(600000 / totalTime)) / 100;
+            fps = (Math.round(600000 / totalTime)) / 100;
 
-          counter.setText("FPS: "+fps);
+            counter.setText("FPS: "+fps);
 
-          var t = time / 1000;
-          var sin = Math.sin(t * 4);
+            var t = time / 1000;
+            var sin = Math.sin(t * 4);
 
-          var x = 1 + sin / 10;
-          var y = 1 - sin / 10;
+            var x = 1 + sin / 10;
+            var y = 1 - sin / 10;
 
-          for(i=0; i<limit; i+=1){
-            sprites[i].setScale(x, y);
+            for(i=0; i<limit; i+=1){
+              sprites[i].setScale(x, y);
+            }
+
+            layer.draw();
           }
         });
+
+        animation.start();
       }
 
       imageObj.src = 'img/html5.png';
