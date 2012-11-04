@@ -15,7 +15,7 @@
       <p class="alert alert-error"><strong>THIS IS NOT A FINISHED DOCUMENT</strong></p>
 
 
-      <h3>What is <em>Rippl</em>?</h3>
+      <h3 id="intro">What is <em>Rippl</em>?</h3>
       <p>
         <em>Rippl</em> is a <code>&lt;canvas&gt;</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. <em>Rippl</em> is built with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>. <em>Rippl</em> is entirely antagonistic regarding how you structure your application &mdash; it will stay out of your way and be there for you when you need it.
       </p>
@@ -46,7 +46,7 @@
 
 
 
-      <h3>rippl.Canvas <code>new rippl.Canvas({ options });</code></h3>
+      <h3 id="rippl_Canvas">rippl.Canvas <code>new rippl.Canvas({ options });</code></h3>
 
       <p>
         The <strong>Canvas</strong> class is the heart of <em>Rippl</em>, it wraps the native <code>&lt;canvas&gt;</code> <abbr title="Document Object Model">DOM</abbr> element API and gives you all the power of drawing on it with none of the headache! In most cases you will only need one of these, but keep in mind sacking multiple <code>&lt;canvas&gt;</code> elements to create layers &mdash; separating static and dynamic content &mdash; can increase performance. Basic use:
@@ -105,17 +105,17 @@ canvas.render();</pre>
 
       <h4>createSprite <code>canvas.createSprite({ options });</code></h4>
       <p class="indented">
-        Creates, adds and returns a new <strong>Sprite</strong> element. For options see <a href="#rippl.Text">rippl.Sprite</a>.
+        Creates, adds and returns a new <strong>Sprite</strong> element. For options see <a href="#Element">Element</a> and <a href="#rippl_Sprite">rippl.Sprite</a>.
       </p>
 
       <h4>createText <code>canvas.createText({ options });</code></h4>
       <p class="indented">
-        Creates, adds and returns a new <strong>Text</strong> element. For options see <a href="#rippl.Text">rippl.Text</a>.
+        Creates, adds and returns a new <strong>Text</strong> element. For options see <a href="#Element">Element</a> and <a href="#rippl_Text">rippl.Text</a>.
       </p>
 
       <h4>createShape <code>canvas.createShape({ options });</code></h4>
       <p class="indented">
-        Creates, adds and returns a new <strong>Shape</strong> element. For options see <a href="#rippl.Shape">rippl.Shape</a>.
+        Creates, adds and returns a new <strong>Shape</strong> element. For options see <a href="#Element">Element</a> and <a href="#rippl_Shape">rippl.Shape</a>.
       </p>
       <p class="indented">
         <span class="label label-important">Warning</span>
@@ -124,7 +124,7 @@ canvas.render();</pre>
 
 
 
-      <h3>rippl.Timer <code>new rippl.Timer({ options });</code></h3>
+      <h3 id="rippl_Timer">rippl.Timer <code>new rippl.Timer({ options });</code></h3>
       <p>
         <strong>Timer</strong> is another important building block of <em>Rippl</em>. You should always initiate one (and preferably <strong>only one</strong>) timer instance for your application if you intend to do animations and use built in transformations. Basic use:
       </p>
@@ -181,7 +181,7 @@ timer.on("frame", function(time){
 
 
 
-      <h3>Element</h3>
+      <h3 id="Element">Element</h3>
       <p>
         All <em>Rippl</em> elements inherit from this class, thus they all share some common options and methods.
       </p>
