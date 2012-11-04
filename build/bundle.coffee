@@ -11,11 +11,29 @@ linePattern = RegExp('[^\n]+', 'ig')
 
 template = template.replace includePattern, (match, indent, path) ->
   console.log("    + include ./source/#{path}")
-  fs.readFileSync("./source/#{path}").toString().replace linePattern, (match) ->
+  data =  """
+          #{indent}# =============================================
+          #{indent}#
+          #{indent}# Begin contents of #{path}
+          #{indent}#
+          #{indent}# =============================================
+
+          """
+  data += fs.readFileSync("./source/#{path}").toString().replace linePattern, (match) ->
     #
     # Add indents to new lines
     #
     indent+match
+
+  data += """
+
+          #{indent}# =============================================
+          #{indent}#
+          #{indent}# End contents of #{path}
+          #{indent}#
+          #{indent}# =============================================
+
+          """
 
 console.log("  > Saving bundled rippl.coffee file")
 
