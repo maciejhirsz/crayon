@@ -354,6 +354,7 @@ Rippl may be freely distributed under the MIT license.
   
     options:
       duration: 1000
+      delay: 0
       from: null
       to: null
       transition: 'linear'
@@ -381,7 +382,7 @@ Rippl may be freely distributed under the MIT license.
   
     constructor: (options) ->
       @setOptions(options)
-      @startTime = (new Date).getTime()
+      @startTime = (new Date).getTime() + @options.delay
       @endTime = @startTime + @options.duration
   
       @
@@ -397,9 +398,10 @@ Rippl may be freely distributed under the MIT license.
     # -----------------------------------
   
     getStage: (time) ->
+      return 0 if time < @startTime
+      return 1 if time >= @endTime
+  
       stage = (time - @startTime) / @options.duration
-      stage = 1 if stage > 1
-      stage = 0 if stage < 0
   
       transition = @transitions[@options.transition]
       if typeof transition is 'function'
@@ -508,6 +510,25 @@ Rippl may be freely distributed under the MIT license.
       return @_assets[url] if @_assets[url] isnt undefined
   
       return @_assets[url] = new ImageAsset(url)
+  
+    # -----------------------------------
+  
+    preload: (urls, callback) ->
+      urls = [urls] if typeof urls is 'string'
+  
+      count = urls.length
+  
+      for url in urls
+        asset = @get(url)
+        if asset.__isLoaded
+          count -= 1
+          callback() if count is 0
+  
+        else
+          asset.on 'loaded', ->
+            count -= 1
+            callback() if count is 0
+
   # =============================================
   #
   # End contents of utils/assets.coffee
@@ -538,6 +559,7 @@ Rippl may be freely distributed under the MIT license.
       scaleX: 1.0
       scaleY: 1.0
       hidden: false
+      composition: 'source-over'
   
     # -----------------------------------
   
@@ -655,6 +677,7 @@ Rippl may be freely distributed under the MIT license.
       @canvas.setPosition(@options.x, @options.y)
       @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1
       @canvas.setRotation(@options.rotation) if @options.rotation isnt 0
+      @canvas.ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
   
     # -----------------------------------
     #

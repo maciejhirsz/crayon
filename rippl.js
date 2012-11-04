@@ -282,6 +282,7 @@ var __hasProp = {}.hasOwnProperty,
 
     Transformation.prototype.options = {
       duration: 1000,
+      delay: 0,
       from: null,
       to: null,
       transition: 'linear'
@@ -313,7 +314,7 @@ var __hasProp = {}.hasOwnProperty,
     function Transformation(options) {
       var option, value, _ref, _ref1;
       this.setOptions(options);
-      this.startTime = (new Date).getTime();
+      this.startTime = (new Date).getTime() + this.options.delay;
       this.endTime = this.startTime + this.options.duration;
       this;
 
@@ -335,13 +336,13 @@ var __hasProp = {}.hasOwnProperty,
 
     Transformation.prototype.getStage = function(time) {
       var stage, transition;
+      if (time < this.startTime) {
+        return 0;
+      }
+      if (time >= this.endTime) {
+        return 1;
+      }
       stage = (time - this.startTime) / this.options.duration;
-      if (stage > 1) {
-        stage = 1;
-      }
-      if (stage < 0) {
-        stage = 0;
-      }
       transition = this.transitions[this.options.transition];
       if (typeof transition === 'function') {
         return transition(stage);
@@ -417,6 +418,34 @@ var __hasProp = {}.hasOwnProperty,
         return this._assets[url];
       }
       return this._assets[url] = new ImageAsset(url);
+    },
+    preload: function(urls, callback) {
+      var asset, count, url, _i, _len, _results;
+      if (typeof urls === 'string') {
+        urls = [urls];
+      }
+      count = urls.length;
+      _results = [];
+      for (_i = 0, _len = urls.length; _i < _len; _i++) {
+        url = urls[_i];
+        asset = this.get(url);
+        if (asset.__isLoaded) {
+          count -= 1;
+          if (count === 0) {
+            _results.push(callback());
+          } else {
+            _results.push(void 0);
+          }
+        } else {
+          _results.push(asset.on('loaded', function() {
+            count -= 1;
+            if (count === 0) {
+              return callback();
+            }
+          }));
+        }
+      }
+      return _results;
     }
   };
   CanvasElementAbstract = (function(_super) {
@@ -436,7 +465,8 @@ var __hasProp = {}.hasOwnProperty,
       rotation: 0.0,
       scaleX: 1.0,
       scaleY: 1.0,
-      hidden: false
+      hidden: false,
+      composition: 'source-over'
     };
 
     CanvasElementAbstract.prototype.tranformStack = [];
@@ -557,7 +587,10 @@ var __hasProp = {}.hasOwnProperty,
         this.canvas.setScale(this.options.scaleX, this.options.scaleY);
       }
       if (this.options.rotation !== 0) {
-        return this.canvas.setRotation(this.options.rotation);
+        this.canvas.setRotation(this.options.rotation);
+      }
+      if (this.options.composition !== 'source-over') {
+        return this.canvas.ctx.globalCompositeOperation = this.options.composition;
       }
     };
 
