@@ -17,6 +17,7 @@ class CanvasElementAbstract extends ObjectAbstract
     scaleX: 1.0
     scaleY: 1.0
     hidden: false
+    composition: 'source-over'
 
   # -----------------------------------
 
@@ -134,6 +135,7 @@ class CanvasElementAbstract extends ObjectAbstract
     @canvas.setPosition(@options.x, @options.y)
     @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1
     @canvas.setRotation(@options.rotation) if @options.rotation isnt 0
+    @canvas.ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
 
   # -----------------------------------
   #
