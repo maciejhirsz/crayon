@@ -1,5 +1,5 @@
 
-class CanvasElementAbstract extends ObjectAbstract
+class Element extends ObjectAbstract
   #
   # Default options
   #
