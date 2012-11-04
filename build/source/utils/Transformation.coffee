@@ -10,6 +10,7 @@ class Transformation extends ObjectAbstract
 
   options:
     duration: 1000
+    delay: 0
     from: null
     to: null
     transition: 'linear'
@@ -37,7 +38,7 @@ class Transformation extends ObjectAbstract
 
   constructor: (options) ->
     @setOptions(options)
-    @startTime = (new Date).getTime()
+    @startTime = (new Date).getTime() + @options.delay
     @endTime = @startTime + @options.duration
 
     @
@@ -53,9 +54,10 @@ class Transformation extends ObjectAbstract
   # -----------------------------------
 
   getStage: (time) ->
+    return 0 if time < @startTime
+    return 1 if time >= @endTime
+
     stage = (time - @startTime) / @options.duration
-    stage = 1 if stage > 1
-    stage = 0 if stage < 0
 
     transition = @transitions[@options.transition]
     if typeof transition is 'function'
