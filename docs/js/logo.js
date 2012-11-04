@@ -22,7 +22,8 @@ rippl.assets.preload('img/rippl.png', function(){
   });
 
   mask = canvas.createShape({
-    color: '#000',
+    alpha: 1,
+    color: '#eee',
     composition: 'source-atop',
     x: 0,
     y: 0,
@@ -33,7 +34,7 @@ rippl.assets.preload('img/rippl.png', function(){
   });
 
   bling = canvas.createShape({
-    alpha: 0.75,
+    alpha: 0.66,
     color: '#fff',
     composition: 'source-atop',
     x: -40,
@@ -44,7 +45,18 @@ rippl.assets.preload('img/rippl.png', function(){
   });
 
   mask.transform({
-    duration: 1000,
+    duration: 500,
+    transition: 'easeIn',
+    delay: 300,
+    to: {
+      color: '#000'
+    }
+  });
+
+  mask.transform({
+    duration: 500,
+    delay: 1000,
+    transition: 'easeOut',
     to: {
       alpha: 0
     }
