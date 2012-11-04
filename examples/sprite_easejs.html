@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>EaseJS - sprite performance example</title>
+    <meta charset="utf-8">
+  </head>
+  <body onload="init();">
+    <canvas id="my-canvas" width="400" height="400"></canvas>
+    <div>This demo is using EaseJS (CreateJS) in order to compare performance to Rippl, the whole logic aside from the api is identical.</div>
+
+    <script src="easejs/easejs.js"></script>
+    <script src="../rippl.min.js"></script>
+    <script>
+
+      var canvas;
+      var stage;
+
+      var img = new Image();
+
+      var i, limit = 250;
+      var sprite, sprites = [];
+      var counter;
+
+      function init() {
+        //find canvas and load images, wait for last image to load
+        canvas = document.getElementById("my-canvas");
+
+        // create a new stage and point it at our canvas:
+        stage = new createjs.Stage(canvas);
+
+        img = new Image();
+        img.src = 'img/html5.png';
+        img.onload = handleImageLoad;
+      }
+
+      function handleImageLoad(event) {
+
+        for(i=0; i<limit; i+=1){
+          sprite = new createjs.Bitmap(img);
+          sprite.alpha = 0.25;
+          sprite.x = 200 + (Math.random() - 0.5) * 400;
+          sprite.y = 200 + (Math.random() - 0.5) * 400;
+          sprite.width = 128;
+          sprite.height = 128;
+          sprite.regX = 64;
+          sprite.regY = 64;
+
+          stage.addChild(sprite);
+          sprites.push(sprite);
+        }
+
+        counter = new createjs.Text("FPS: 0", "bold 20px Arial")
+        counter.x = 10;
+        counter.y = 10;
+        counter.shadow = new createjs.Shadow("#fff", 0, 0, 5);
+
+        stage.addChild(counter);
+
+        createjs.Ticker.addListener(window);
+        createjs.Ticker.setFPS(60);
+      }
+
+      var fps, totalTime, lastTime = (new Date).getTime();
+      var times = [0, 0, 0, 0, 0, 0];
+
+      function tick(){
+        var time = (new Date).getTime();
+
+        times.shift();
+        times.push(time - lastTime);
+        lastTime = time;
+
+        totalTime = 0;
+        for(i=0; i<6; i+=1){
+          totalTime += times[i];
+        }
+
+        fps = (Math.round(600000 / totalTime)) / 100;
+
+        counter.text = 'FPS: ' + fps;
+
+        var t = time / 1000;
+        var sin = Math.sin(t * 4);
+
+        var x = 1 + sin / 10;
+        var y = 1 - sin / 10;
+
+        for(i=0; i<limit; i+=1){
+          sprites[i].scaleX = x;
+          sprites[i].scaleY = y;
+        }
+
+        stage.update();
+      }
+
+    </script>
+  </body>
+</html>
