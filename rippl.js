@@ -465,6 +465,8 @@ var __hasProp = {}.hasOwnProperty,
       rotation: 0.0,
       scaleX: 1.0,
       scaleY: 1.0,
+      skewX: 0,
+      skewY: 0,
       hidden: false,
       composition: 'source-over'
     };
@@ -579,12 +581,9 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Element.prototype.prepare = function() {
+      this.canvas.ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, this.options.x, this.options.y);
       if (this.options.alpha !== 1) {
         this.canvas.setAlpha(this.options.alpha);
-      }
-      this.canvas.setPosition(this.options.x, this.options.y);
-      if (this.options.scaleX !== 1 || this.options.scaleY !== 1) {
-        this.canvas.setScale(this.options.scaleX, this.options.scaleY);
       }
       if (this.options.rotation !== 0) {
         this.canvas.setRotation(this.options.rotation);
