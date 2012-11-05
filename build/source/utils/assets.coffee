@@ -11,6 +11,12 @@ rippl.assets =
 
   # -----------------------------------
 
+  define: (url, dataurl) ->
+    @_assets[url] = new ImageAsset(dataurl)
+
+  # -----------------------------------
+
+
   preload: (urls, callback) ->
     urls = [urls] if typeof urls is 'string'
 
