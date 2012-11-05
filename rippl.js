@@ -419,6 +419,9 @@ var __hasProp = {}.hasOwnProperty,
       }
       return this._assets[url] = new ImageAsset(url);
     },
+    define: function(url, dataurl) {
+      return this._assets[url] = new ImageAsset(dataurl);
+    },
     preload: function(urls, callback) {
       var asset, count, url, _i, _len, _results;
       if (typeof urls === 'string') {
