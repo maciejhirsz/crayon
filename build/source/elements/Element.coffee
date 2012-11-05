@@ -35,7 +35,7 @@ class Element extends ObjectAbstract
   #
   # Used by Canvas class to determine whether elements added with addElement method are instances of this parent class
   #
-  __isCanvasElement: true
+  __isElement: true
 
   # -----------------------------------
 
