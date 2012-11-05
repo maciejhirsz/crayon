@@ -120,7 +120,7 @@ canvas.render();</pre>
         <p>
           Width of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
         </p>
-        <h5>height</strong> <small>(Number) default: <code>0</code></small></h5>
+        <h5>height <small>(Number) default: <code>0</code></small></h5>
         <p>
           Height of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
         </p>
@@ -149,28 +149,14 @@ canvas.render();</pre>
         <small>Unlike <strong>render</strong>, using <strong>touch</strong> alone does nothing but flags to render the canvas on the next frame, use only with <strong>Timer</strong>.</small>
       </p>
 
-      <h4>addElement <code>canvas.addElement(element);</code></h4>
+      <h4>add <code>canvas.add(element);</code></h4>
       <p class="indented">
-        Adds a new <strong>Element</strong>, such as <strong>Text</strong> or <strong>Sprite</strong> to the canvas.
+        Adds a new <strong>Element</strong>, such as <a href="#rippl-text"><strong>Text</strong></a> or <a href="#rippl-sprite"><strong>Sprite</strong></a> to the canvas. Returns added element for chaining purposes.
       </p>
 
-      <h4>createSprite <code>canvas.createSprite({ options });</code></h4>
+      <h4>remove <code>canvas.remove(element);</code></h4>
       <p class="indented">
-        Creates, adds and returns a new <strong>Sprite</strong> element. For options see <a href="#element">Element</a> and <a href="#rippl-sprite">rippl.Sprite</a>.
-      </p>
-
-      <h4>createText <code>canvas.createText({ options });</code></h4>
-      <p class="indented">
-        Creates, adds and returns a new <strong>Text</strong> element. For options see <a href="#element">Element</a> and <a href="#rippl-text">rippl.Text</a>.
-      </p>
-
-      <h4>createShape <code>canvas.createShape({ options });</code></h4>
-      <p class="indented">
-        Creates, adds and returns a new <strong>Shape</strong> element. For options see <a href="#element">Element</a> and <a href="#rippl-shape">rippl.Shape</a>.
-      </p>
-      <p class="indented">
-        <span class="label label-important">Warning</span>
-        <small>This method as well as the whole <strong>Shape</strong> class will likely to get removed in favor of into multiple classes for rectangles, circles and so on.</small>
+        Removes specific <strong>Element</strong> from the <strong>Canvas</strong>.
       </p>
 
       <hr>
@@ -207,7 +193,7 @@ timer.on("frame", function(time){
           <span class="label label-warning">Heads up!</span>
           <small>You really, <em>really</em>, shouldn't use this option if it can be avoided. Doing animations and calculations based on time produces less overhead and more fluid looking animations.</small>
         </p>
-        <h5>autoStart</strong> <small>(Boolean) default: <code>true</code></small></h5>
+        <h5>autoStart <small>(Boolean) default: <code>true</code></small></h5>
         <p>
           If set to <code>true</code> will start the timer without calling the actual <strong>start</strong> method.
         </p>
@@ -265,7 +251,7 @@ timer.on("frame", function(time){
         <p>
           Vertical position of the element, top to bottom.
         </p>
-        <h5>z</strong> <small>(Number) default: <code>0</code></small></h5>
+        <h5>z <small>(Number) default: <code>0</code></small></h5>
         <p>
           Depth of the element. By default elements sorted by the order you add them to the <strong>Canvas</strong>, changing <strong>z</strong> changes that order &mdash; elements with higher value of <strong>z</strong> are rendered on top. Can take any floating point value, including negative numbers.
         </p>
@@ -360,6 +346,19 @@ element.transform({
         </div>
 
       <hr>
+
+      <h3 id="rippl-sprite">rippl.Sprite <code>new rippl.Sprite({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <p class="alert alert-warning">Unstable API</p>
+
+      <hr>
+
+      <h3 id="rippl-sprite">rippl.Text <code>new rippl.Text({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <p class="alert alert-warning">Unstable API</p>
+
+      <hr>
+
+      <h3 id="rippl-sprite">rippl.Shape <code>new rippl.Shape({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <p class="alert alert-error">Very unstable API</p>
 
       <p><br><br><br><br></p>
     </div>
