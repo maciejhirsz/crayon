@@ -16,6 +16,8 @@ class Element extends ObjectAbstract
     rotation: 0.0
     scaleX: 1.0
     scaleY: 1.0
+    skewX: 0
+    skewY: 0
     hidden: false
     composition: 'source-over'
 
@@ -131,9 +133,8 @@ class Element extends ObjectAbstract
   # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
   #
   prepare: ->
+    @canvas.ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
     @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
-    @canvas.setPosition(@options.x, @options.y)
-    @canvas.setScale(@options.scaleX, @options.scaleY) if @options.scaleX isnt 1 or @options.scaleY isnt 1
     @canvas.setRotation(@options.rotation) if @options.rotation isnt 0
     @canvas.ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
 
