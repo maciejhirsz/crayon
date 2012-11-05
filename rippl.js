@@ -231,21 +231,34 @@ var __hasProp = {}.hasOwnProperty,
 
     Color.prototype.__isColor = true;
 
-    Color.prototype.string = '#ffffff';
+    Color.prototype.string = 'rgba(255,255,255,255)';
+
+    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\s*\\)\\s*', 'i');
 
     function Color(r, g, b, a) {
-      var hash, l;
-      if (typeof r === 'string' && r[0] === '#') {
-        hash = r;
-        l = hash.length;
-        if (l === 7) {
-          r = parseInt(hash.slice(1, 3), 16);
-          g = parseInt(hash.slice(3, 5), 16);
-          b = parseInt(hash.slice(5, 7), 16);
-        } else if (l === 4) {
-          r = parseInt(hash[1] + hash[1], 16);
-          g = parseInt(hash[2] + hash[2], 16);
-          b = parseInt(hash[3] + hash[3], 16);
+      var hash, l, matches;
+      if (typeof r === 'string') {
+        if (r[0] === '#') {
+          hash = r;
+          l = hash.length;
+          if (l === 7) {
+            r = parseInt(hash.slice(1, 3), 16);
+            g = parseInt(hash.slice(3, 5), 16);
+            b = parseInt(hash.slice(5, 7), 16);
+          } else if (l === 4) {
+            r = parseInt(hash[1] + hash[1], 16);
+            g = parseInt(hash[2] + hash[2], 16);
+            b = parseInt(hash[3] + hash[3], 16);
+          } else {
+            throw "Invalid color string: " + hash;
+          }
+        } else if (matches = r.match(this.rgbaPattern)) {
+          r = Number(matches[1]);
+          g = Number(matches[2]);
+          b = Number(matches[3]);
+          a = Number(matches[4]);
+        } else {
+          throw "Invalid color string: " + hash;
         }
       }
       this.set(r, g, b, a);
