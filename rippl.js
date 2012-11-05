@@ -447,7 +447,7 @@ var __hasProp = {}.hasOwnProperty,
         asset = this.get(url);
         if (asset.__isLoaded) {
           count -= 1;
-          if (count === 0) {
+          if (count === 0 && typeof callback === 'function') {
             _results.push(callback());
           } else {
             _results.push(void 0);
@@ -455,7 +455,7 @@ var __hasProp = {}.hasOwnProperty,
         } else {
           _results.push(asset.on('loaded', function() {
             count -= 1;
-            if (count === 0) {
+            if (count === 0 && typeof callback === 'function') {
               return callback();
             }
           }));

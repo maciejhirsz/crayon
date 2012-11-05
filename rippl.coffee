@@ -542,12 +542,12 @@ Rippl may be freely distributed under the MIT license.
         asset = @get(url)
         if asset.__isLoaded
           count -= 1
-          callback() if count is 0
+          callback() if count is 0 and typeof callback is 'function'
   
         else
           asset.on 'loaded', ->
             count -= 1
-            callback() if count is 0
+            callback() if count is 0 and typeof callback is 'function'
 
   # =============================================
   #
