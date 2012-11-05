@@ -12,7 +12,10 @@
 
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
-      var textElement = canvas.createText({
+      var timer = new rippl.Timer;
+      timer.bind(canvas);
+
+      var text = new rippl.Text({
         label: "WHZOOOM!",
         bold: true,
         x: 200,
@@ -25,11 +28,7 @@
         strokeColor: '#000'
       });
 
-      var timer = new rippl.Timer;
-
-      timer.bind(canvas);
-
-      textElement.transform({
+      canvas.add(text).transform({
         transition: 'easeOut',
         duration: 1500,
         to: {

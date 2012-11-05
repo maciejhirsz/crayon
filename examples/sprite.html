@@ -13,26 +13,25 @@
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
       var timer = new rippl.Timer({ fps: 60 });
-
       timer.bind(canvas);
 
       var i, limit = 250;
-      var sprites = [];
+      var counter, sprite, sprites = [];
 
       for(i=0; i<limit; i+=1){
-        sprites.push(
-          canvas.createSprite({
-            src: 'img/html5.png',
-            x: 200 + (Math.random() - 0.5) * 400,
-            y: 200 + (Math.random() - 0.5) * 400,
-            alpha: 0.25,
-            width: 128,
-            height: 128
-          })
-        );
+        sprite = new rippl.Sprite({
+          src: 'img/html5.png',
+          x: 200 + (Math.random() - 0.5) * 400,
+          y: 200 + (Math.random() - 0.5) * 400,
+          alpha: 0.25,
+          width: 128,
+          height: 128
+        });
+        canvas.add(sprite);
+        sprites.push(sprite);
       }
 
-      counter = canvas.createText({
+      counter = new rippl.Text({
         label: "FPS: 0",
         align: 'left',
         bold: true,
@@ -44,6 +43,8 @@
         shadowBlur: 5,
         shadowColor: '#fff'
       });
+
+      canvas.add(counter);
 
       var fps, totalTime, lastTime = (new Date).getTime();
       var times = [0, 0, 0, 0, 0, 0];
