@@ -352,13 +352,42 @@ element.transform({
 
       <hr>
 
-      <h3 id="rippl-sprite">rippl.Text <code>new rippl.Text({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <h3 id="rippl-text">rippl.Text <code>new rippl.Text({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
       <p class="alert alert-warning">Unstable API</p>
 
       <hr>
 
-      <h3 id="rippl-sprite">rippl.Shape <code>new rippl.Shape({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <h3 id="rippl-shape">rippl.Shape <code>new rippl.Shape({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
       <p class="alert alert-error">Very unstable API</p>
+
+      <hr>
+
+      <h3 id="rippl-assets">rippl.assets</small></h3>
+      <p>
+        <em>Rippl</em> comes with it's own assets manager module to take away the burden of preloading images from your shoulder, as well as make it easy to host images on external domains in Data <abbr title="Uniform Resource Identifier">URI</abbr> format.
+      </p>
+
+      <h4>preload <code>rippl.assets.preload(urls, callback);</code></h4>
+      <div class="indented">
+        <ul class="unstyled">
+          <li><strong>url</strong>  <small class="muted">(String or Array)</small></li>
+          <li><strong>callback</strong> <span class="label">Optional</span> <small class="muted">(Function)</small></li>
+        </ul>
+        <p>
+          Preloads an image or a batch of images and fires the callback when done.
+        </p>
+      </div>
+
+      <h4>define <code>rippl.assets.define(url, dataURI);</code></h4>
+
+      <h4>get <code>rippl.assets.get(url);</code></h4>
+
+      <hr>
+
+      <h3 id="rippl-color">rippl.Color <code>new rippl.Color(r, g, b, a);</code> <small>or</small> <code>new rippl.Color(string);</code></small></h3>
+      <p>
+        Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>).
+      </p>
 
       <p><br><br><br><br></p>
     </div>
