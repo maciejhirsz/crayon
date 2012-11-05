@@ -109,8 +109,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  addElement: (element) ->
-    throw "Tried to add a non-CanvasElement to Canvas" if not element.__isCanvasElement
+  add: (element) ->
+    throw "Tried to add a non-Element to Canvas" if not element.__isElement
     element.canvas = @
     @elements.push(element)
     @touch()
@@ -123,28 +123,14 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  createSprite: (options) ->
-    @addElement(new Sprite(options))
-
-  # -----------------------------------
-
-  createShape: (options) ->
-    @addElement(new Shape(options))
-
-  # -----------------------------------
-
-  createText: (options) ->
-    @addElement(new Text(options))
-
-  # -----------------------------------
-
-  removeElement: (elementToDelete) ->
+  remove: (elementToDelete) ->
     filtered = []
 
     for element in @elements
       if element isnt elementToDelete
         filtered.push(element)
       else
+        element.off()
         delete element.canvas
 
     @elements = filtered
