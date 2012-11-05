@@ -475,7 +475,7 @@ var __hasProp = {}.hasOwnProperty,
 
     Element.prototype.canvas = null;
 
-    Element.prototype.__isCanvasElement = true;
+    Element.prototype.__isElement = true;
 
     function Element(options) {
       this.setOptions(options);
@@ -1114,10 +1114,10 @@ var __hasProp = {}.hasOwnProperty,
       return this.ctx.translate(x, y);
     };
 
-    Canvas.prototype.addElement = function(element) {
+    Canvas.prototype.add = function(element) {
       var _this = this;
-      if (!element.__isCanvasElement) {
-        throw "Tried to add a non-CanvasElement to Canvas";
+      if (!element.__isElement) {
+        throw "Tried to add a non-Element to Canvas";
       }
       element.canvas = this;
       this.elements.push(element);
@@ -1132,19 +1132,7 @@ var __hasProp = {}.hasOwnProperty,
       return element;
     };
 
-    Canvas.prototype.createSprite = function(options) {
-      return this.addElement(new Sprite(options));
-    };
-
-    Canvas.prototype.createShape = function(options) {
-      return this.addElement(new Shape(options));
-    };
-
-    Canvas.prototype.createText = function(options) {
-      return this.addElement(new Text(options));
-    };
-
-    Canvas.prototype.removeElement = function(elementToDelete) {
+    Canvas.prototype.remove = function(elementToDelete) {
       var element, filtered, _i, _len, _ref;
       filtered = [];
       _ref = this.elements;
@@ -1153,6 +1141,7 @@ var __hasProp = {}.hasOwnProperty,
         if (element !== elementToDelete) {
           filtered.push(element);
         } else {
+          element.off();
           delete element.canvas;
         }
       }
