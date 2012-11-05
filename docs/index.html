@@ -20,6 +20,7 @@
         <em>Rippl</em> is a <code>&lt;canvas&gt;</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. <em>Rippl</em> is built with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>. <em>Rippl</em> is entirely agnostic regarding how you structure your application &mdash; it will stay out of your way and be there for you when you need it.
       </p>
 
+      <hr>
 
       <h3>Downloads <small>Right Click &rarr; Save As</small></h3>
       <div class="row-fluid row-download">
@@ -44,7 +45,7 @@
         Or <a href="https://github.com/maciejhirsz/Rippl">get it from GitHub</a>!
       </p>
 
-
+      <hr>
 
       <h3 id="rippl_Canvas">rippl.Canvas <code>new rippl.Canvas({ options });</code></h3>
 
@@ -52,7 +53,7 @@
         The <strong>Canvas</strong> class is the heart of <em>Rippl</em>, it wraps the native <code>&lt;canvas&gt;</code> <abbr title="Document Object Model">DOM</abbr> element API and gives you all the power of drawing on it with none of the headache! In most cases you will only need one of these, but keep in mind sacking multiple <code>&lt;canvas&gt;</code> elements to create layers &mdash; separating static and dynamic content &mdash; can increase performance. Basic use:
       </p>
 
-<pre class="prettyprint linenums lang-js">
+<pre class="prettyprint lang-js">
 canvas = new rippl.Canvas({ id: "my-canvas" });
 
 // add some elements here
@@ -122,14 +123,14 @@ canvas.render();</pre>
         <small>This method as well as the whole <strong>Shape</strong> class will likely to get removed in favor of into multiple classes for rectangles, circles and so on.</small>
       </p>
 
-
+      <hr>
 
       <h3 id="rippl_Timer">rippl.Timer <code>new rippl.Timer({ options });</code></h3>
       <p>
         <strong>Timer</strong> is another important building block of <em>Rippl</em>. You should always initiate one (and preferably <strong>only one</strong>) timer instance for your application if you intend to do animations and use built in transformations. Basic use:
       </p>
 
-<pre class="prettyprint linenums lang-js">
+<pre class="prettyprint lang-js">
 canvas = new rippl.Canvas({ id: "my-canvas" });
 
 timer = new rippl.Timer({ fps: 60 });
@@ -188,6 +189,8 @@ timer.on("frame", function(time){
       <p class="indented">
         Stops the <strong>Timer</strong>.
       </p>
+
+      <hr>
 
       <h3 id="Element">Element</h3>
       <p>
@@ -286,7 +289,7 @@ timer.on("frame", function(time){
         <p>
           Example:
         </p>
-<pre class="prettyprint linenums lang-js">
+<pre class="prettyprint lang-js">
 // move an element from point (0, 50) to (200, 75) over 3 seconds:
 element.transform({
   duration: 3000,
@@ -301,6 +304,8 @@ element.transform({
 });</pre>
 
         </div>
+
+      <hr>
 
       <p><br><br><br><br></p>
     </div>
