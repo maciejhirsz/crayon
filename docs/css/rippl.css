@@ -31,11 +31,9 @@ h5 {
 }
 
 hr {
-
   border: 0;
-  border-top: 3px dotted #aaa;
-  height: 0;
-  background-color: transparent;
+  height: 4px;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAPElEQVQImWM8c+YMAwwoKSnB2UxYRe/du8eEVRSqA1OUgYGB8d27d5iiKHYgiyopKTFhFYXqwBRlYGAAACe+Gj0T5bcjAAAAAElFTkSuQmCC') 2px 0 repeat-x;
   margin: 40px 0;
 }
 
