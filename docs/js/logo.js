@@ -4,7 +4,7 @@ canvas = new rippl.Canvas({
   height: 120
 });
 
-document.getElementById('logo').appendChild(canvas.getDocumentElement());
+document.getElementById('header').appendChild(canvas.getDocumentElement());
 
 rippl.assets.preload('img/rippl.png', function(){
 
