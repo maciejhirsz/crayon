@@ -38,7 +38,7 @@ class Transformation extends ObjectAbstract
 
   constructor: (options) ->
     @setOptions(options)
-    @startTime = (new Date).getTime() + @options.delay
+    @startTime = Date.now() + @options.delay
     @endTime = @startTime + @options.duration
 
     @

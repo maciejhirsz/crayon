@@ -1,4 +1,9 @@
 
+#
+# Compatibility for older browsers
+#
+Date.now = (-> (new @).getTime()) if Date.now is undefined
+
 rippl.Timer = class Timer extends ObjectAbstract
   #
   # Default options
@@ -40,7 +45,7 @@ rippl.Timer = class Timer extends ObjectAbstract
   # -----------------------------------
 
   start: ->
-    @time = @getTime()
+    @time = Date.now()
 
     @timerid = setTimeout(
       => @tick()
@@ -54,18 +59,13 @@ rippl.Timer = class Timer extends ObjectAbstract
 
   # -----------------------------------
 
-  getTime: ->
-    (new Date).getTime()
-
-  # -----------------------------------
-
   getSeconds: ->
-    Math.floor((new Date).getTime() / 1000)
+    ~~(Date.now() / 1000)
 
   # -----------------------------------
 
   tick: ->
-    frameTime = @getTime()
+    frameTime = Date.now()
 
     #
     # Handle fixed frames
@@ -102,7 +102,7 @@ rippl.Timer = class Timer extends ObjectAbstract
     #
     # Measure time again for maximum precision
     #
-    postRenderTime = @getTime()
+    postRenderTime = Date.now()
     delay = @time - postRenderTime
     if delay < 0
       delay = 0
