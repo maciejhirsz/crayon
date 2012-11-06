@@ -46,7 +46,7 @@
 
       canvas.add(counter);
 
-      var fps, totalTime, lastTime = (new Date).getTime();
+      var fps, totalTime, lastTime = Date.now();
       var times = [0, 0, 0, 0, 0, 0];
 
       timer.on('frame', function(time) {
