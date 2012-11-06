@@ -137,9 +137,8 @@ var __hasProp = {}.hasOwnProperty,
     __extends(Timer, _super);
 
     Timer.prototype.options = {
-      fps: 40,
-      autoStart: true,
-      fixedFrames: false
+      fps: 60,
+      autoStart: true
     };
 
     Timer.prototype.frameDuration = 0;
@@ -179,26 +178,11 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Timer.prototype.tick = function() {
-      var canvas, delay, frameTime, iterations, postRenderTime, _i, _len, _ref,
+      var canvas, delay, frameTime, postRenderTime, _i, _len, _ref,
         _this = this;
       frameTime = Date.now();
-      if (this.options.fixedFrames) {
-        iterations = ~~((frameTime - this.time) / this.frameDuration) + 1;
-        if (iterations < 1) {
-          iterations = 1;
-        }
-        if (iterations > 100) {
-          iterations = 100;
-        }
-        this.time += this.frameDuration * iterations;
-        while (iterations) {
-          this.trigger('frame', frameTime);
-          iterations -= 1;
-        }
-      } else {
-        this.time += this.frameDuration;
-        this.trigger('frame', frameTime);
-      }
+      this.time += this.frameDuration;
+      this.trigger('frame', frameTime);
       _ref = this.canvas;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         canvas = _ref[_i];
@@ -208,9 +192,7 @@ var __hasProp = {}.hasOwnProperty,
       delay = this.time - postRenderTime;
       if (delay < 0) {
         delay = 0;
-        if (!this.options.fixedFrames) {
-          this.time = postRenderTime;
-        }
+        this.time = postRenderTime;
       }
       return setTimeout(function() {
         return _this.tick();
