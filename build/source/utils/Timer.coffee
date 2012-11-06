@@ -4,6 +4,13 @@
 #
 Date.now = (-> (new @).getTime()) if Date.now is undefined
 
+if window.requestAnimationFrame is undefined
+  vendors = ['ms', 'moz', 'webkit', 'o']
+  for vendor in vendors
+    if window[vendor+'RequestAnimationFrame']
+      window.requestAnimationFrame = window[vendor+'RequestAnimationFrame']
+      window.cancelAnimationFrame = window[vendor+'CancelAnimationFrame'] || window[vendor+'CancelRequestAnimationFrame']
+
 rippl.Timer = class Timer extends ObjectAbstract
   #
   # Default options
@@ -11,6 +18,10 @@ rippl.Timer = class Timer extends ObjectAbstract
   options:
     fps: 60
     autoStart: true
+
+  # -----------------------------------
+
+  _useAnimatinFrame: false
 
   # -----------------------------------
 
@@ -22,6 +33,8 @@ rippl.Timer = class Timer extends ObjectAbstract
     @setOptions(options)
 
     @frameDuration = 1000 / @options.fps
+
+    #@_useAnimatinFrame = true if window.requestAnimationFrame and @options.fps is 60
 
     @canvas = []
 
@@ -43,15 +56,21 @@ rippl.Timer = class Timer extends ObjectAbstract
   start: ->
     @time = Date.now()
 
-    @timerid = setTimeout(
-      => @tick()
-      @frameDuration
-    )
+    if @_useAnimatinFrame
+      @timerid = window.requestAnimationFrame (time) => @tick(time)
+    else
+      @timerid = setTimeout(
+        => @tickLegacy()
+        @frameDuration
+      )
 
   # -----------------------------------
 
   stop: ->
-    clearTimeout(@timerid)
+    if @_useAnimatinFrame
+      window.cancelAnimationFrame(@timerid)
+    else
+      window.clearTimeout(@timerid)
 
   # -----------------------------------
 
@@ -60,15 +79,23 @@ rippl.Timer = class Timer extends ObjectAbstract
 
   # -----------------------------------
 
-  tick: ->
+  tick: (frameTime) ->
+    frameTime = Date.now if not frameTime
+
+    @trigger('frame', frameTime)
+
+    canvas.render(frameTime) for canvas in @canvas
+
+    @timerid = window.requestAnimationFrame (time) => @tick(time)
+
+  # -----------------------------------
+
+  tickLegacy: ->
     frameTime = Date.now()
 
     @time += @frameDuration
     @trigger('frame', frameTime)
 
-    #
-    # Render all attached Canvas instances
-    #
     canvas.render(frameTime) for canvas in @canvas
 
     #
@@ -80,7 +107,7 @@ rippl.Timer = class Timer extends ObjectAbstract
       delay = 0
       @time = postRenderTime
 
-    setTimeout(
-      => @tick()
+    @timerid = window.setTimeout(
+      => @tickLegacy()
       delay
     )
