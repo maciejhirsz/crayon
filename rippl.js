@@ -127,6 +127,11 @@ var __hasProp = {}.hasOwnProperty,
     return ObjectAbstract;
 
   })();
+  if (Date.now === void 0) {
+    Date.now = (function() {
+      return (new this).getTime();
+    });
+  }
   rippl.Timer = Timer = (function(_super) {
 
     __extends(Timer, _super);
@@ -159,7 +164,7 @@ var __hasProp = {}.hasOwnProperty,
 
     Timer.prototype.start = function() {
       var _this = this;
-      this.time = this.getTime();
+      this.time = Date.now();
       return this.timerid = setTimeout(function() {
         return _this.tick();
       }, this.frameDuration);
@@ -169,18 +174,14 @@ var __hasProp = {}.hasOwnProperty,
       return clearTimeout(this.timerid);
     };
 
-    Timer.prototype.getTime = function() {
-      return (new Date).getTime();
-    };
-
     Timer.prototype.getSeconds = function() {
-      return Math.floor((new Date).getTime() / 1000);
+      return ~~(Date.now() / 1000);
     };
 
     Timer.prototype.tick = function() {
       var canvas, delay, frameTime, iterations, postRenderTime, _i, _len, _ref,
         _this = this;
-      frameTime = this.getTime();
+      frameTime = Date.now();
       if (this.options.fixedFrames) {
         iterations = ~~((frameTime - this.time) / this.frameDuration) + 1;
         if (iterations < 1) {
@@ -203,7 +204,7 @@ var __hasProp = {}.hasOwnProperty,
         canvas = _ref[_i];
         canvas.render(frameTime);
       }
-      postRenderTime = this.getTime();
+      postRenderTime = Date.now();
       delay = this.time - postRenderTime;
       if (delay < 0) {
         delay = 0;
@@ -327,7 +328,7 @@ var __hasProp = {}.hasOwnProperty,
     function Transformation(options) {
       var option, value, _ref, _ref1;
       this.setOptions(options);
-      this.startTime = (new Date).getTime() + this.options.delay;
+      this.startTime = Date.now() + this.options.delay;
       this.endTime = this.startTime + this.options.duration;
       this;
 
