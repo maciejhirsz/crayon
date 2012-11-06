@@ -8,7 +8,7 @@ var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
-  var Canvas, Color, Element, ImageAsset, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl;
+  var Canvas, Color, Element, ImageAsset, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len;
   window.rippl = rippl = {};
   rippl.ObjectAbstract = ObjectAbstract = (function() {
 
@@ -132,6 +132,16 @@ var __hasProp = {}.hasOwnProperty,
       return (new this).getTime();
     });
   }
+  if (window.requestAnimationFrame === void 0) {
+    vendors = ['ms', 'moz', 'webkit', 'o'];
+    for (_i = 0, _len = vendors.length; _i < _len; _i++) {
+      vendor = vendors[_i];
+      if (window[vendor + 'RequestAnimationFrame']) {
+        window.requestAnimationFrame = window[vendor + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendor + 'CancelAnimationFrame'] || window[vendor + 'CancelRequestAnimationFrame'];
+      }
+    }
+  }
   rippl.Timer = Timer = (function(_super) {
 
     __extends(Timer, _super);
@@ -140,6 +150,8 @@ var __hasProp = {}.hasOwnProperty,
       fps: 60,
       autoStart: true
     };
+
+    Timer.prototype._useAnimatinFrame = false;
 
     Timer.prototype.frameDuration = 0;
 
@@ -164,28 +176,55 @@ var __hasProp = {}.hasOwnProperty,
     Timer.prototype.start = function() {
       var _this = this;
       this.time = Date.now();
-      return this.timerid = setTimeout(function() {
-        return _this.tick();
-      }, this.frameDuration);
+      if (this._useAnimatinFrame) {
+        return this.timerid = window.requestAnimationFrame(function(time) {
+          return _this.tick(time);
+        });
+      } else {
+        return this.timerid = setTimeout(function() {
+          return _this.tickLegacy();
+        }, this.frameDuration);
+      }
     };
 
     Timer.prototype.stop = function() {
-      return clearTimeout(this.timerid);
+      if (this._useAnimatinFrame) {
+        return window.cancelAnimationFrame(this.timerid);
+      } else {
+        return window.clearTimeout(this.timerid);
+      }
     };
 
     Timer.prototype.getSeconds = function() {
       return ~~(Date.now() / 1000);
     };
 
-    Timer.prototype.tick = function() {
-      var canvas, delay, frameTime, postRenderTime, _i, _len, _ref,
+    Timer.prototype.tick = function(frameTime) {
+      var canvas, _j, _len1, _ref,
+        _this = this;
+      if (!frameTime) {
+        frameTime = Date.now;
+      }
+      this.trigger('frame', frameTime);
+      _ref = this.canvas;
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        canvas = _ref[_j];
+        canvas.render(frameTime);
+      }
+      return this.timerid = window.requestAnimationFrame(function(time) {
+        return _this.tick(time);
+      });
+    };
+
+    Timer.prototype.tickLegacy = function() {
+      var canvas, delay, frameTime, postRenderTime, _j, _len1, _ref,
         _this = this;
       frameTime = Date.now();
       this.time += this.frameDuration;
       this.trigger('frame', frameTime);
       _ref = this.canvas;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        canvas = _ref[_i];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        canvas = _ref[_j];
         canvas.render(frameTime);
       }
       postRenderTime = Date.now();
@@ -194,8 +233,8 @@ var __hasProp = {}.hasOwnProperty,
         delay = 0;
         this.time = postRenderTime;
       }
-      return setTimeout(function() {
-        return _this.tick();
+      return this.timerid = window.setTimeout(function() {
+        return _this.tickLegacy();
       }, delay);
     };
 
@@ -419,14 +458,14 @@ var __hasProp = {}.hasOwnProperty,
       return this._assets[url] = new ImageAsset(dataurl);
     },
     preload: function(urls, callback) {
-      var asset, count, url, _i, _len, _results;
+      var asset, count, url, _j, _len1, _results;
       if (typeof urls === 'string') {
         urls = [urls];
       }
       count = urls.length;
       _results = [];
-      for (_i = 0, _len = urls.length; _i < _len; _i++) {
-        url = urls[_i];
+      for (_j = 0, _len1 = urls.length; _j < _len1; _j++) {
+        url = urls[_j];
         asset = this.get(url);
         if (asset.__isLoaded) {
           count -= 1;
@@ -562,14 +601,14 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Element.prototype.progress = function(frameTime) {
-      var newStack, transform, _i, _len, _ref;
+      var newStack, transform, _j, _len1, _ref;
       if (!this.transformCount) {
         return;
       }
       newStack = [];
       _ref = this.transformStack;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        transform = _ref[_i];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        transform = _ref[_j];
         transform.progress(this, frameTime);
         if (!transform.isFinished()) {
           newStack.push(transform);
@@ -595,7 +634,7 @@ var __hasProp = {}.hasOwnProperty,
     Element.prototype.render = function() {};
 
     Element.prototype.set = function(target, value) {
-      var change, option, _i, _len;
+      var change, option, _j, _len1;
       if (value !== void 0 && typeof target === 'string') {
         option = target;
         if (this.options[option] !== void 0 && this.options[option] !== value) {
@@ -616,8 +655,8 @@ var __hasProp = {}.hasOwnProperty,
       }
       if (change.length) {
         this.validate(this.options);
-        for (_i = 0, _len = change.length; _i < _len; _i++) {
-          option = change[_i];
+        for (_j = 0, _len1 = change.length; _j < _len1; _j++) {
+          option = change[_j];
           this.trigger("change:" + option);
         }
         return this.trigger("change");
@@ -776,7 +815,7 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Sprite.prototype.animate = function(interval, from, to) {
-      var _i, _results;
+      var _j, _results;
             if (interval != null) {
         interval;
 
@@ -791,7 +830,7 @@ var __hasProp = {}.hasOwnProperty,
       }
       this.playFrames = (function() {
         _results = [];
-        for (var _i = from; from <= to ? _i <= to : _i >= to; from <= to ? _i++ : _i--){ _results.push(_i); }
+        for (var _j = from; from <= to ? _j <= to : _j >= to; from <= to ? _j++ : _j--){ _results.push(_j); }
         return _results;
       }).apply(this);
       this.currentFrame = 0;
@@ -856,7 +895,7 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Shape.prototype.render = function() {
-      var anchor, point, x, y, _i, _len, _ref;
+      var anchor, point, x, y, _j, _len1, _ref;
       if (this.options.shadow) {
         this.canvas.setShadow(this.options.shadowX, this.options.shadowY, this.options.shadowBlur, this.options.shadowColor);
       }
@@ -868,8 +907,8 @@ var __hasProp = {}.hasOwnProperty,
         case "custom":
           this.canvas.ctx.moveTo(this.options.rootX - anchor.x, this.options.rootY - anchor.y);
           _ref = this.points;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            point = _ref[_i];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            point = _ref[_j];
             if (point === null) {
               this.canvas.ctx.closePath();
             } else {
@@ -1132,11 +1171,11 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Canvas.prototype.remove = function(elementToDelete) {
-      var element, filtered, _i, _len, _ref;
+      var element, filtered, _j, _len1, _ref;
       filtered = [];
       _ref = this.elements;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        element = _ref[_j];
         if (element !== elementToDelete) {
           filtered.push(element);
         } else {
@@ -1149,10 +1188,10 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Canvas.prototype.wipe = function() {
-      var element, _i, _len, _ref;
+      var element, _j, _len1, _ref;
       _ref = this.elements;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        element = _ref[_j];
         delete element.canvas;
       }
       this.elements = [];
@@ -1175,10 +1214,10 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Canvas.prototype.render = function(frameTime) {
-      var element, _i, _j, _len, _len1, _ref, _ref1;
+      var element, _j, _k, _len1, _len2, _ref, _ref1;
       _ref = this.elements;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        element = _ref[_j];
         element.progress(frameTime);
       }
       if (!this.changed) {
@@ -1189,8 +1228,8 @@ var __hasProp = {}.hasOwnProperty,
       }
       this.clear();
       _ref1 = this.elements;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        element = _ref1[_j];
+      for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+        element = _ref1[_k];
         if (!element.isHidden()) {
           this.ctx.save();
           element.prepare();
