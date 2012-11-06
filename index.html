@@ -17,7 +17,7 @@
 
       <h3 id="intro">What is <em>Rippl</em>?</h3>
       <p>
-        <em>Rippl</em> is a <code>&lt;canvas&gt;</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. <em>Rippl</em> is built with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>. <em>Rippl</em> is entirely agnostic regarding how you structure your application &mdash; it will stay out of your way and be there for you when you need it.
+        <em>Rippl</em> is a <code>&lt;canvas&gt</code> library that's focused on performance and ease of use. Written completely in <a href="http://coffeescript.org/">CoffeeScript</a>, it can be used in both CoffeeScript or pure JavaScript projects alike. <em>Rippl</em> is built with <abbr title="Asynchronous Model Definition">AMD</abbr> support if you want to use it with <a href="http://requirejs.org/">RequireJS</a>. <em>Rippl</em> is entirely agnostic regarding how you structure your application &mdash; it will stay out of your way and be there for you when you need it.
       </p>
 
       <hr>
@@ -53,7 +53,7 @@
         Nearly all objects in <em>Rippl</em> you will encounter inherit from the same <code>rippl.ObjectAbstract</code> class (you can extend from it yourself if you so desire). If you are used to working with <em>Backbone.js</em>, or just <em>jQuery</em> alone, you should be familiar with the <code>on()</code>, <code>off()</code> and <code>trigger()</code> methods for handling events. <em>Rippl</em> has it's own implementation of those, so there are no dependencies or conclicts between libraries, while keeping your workflow seamless when jumping between the canvas elements, Backbone objects or jQuery wrapped DOM elements.
       </p>
 
-      <h4>on <code>object.on(event, callback);</code></h4>
+      <h4>on <code>object.on(event, callback)</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>event</strong> <small class="muted">(String)</small></li>
@@ -64,7 +64,7 @@
         </p>
       </div>
 
-      <h4>off <code>object.off(event, callback);</code></h4>
+      <h4>off <code>object.off(event, callback)</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>event</strong> <span class="label">Optional</span> <small class="muted">(String)</small></li>
@@ -84,7 +84,7 @@ object.off("frame");
 // removes all listeners from the object
 object.off();</pre>
 
-      <h4>trigger <code>object.trigger(event, argument);</code></h4>
+      <h4>trigger <code>object.trigger(event, argument)</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>event</strong> <small class="muted">(String)</small></li>
@@ -97,14 +97,14 @@ object.off();</pre>
 
       <hr>
 
-      <h3 id="rippl-canvas">rippl.Canvas <code>new rippl.Canvas({ options });</code></h3>
+      <h3 id="rippl-canvas">rippl.Canvas <code>new rippl.Canvas({ options })</code></h3>
 
       <p>
-        The <strong>Canvas</strong> class is the heart of <em>Rippl</em>, it wraps the native <code>&lt;canvas&gt;</code> <abbr title="Document Object Model">DOM</abbr> element API and gives you all the power of drawing on it with none of the headache! In most cases you will only need one of these, but keep in mind sacking multiple <code>&lt;canvas&gt;</code> elements to create layers &mdash; separating static and dynamic content &mdash; can increase performance. Basic use:
+        The <strong>Canvas</strong> class is the heart of <em>Rippl</em>, it wraps the native <code>&lt;canvas&gt</code> <abbr title="Document Object Model">DOM</abbr> element API and gives you all the power of drawing on it with none of the headache! In most cases you will only need one of these, but keep in mind sacking multiple <code>&lt;canvas&gt</code> elements to create layers &mdash; separating static and dynamic content &mdash; can increase performance. Basic use:
       </p>
 
 <pre class="prettyprint lang-js">
-canvas = new rippl.Canvas({ id: "my-canvas" });
+var canvas = new rippl.Canvas({ id: "my-canvas" });
 
 // add some elements here
 
@@ -126,12 +126,12 @@ canvas.render();</pre>
         </p>
       </div>
 
-      <h4>getDocumentElement <code>canvas.getDocumentElement();</code></h4>
+      <h4>getDocumentElement <code>canvas.getDocumentElement()</code></h4>
       <p class="indented">
         Returns the DOM element, useful if you create a blank canvas with <em>Rippl</em> and want to append it to DOM tree later.
       </p>
 
-      <h4>render <code>canvas.render();</code></h4>
+      <h4>render <code>canvas.render()</code></h4>
       <p class="indented">
         Renders a frame. Unlike raw canvas API elements added to the <strong>Canvas</strong> are not drawn until <strong>render</strong> method is called.
       </p>
@@ -140,7 +140,7 @@ canvas.render();</pre>
         <small>If you are using a <strong>Timer</strong> you should <em>never</em> call this method.</small>
       </p>
 
-      <h4>touch <code>canvas.touch();</code></h4>
+      <h4>touch <code>canvas.touch()</code></h4>
       <p class="indented">
         This method is normally used internally to mark if anything on given <strong>Canvas</strong> has changed and a render is require. You generally shouldn't need to use this yourself, but there is no harm in doing so. Calling <strong>touch</strong> multiple times between frames has no effect on performance.
       </p>
@@ -149,28 +149,28 @@ canvas.render();</pre>
         <small>Unlike <strong>render</strong>, using <strong>touch</strong> alone does nothing but flags to render the canvas on the next frame, use only with <strong>Timer</strong>.</small>
       </p>
 
-      <h4>add <code>canvas.add(element);</code></h4>
+      <h4>add <code>canvas.add(element)</code></h4>
       <p class="indented">
         Adds a new <strong>Element</strong>, such as <a href="#rippl-text"><strong>Text</strong></a> or <a href="#rippl-sprite"><strong>Sprite</strong></a> to the canvas. Returns added element for chaining purposes.
       </p>
 
-      <h4>remove <code>canvas.remove(element);</code></h4>
+      <h4>remove <code>canvas.remove(element)</code></h4>
       <p class="indented">
         Removes specific <strong>Element</strong> from the <strong>Canvas</strong>.
       </p>
 
       <hr>
 
-      <h3 id="rippl-timer">rippl.Timer <code>new rippl.Timer({ options });</code></h3>
+      <h3 id="rippl-timer">rippl.Timer <code>new rippl.Timer({ options })</code></h3>
       <p>
         <strong>Timer</strong> is another important building block of <em>Rippl</em>. You should always initiate one (and preferably <strong>only one</strong>) timer instance for your application if you intend to do animations and use built in transformations. Basic use:
       </p>
 
 <pre class="prettyprint lang-js">
-canvas = new rippl.Canvas({ id: "my-canvas" });
+var canvas = new rippl.Canvas({ id: "my-canvas" });
+var timer = new rippl.Timer;
 
-timer = new rippl.Timer({ fps: 60 });
-timer.bind(canvas)
+timer.bind(canvas);
 
 // add some elements
 
@@ -181,21 +181,13 @@ timer.on("frame", function(time){
 
       <h4>Options</h4>
       <div class="indented">
-        <h5>fps <small>(Number) default: <code>40</code></small></h5>
+        <h5>fps <small>(Number) default: <code>60</code></small></h5>
         <p>
           Frames per second at which the <strong>Timer</strong> <em>should</em> work. If performance drops for any reason, the actual fps will become fluid.
         </p>
-        <h5>fixedFrames <small>(Boolean) default: <code>false</code></small></h5>
-        <p>
-          Turning this setting to <code>true</code> will trigger multiple <code>"frame"</code> events to be fired per actual frame rendering if system performance drops. Turn this on if you intend to do manual animations that depend on consistent fps.
-        </p>
-        <p>
-          <span class="label label-warning">Heads up!</span>
-          <small>You really, <em>really</em>, shouldn't use this option if it can be avoided. Doing animations and calculations based on time produces less overhead and more fluid looking animations.</small>
-        </p>
         <h5>autoStart <small>(Boolean) default: <code>true</code></small></h5>
         <p>
-          If set to <code>true</code> will start the timer without calling the actual <strong>start</strong> method.
+          If set to <code>true</code> will start the timer without having to call the <strong>start</strong> method.
         </p>
       </div>
 
@@ -207,7 +199,7 @@ timer.on("frame", function(time){
         </p>
       </div>
 
-      <h4>bind <code>timer.bind(canvas);</code></h4>
+      <h4>bind <code>timer.bind(canvas)</code></h4>
       <p class="indented">
         Binds an instance of <strong>Canvas</strong> to the <strong>Timer</strong> making it render on (hopefully) static intervals. You can bind as many instances to a single <strong>Timer</strong> as you want (and you <em>really</em> should use just one).
       </p>
@@ -216,12 +208,12 @@ timer.on("frame", function(time){
         <small><strong>Canvas</strong> will only re-render if there have been changes made to one of it's elements, or you manually call <strong>touch</strong> method on it between frames.</small>
       </p>
 
-      <h4>start <code>timer.start();</code></h4>
+      <h4>start <code>timer.start()</code></h4>
       <p class="indented">
         Starts the <strong>Timer</strong>.
       </p>
 
-      <h4>stop <code>timer.stop();</code></h4>
+      <h4>stop <code>timer.stop()</code></h4>
       <p class="indented">
         Stops the <strong>Timer</strong>.
       </p>
@@ -303,18 +295,18 @@ timer.on("frame", function(time){
         <p>
           Triggers when an option or multiple options of the element have been changed.
         </p>
-        <h5>change:*</h5>
+        <h5>change:<em>option</em></h5>
         <p>
           Triggers when a specific option of the element has been changed, f.e. changing <strong>alpha</strong> will trigger a <strong>change:alpha</strong> event.
         </p>
       </div>
 
-      <h4>set <code>element.set({ options });</code> <small>or</small> <code>element.set(option, value);</code></h4>
+      <h4>set <code>element.set({ options })</code> <small>or</small> <code>element.set(option, value)</code></h4>
       <p class="indented">
         Changes one or multiple options of the element.
       </p>
 
-      <h4>transform <code>element.transform({ params });</code></h4>
+      <h4>transform <code>element.transform({ params })</code></h4>
       <div class="indented">
         <p>
           Animates one or more option of the element over time. Params are:
@@ -347,17 +339,17 @@ element.transform({
 
       <hr>
 
-      <h3 id="rippl-sprite">rippl.Sprite <code>new rippl.Sprite({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <h3 id="rippl-sprite">rippl.Sprite <code>new rippl.Sprite({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
       <p class="alert alert-warning">Unstable API</p>
 
       <hr>
 
-      <h3 id="rippl-text">rippl.Text <code>new rippl.Text({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <h3 id="rippl-text">rippl.Text <code>new rippl.Text({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
       <p class="alert alert-warning">Unstable API</p>
 
       <hr>
 
-      <h3 id="rippl-shape">rippl.Shape <code>new rippl.Shape({ options });</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <h3 id="rippl-shape">rippl.Shape <code>new rippl.Shape({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
       <p class="alert alert-error">Very unstable API</p>
 
       <hr>
@@ -367,7 +359,7 @@ element.transform({
         <em>Rippl</em> comes with it's own assets manager module to take away the burden of preloading images from your shoulder, as well as make it easy to host images on external domains in Data <abbr title="Uniform Resource Identifier">URI</abbr> format.
       </p>
 
-      <h4>preload <code>rippl.assets.preload(urls, callback);</code></h4>
+      <h4>preload <code>rippl.assets.preload(urls, callback)</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>url</strong>  <small class="muted">(String or Array)</small></li>
@@ -378,13 +370,13 @@ element.transform({
         </p>
       </div>
 
-      <h4>define <code>rippl.assets.define(url, dataURI);</code></h4>
+      <h4>define <code>rippl.assets.define(url, dataURI)</code></h4>
 
-      <h4>get <code>rippl.assets.get(url);</code></h4>
+      <h4>get <code>rippl.assets.get(url)</code></h4>
 
       <hr>
 
-      <h3 id="rippl-color">rippl.Color <code>new rippl.Color(r, g, b, a);</code> <small>or</small> <code>new rippl.Color(string);</code></small></h3>
+      <h3 id="rippl-color">rippl.Color <code>new rippl.Color(r, g, b, a)</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
       <p>
         Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>).
       </p>
