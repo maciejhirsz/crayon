@@ -50,7 +50,12 @@
             <li><a href="#element-transform">transform</a></li>
           </ul>
         </li>
-        <li><a href="#sprite">Sprite</a></li>
+        <li>
+          <a href="#sprite">Sprite</a>
+          <ul>
+            <li><a href="#sprite-options">Options</a></li>
+          </ul>
+        </li>
         <li><a href="#text">Text</a></li>
         <li><a href="#shape">Shape</a></li>
         <li>
@@ -408,7 +413,36 @@ element.transform({
       <hr>
 
       <h3 id="sprite">Sprite <code>new rippl.Sprite({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
-      <p class="alert alert-warning">Unstable API</p>
+      <p>
+        Creates an image sprite that can be cropped and animated.
+      </p>
+      <pre class="prettyprint lang-js">
+// create a sprite using rippl.png as source
+var logo = new rippl.Sprite({
+  src: 'rippl.png',
+  x: 0,
+  y: 0,
+  width: 269,
+  height: 120,
+  // reset anchor to top left corner
+  anchorX: 0,
+  anchorY: 0
+});
+
+// add the sprite to rendering queue
+canvas.add(logo);</pre>
+
+      <h4 id="sprite-options">Options</h4>
+      <div class="indented">
+        <h5>src <small>(String, ImageAsset or Canvas) required</small></h5>
+        <p>
+          Image to be rendered, takes either an url string, <strong>ImageAsset</strong> class instance (read: <a href="#assets-get">assets.get</a>) or <strong>Canvas</strong> class instance.
+        </p>
+        <h5>cropX <small>and</small> cropY <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Offsets the original image to a specific point on the source image.
+        </p>
+      </div>
 
       <hr>
 
