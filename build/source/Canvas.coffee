@@ -46,23 +46,6 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  getCanvas: ->
-    @_canvas
-
-  # -----------------------------------
-
-  newCanvas: (options) ->
-    return new Canvas(options)
-
-  # -----------------------------------
-
-  createImage: (url, callback) ->
-    image = new Image
-    image.onload = -> callback(image)
-    image.src = url
-
-  # -----------------------------------
-
   fill: (color) ->
     @ctx.fillStyle = color.toString()
     @ctx.fill()
@@ -86,26 +69,6 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     @ctx.shadowOffsetY = y
     @ctx.shadowBlur = blur
     @ctx.shadowColor = color.toString()
-
-  # -----------------------------------
-
-  setScale: (x, y) ->
-    @ctx.scale(x, y)
-
-  # -----------------------------------
-
-  setAlpha: (alpha) ->
-    @ctx.globalAlpha = alpha
-
-  # -----------------------------------
-
-  setRotation: (rotation) ->
-    @ctx.rotate(rotation)
-
-  # -----------------------------------
-
-  setPosition: (x, y) ->
-    @ctx.translate(x, y)
 
   # -----------------------------------
 
