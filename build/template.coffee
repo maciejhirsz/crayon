@@ -16,6 +16,9 @@ Rippl may be freely distributed under the MIT license.
   #!include elements/Sprite.coffee
   #!include elements/Shape.coffee
   #!include elements/Text.coffee
+  #!include elements/Rectangle.coffee
+  #!include elements/Circle.coffee
+  #!include elements/CustomShape.coffee
   #!include Canvas.coffee
 
 )(window)
