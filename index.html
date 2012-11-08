@@ -439,8 +439,14 @@ element.transform({
       </div>
 
       <h4 id="assets-define">define <code>rippl.assets.define(url, dataURI)</code></h4>
+      <p class="indented">
+        Defines a faux url asset with <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI</a> as a source.
+      </p>
 
       <h4 id="assets-get">get <code>rippl.assets.get(url)</code></h4>
+      <p class="indented">
+        Returns an <strong>ImageAsset</strong> object containing an image from the given url. Always returns the same instance for the same url. This method gets used internally when an url string is passed as a <strong>src</strong> option for the <strong>Sprite</strong> class.
+      </p>
 
       <hr>
 
