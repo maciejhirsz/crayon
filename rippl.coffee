@@ -1065,7 +1065,7 @@ Rippl may be freely distributed under the MIT license.
   rippl.Text = class Text extends Shape
     constructor: (options, canvas) ->
       @addDefaults
-        label: 'Surface'
+        label: 'Rippl'
         align: 'center' # left|right|center
         baseline: 'middle' # top|hanging|middle|alphabetic|ideographic|bottom
         italic: false

@@ -924,7 +924,7 @@ var __hasProp = {}.hasOwnProperty,
 
     function Text(options, canvas) {
       this.addDefaults({
-        label: 'Surface',
+        label: 'Rippl',
         align: 'center',
         baseline: 'middle',
         italic: false,
