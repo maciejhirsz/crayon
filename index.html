@@ -149,7 +149,7 @@
       <h3 id="events">Events</h3>
 
       <p>
-        Nearly all objects in <em>Rippl</em> you will encounter inherit from the same <code>rippl.ObjectAbstract</code> class (you can extend from it yourself if you so desire). If you are used to working with <em>Backbone.js</em>, or just <em>jQuery</em> alone, you should be familiar with the <code>on()</code>, <code>off()</code> and <code>trigger()</code> methods for handling events. <em>Rippl</em> has it's own implementation of those, so there are no dependencies or conclicts between libraries, while keeping your workflow seamless when jumping between the canvas elements, Backbone objects or jQuery wrapped DOM elements.
+        Nearly all objects in <em>Rippl</em> you will encounter inherit from the same <code>rippl.ObjectAbstract</code> class (you can extend from it yourself if you so desire). If you are used to working with <em>Backbone.js</em>, or just <em>jQuery</em> alone, you should be familiar with the <code>on()</code>, <code>off()</code> and <code>trigger()</code> methods for handling events. <em>Rippl</em> has its own implementation of those, so there are no dependencies or conflicts between libraries, while keeping your workflow seamless when jumping between the canvas elements, Backbone objects or jQuery wrapped DOM elements.
       </p>
 
       <h4 id="events-on">on <code>object.on(event, callback)</code></h4>
@@ -241,7 +241,7 @@ canvas.render();</pre>
 
       <h4 id="canvas-touch">touch <code>canvas.touch()</code></h4>
       <p class="indented">
-        This method is normally used internally to mark if anything on given <strong>Canvas</strong> has changed and a render is require. You generally shouldn't need to use this yourself, but there is no harm in doing so. Calling <strong>touch</strong> multiple times between frames has no effect on performance.
+        This method is normally used internally to mark if anything on given <strong>Canvas</strong> has changed and a render is required. You generally shouldn't need to use this yourself, but there is no harm in doing so. Calling <strong>touch</strong> multiple times between frames has no effect on performance.
       </p>
       <p class="indented">
         <span class="label label-info">Heads up!</span>
@@ -418,8 +418,8 @@ timer.on("frame", function(time){
         <ul class="unstyled">
           <li><strong>duration</strong> <small class="muted">(Number) default: <code>1000</code></small> &mdash; duration of the animation in milliseconds.</li>
           <li><strong>delay</strong> <small class="muted">(Number) default: <code>0</code></small> &mdash; time to wait before starting the transition in milliseconds.</li>
-          <li><strong>from</strong> <small class="muted">(Object) optional</small> &mdash; starting value or values of element options. If omitted then element's current options are used.</li>
-          <li><strong>to</strong> <small class="muted">(Object) optional</small> &mdash; ending value or values of element options. If omitted then element's current options are used.</li>
+          <li><strong>from</strong> <small class="muted">(Object) optional</small> &mdash; starting value or values of element options. If omitted then the element's current options are used.</li>
+          <li><strong>to</strong> <small class="muted">(Object) optional</small> &mdash; ending value or values of element options. If omitted then the element's current options are used.</li>
           <li><strong>transition</strong> <small class="muted">(String) default: <code>"linear"</code></small> &mdash; smoothing transition to be used, allowed values are <code>"linear"</code>, <code>"easeIn"</code>, <code>"easeOut"</code> and <code>"easeInOut"</code>.</li>
         </ul>
         <p>
@@ -479,7 +479,7 @@ canvas.add(logo);</pre>
 
       <h3 id="shape">Shape <small>inherits from <a href="#element">Element</a></small></h3>
       <p>
-        <strong>Shape</strong> is a specialized type of an <strong>Element</strong> that deals with vector graphics (including <a href="#text"><strong>Text</strong></a>).
+        <strong>Shape</strong> is a specialized type of <strong>Element</strong> that deals with vector graphics (including <a href="#text"><strong>Text</strong></a>).
       </p>
       <p>
         <span class="label label">Note</span>
@@ -688,7 +688,7 @@ canvas.add(triangle);</pre>
 
       <h3 id="assets">assets</small></h3>
       <p>
-        <em>Rippl</em> comes with it's own assets manager module to take away the burden of preloading images from your shoulder, as well as make it easy to host images on external domains in Data <abbr title="Uniform Resource Identifier">URI</abbr> format.
+        <em>Rippl</em> comes with its own assets manager module to take away the burden of preloading images off your shoulders, as well as to make it easy to host images on external domains in the <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI</a> format.
       </p>
 
       <h4 id="assets-preload">preload <code>rippl.assets.preload(url, callback)</code></h4>
@@ -704,7 +704,7 @@ canvas.add(triangle);</pre>
 
       <h4 id="assets-define">define <code>rippl.assets.define(url, dataURI)</code></h4>
       <p class="indented">
-        Defines a faux url asset with <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI</a> as a source.
+        Defines a faux url asset with Data URI as a source.
       </p>
 
       <h4 id="assets-get">get <code>rippl.assets.get(url)</code></h4>
