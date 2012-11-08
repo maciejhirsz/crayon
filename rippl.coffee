@@ -983,19 +983,9 @@ Rippl may be freely distributed under the MIT license.
   #
   # =============================================
 
-  rippl.Shape = class Shape extends Element
+  class Shape extends Element
     constructor: (options, canvas) ->
       @addDefaults
-        type: 'rectangle' # rectangle|circle|custom
-        #
-        # root - for custom shapes position of the first point relative to the anchor
-        #
-        rootX: 0
-        rootY: 0
-        #
-        # radius - for circle shape the radius of the circle, for rectangle the border radius (rounded rectangle)
-        #
-        radius: 0
         stroke: 0
         strokeColor: '#000'
         lineCap: 'butt' # butt|round|square
@@ -1009,11 +999,7 @@ Rippl may be freely distributed under the MIT license.
         shadowBlur: 0
         shadowColor: '#000'
 
-      @points = []
-
       super(options, canvas)
-
-      @options.anchorInPixels = true if @options.type is 'custom'
 
     # -----------------------------------
 
@@ -1024,83 +1010,45 @@ Rippl may be freely distributed under the MIT license.
 
     # -----------------------------------
 
+    drawPath: ->
+
+    # -----------------------------------
+
     render: ->
       @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 
-      @canvas.ctx.beginPath()
+      ctx = @canvas.ctx
 
-      anchor = @getAnchor()
+      ctx.beginPath()
 
       #
       # Set line properties
       #
-      @canvas.ctx.lineCap = @options.lineCap
-      @canvas.ctx.lineJoin = @options.lineJoin
+      ctx.lineCap = @options.lineCap
+      ctx.lineJoin = @options.lineJoin
 
       #
       # Draw path
       #
-      switch @options.type
-        when "custom"
-          @canvas.ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
-          for point in @points
-            if point is null
-              @canvas.ctx.closePath()
-            else
-              [x, y] = point
-              @canvas.ctx.lineTo(x - anchor.x, y - anchor.y)
-        when "circle"
-          @canvas.ctx.arc(0, 0, @options.radius, 0, Math.PI * 2, false)
-        else
-          if @options.radius is 0
-            @canvas.ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
-          else
-            @roundRect(-anchor.x, -anchor.y, @options.width, @options.height, @options.radius)
+      @drawPath()
 
       #
       # Erase background before drawing?
       #
       if @options.erase
-        if @options.type is 'rectangle' and @options.radius is 0
-          @canvas.ctx.clearRect(-anchor.x, -anchor.y, @options.width, @options.height)
-        else
-          @canvas.ctx.save()
-          @canvas.ctx.globalCompositeOperation = 'destination-out'
-          @canvas.ctx.globalAlpha = 1.0
-          @canvas.fill('#000000')
-          @canvas.ctx.restore()
-
+        ctx.save()
+        ctx.globalCompositeOperation = 'destination-out'
+        ctx.globalAlpha = 1.0
+        @canvas.fill('#000000')
+        ctx.restore()
 
       #
       # Fill and stroke if applicable
       #
       @canvas.fill(@options.color) if @options.fill
-
       @canvas.stroke(@options.stroke, @options.strokeColor) if @options.stroke > 0
-      @canvas.ctx.closePath()
 
-    # -----------------------------------
-
-    roundRect: (x, y, width, height, radius) ->
-      @canvas.ctx.moveTo(x + width - radius, y)
-      @canvas.ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-      @canvas.ctx.lineTo(x + width, y + height - radius)
-      @canvas.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-      @canvas.ctx.lineTo(x + radius, y + height)
-      @canvas.ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-      @canvas.ctx.lineTo(x, y + radius)
-      @canvas.ctx.quadraticCurveTo(x, y, x + radius, y)
-      @canvas.ctx.closePath()
-
-    # -----------------------------------
-
-    addPoint: (x, y) ->
-      @points.push([x, y])
-
-    # -----------------------------------
-
-    close: ->
-      @points.push(null)
+      #ctx.closePath()
 
   # =============================================
   #
@@ -1114,34 +1062,18 @@ Rippl may be freely distributed under the MIT license.
   #
   # =============================================
 
-  rippl.Text = class Text extends Element
+  rippl.Text = class Text extends Shape
     constructor: (options, canvas) ->
       @addDefaults
         label: 'Surface'
         align: 'center' # left|right|center
         baseline: 'middle' # top|hanging|middle|alphabetic|ideographic|bottom
-        color: '#000'
-        fill: true
-        stroke: 0
-        strokeColor: '#000'
         italic: false
         bold: false
         size: 12
         font: 'sans-serif'
-        shadow: false
-        shadowX: 0
-        shadowY: 0
-        shadowBlur: 0
-        shadowColor: '#000'
 
       super(options, canvas)
-
-    # -----------------------------------
-
-    validate: (options) ->
-      options.color = @validateColor(options.color) if options.color isnt undefined
-      options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
-      options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
 
     # -----------------------------------
 
@@ -1171,6 +1103,137 @@ Rippl may be freely distributed under the MIT license.
   # =============================================
   #
   # End contents of elements/Text.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of elements/Rectangle.coffee
+  #
+  # =============================================
+
+  rippl.Rectangle = class Rectangle extends Shape
+    constructor: (options, canvas) ->
+      @addDefaults
+        radius: 0 # radius of rounded corners
+
+      super(options, canvas)
+
+    # -----------------------------------
+
+    drawPath: ->
+      anchor = @getAnchor()
+
+      if @options.radius is 0
+        @canvas.ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
+      else
+        @roundRect(-anchor.x, -anchor.y, @options.width, @options.height, @options.radius)
+
+    # -----------------------------------
+
+    roundRect: (x, y, width, height, radius) ->
+      ctx = @canvas.ctx
+      ctx.moveTo(x + width - radius, y)
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+      ctx.lineTo(x + width, y + height - radius)
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+      ctx.lineTo(x + radius, y + height)
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+      ctx.lineTo(x, y + radius)
+      ctx.quadraticCurveTo(x, y, x + radius, y)
+      ctx.closePath()
+  # =============================================
+  #
+  # End contents of elements/Rectangle.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of elements/Circle.coffee
+  #
+  # =============================================
+
+  rippl.Circle = class Circle extends Shape
+    constructor: (options, canvas) ->
+      @addDefaults
+        radius: 0 # radius of the circle
+
+      super(options, canvas)
+
+      @options.width = @options.radius * 2
+      @options.height = @options.radius * 2
+
+    # -----------------------------------
+
+    drawPath: ->
+      @canvas.ctx.arc(0, 0, @options.radius, 0, Math.PI * 2, false)
+  # =============================================
+  #
+  # End contents of elements/Circle.coffee
+  #
+  # =============================================
+
+  # =============================================
+  #
+  # Begin contents of elements/CustomShape.coffee
+  #
+  # =============================================
+
+  rippl.CustomShape = class CustomShape extends Shape
+    constructor: (options, canvas) ->
+      @addDefaults
+        #
+        # position of the first point relative to the anchor
+        #
+        rootX: 0
+        rootY: 0
+        #
+        # Set the anchor defaults to 0
+        #
+        anchorX: 0
+        anchorY: 0
+
+      super(options, canvas)
+
+      @points = []
+      @options.anchorInPixels = true
+
+    # -----------------------------------
+
+    drawPath: ->
+      anchor = @getAnchor()
+
+      ctx = @canvas.ctx
+
+      ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
+      for point in @points
+        if point is null
+          ctx.closePath()
+        else
+          [x, y, line] = point
+          if line
+            ctx.lineTo(x - anchor.x, y - anchor.y)
+          else
+            ctx.moveTo(x - anchor.x, y - anchor.y)
+
+    # -----------------------------------
+
+    lineTo: (x, y) ->
+      @points.push([x, y, true])
+
+    # -----------------------------------
+
+    moveTo: (x, y) ->
+      @points.push([x, y, false])
+
+    # -----------------------------------
+
+    close: ->
+      @points.push(null)
+  # =============================================
+  #
+  # End contents of elements/CustomShape.coffee
   #
   # =============================================
 

@@ -8,7 +8,7 @@ var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
-  var Canvas, Color, Element, ImageAsset, ObjectAbstract, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len;
+  var Canvas, Circle, Color, CustomShape, Element, ImageAsset, ObjectAbstract, Rectangle, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len;
   window.rippl = rippl = {};
   rippl.ObjectAbstract = ObjectAbstract = (function() {
 
@@ -852,16 +852,12 @@ var __hasProp = {}.hasOwnProperty,
     return Sprite;
 
   })(Element);
-  rippl.Shape = Shape = (function(_super) {
+  Shape = (function(_super) {
 
     __extends(Shape, _super);
 
     function Shape(options, canvas) {
       this.addDefaults({
-        type: 'rectangle',
-        rootX: 0,
-        rootY: 0,
-        radius: 0,
         stroke: 0,
         strokeColor: '#000',
         lineCap: 'butt',
@@ -875,11 +871,7 @@ var __hasProp = {}.hasOwnProperty,
         shadowBlur: 0,
         shadowColor: '#000'
       });
-      this.points = [];
       Shape.__super__.constructor.call(this, options, canvas);
-      if (this.options.type === 'custom') {
-        this.options.anchorInPixels = true;
-      }
     }
 
     Shape.prototype.validate = function(options) {
@@ -894,77 +886,31 @@ var __hasProp = {}.hasOwnProperty,
       }
     };
 
+    Shape.prototype.drawPath = function() {};
+
     Shape.prototype.render = function() {
-      var anchor, point, x, y, _j, _len1, _ref;
+      var ctx;
       if (this.options.shadow) {
         this.canvas.setShadow(this.options.shadowX, this.options.shadowY, this.options.shadowBlur, this.options.shadowColor);
       }
-      this.canvas.ctx.beginPath();
-      anchor = this.getAnchor();
-      this.canvas.ctx.lineCap = this.options.lineCap;
-      this.canvas.ctx.lineJoin = this.options.lineJoin;
-      switch (this.options.type) {
-        case "custom":
-          this.canvas.ctx.moveTo(this.options.rootX - anchor.x, this.options.rootY - anchor.y);
-          _ref = this.points;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            point = _ref[_j];
-            if (point === null) {
-              this.canvas.ctx.closePath();
-            } else {
-              x = point[0], y = point[1];
-              this.canvas.ctx.lineTo(x - anchor.x, y - anchor.y);
-            }
-          }
-          break;
-        case "circle":
-          this.canvas.ctx.arc(0, 0, this.options.radius, 0, Math.PI * 2, false);
-          break;
-        default:
-          if (this.options.radius === 0) {
-            this.canvas.ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
-          } else {
-            this.roundRect(-anchor.x, -anchor.y, this.options.width, this.options.height, this.options.radius);
-          }
-      }
+      ctx = this.canvas.ctx;
+      ctx.beginPath();
+      ctx.lineCap = this.options.lineCap;
+      ctx.lineJoin = this.options.lineJoin;
+      this.drawPath();
       if (this.options.erase) {
-        if (this.options.type === 'rectangle' && this.options.radius === 0) {
-          this.canvas.ctx.clearRect(-anchor.x, -anchor.y, this.options.width, this.options.height);
-        } else {
-          this.canvas.ctx.save();
-          this.canvas.ctx.globalCompositeOperation = 'destination-out';
-          this.canvas.ctx.globalAlpha = 1.0;
-          this.canvas.fill('#000000');
-          this.canvas.ctx.restore();
-        }
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.globalAlpha = 1.0;
+        this.canvas.fill('#000000');
+        ctx.restore();
       }
       if (this.options.fill) {
         this.canvas.fill(this.options.color);
       }
       if (this.options.stroke > 0) {
-        this.canvas.stroke(this.options.stroke, this.options.strokeColor);
+        return this.canvas.stroke(this.options.stroke, this.options.strokeColor);
       }
-      return this.canvas.ctx.closePath();
-    };
-
-    Shape.prototype.roundRect = function(x, y, width, height, radius) {
-      this.canvas.ctx.moveTo(x + width - radius, y);
-      this.canvas.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      this.canvas.ctx.lineTo(x + width, y + height - radius);
-      this.canvas.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      this.canvas.ctx.lineTo(x + radius, y + height);
-      this.canvas.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      this.canvas.ctx.lineTo(x, y + radius);
-      this.canvas.ctx.quadraticCurveTo(x, y, x + radius, y);
-      return this.canvas.ctx.closePath();
-    };
-
-    Shape.prototype.addPoint = function(x, y) {
-      return this.points.push([x, y]);
-    };
-
-    Shape.prototype.close = function() {
-      return this.points.push(null);
     };
 
     return Shape;
@@ -979,34 +925,13 @@ var __hasProp = {}.hasOwnProperty,
         label: 'Surface',
         align: 'center',
         baseline: 'middle',
-        color: '#000',
-        fill: true,
-        stroke: 0,
-        strokeColor: '#000',
         italic: false,
         bold: false,
         size: 12,
-        font: 'sans-serif',
-        shadow: false,
-        shadowX: 0,
-        shadowY: 0,
-        shadowBlur: 0,
-        shadowColor: '#000'
+        font: 'sans-serif'
       });
       Text.__super__.constructor.call(this, options, canvas);
     }
-
-    Text.prototype.validate = function(options) {
-      if (options.color !== void 0) {
-        options.color = this.validateColor(options.color);
-      }
-      if (options.strokeColor !== void 0) {
-        options.strokeColor = this.validateColor(options.strokeColor);
-      }
-      if (options.shadowColor !== void 0) {
-        return options.shadowColor = this.validateColor(options.shadowColor);
-      }
-    };
 
     Text.prototype.render = function() {
       var font;
@@ -1040,7 +965,119 @@ var __hasProp = {}.hasOwnProperty,
 
     return Text;
 
-  })(Element);
+  })(Shape);
+  rippl.Rectangle = Rectangle = (function(_super) {
+
+    __extends(Rectangle, _super);
+
+    function Rectangle(options, canvas) {
+      this.addDefaults({
+        radius: 0
+      });
+      Rectangle.__super__.constructor.call(this, options, canvas);
+    }
+
+    Rectangle.prototype.drawPath = function() {
+      var anchor;
+      anchor = this.getAnchor();
+      if (this.options.radius === 0) {
+        return this.canvas.ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
+      } else {
+        return this.roundRect(-anchor.x, -anchor.y, this.options.width, this.options.height, this.options.radius);
+      }
+    };
+
+    Rectangle.prototype.roundRect = function(x, y, width, height, radius) {
+      var ctx;
+      ctx = this.canvas.ctx;
+      ctx.moveTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      return ctx.closePath();
+    };
+
+    return Rectangle;
+
+  })(Shape);
+  rippl.Circle = Circle = (function(_super) {
+
+    __extends(Circle, _super);
+
+    function Circle(options, canvas) {
+      this.addDefaults({
+        radius: 0
+      });
+      Circle.__super__.constructor.call(this, options, canvas);
+      this.options.width = this.options.radius * 2;
+      this.options.height = this.options.radius * 2;
+    }
+
+    Circle.prototype.drawPath = function() {
+      return this.canvas.ctx.arc(0, 0, this.options.radius, 0, Math.PI * 2, false);
+    };
+
+    return Circle;
+
+  })(Shape);
+  rippl.CustomShape = CustomShape = (function(_super) {
+
+    __extends(CustomShape, _super);
+
+    function CustomShape(options, canvas) {
+      this.addDefaults({
+        rootX: 0,
+        rootY: 0,
+        anchorX: 0,
+        anchorY: 0
+      });
+      CustomShape.__super__.constructor.call(this, options, canvas);
+      this.points = [];
+      this.options.anchorInPixels = true;
+    }
+
+    CustomShape.prototype.drawPath = function() {
+      var anchor, ctx, line, point, x, y, _j, _len1, _ref, _results;
+      anchor = this.getAnchor();
+      ctx = this.canvas.ctx;
+      ctx.moveTo(this.options.rootX - anchor.x, this.options.rootY - anchor.y);
+      _ref = this.points;
+      _results = [];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        point = _ref[_j];
+        if (point === null) {
+          _results.push(ctx.closePath());
+        } else {
+          x = point[0], y = point[1], line = point[2];
+          if (line) {
+            _results.push(ctx.lineTo(x - anchor.x, y - anchor.y));
+          } else {
+            _results.push(ctx.moveTo(x - anchor.x, y - anchor.y));
+          }
+        }
+      }
+      return _results;
+    };
+
+    CustomShape.prototype.lineTo = function(x, y) {
+      return this.points.push([x, y, true]);
+    };
+
+    CustomShape.prototype.moveTo = function(x, y) {
+      return this.points.push([x, y, false]);
+    };
+
+    CustomShape.prototype.close = function() {
+      return this.points.push(null);
+    };
+
+    return CustomShape;
+
+  })(Shape);
   return rippl.Canvas = Canvas = (function(_super) {
 
     __extends(Canvas, _super);
