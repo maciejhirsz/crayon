@@ -102,7 +102,7 @@ rippl.Sprite = class Sprite extends Element
 
   createBuffer: ->
     delete @buffer
-    @buffer = @canvas.newCanvas
+    @buffer = new Canvas
       width: @options.width
       height: @options.height
 
