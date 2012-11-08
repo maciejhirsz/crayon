@@ -191,7 +191,7 @@ canvas.render();</pre>
 
       <h4 id="canvas-getdocumentelement">getDocumentElement <code>canvas.getDocumentElement()</code></h4>
       <p class="indented">
-        Returns the DOM element, useful if you create a blank canvas with <em>Rippl</em> and want to append it to DOM tree later.
+        Returns the <code>&lt;canvas&gt;</code> DOM element, useful if you create a blank canvas with <em>Rippl</em> and want to append it to DOM tree later.
       </p>
 
       <h4 id="canvas-render">render <code>canvas.render()</code></h4>
@@ -427,11 +427,11 @@ element.transform({
         <em>Rippl</em> comes with it's own assets manager module to take away the burden of preloading images from your shoulder, as well as make it easy to host images on external domains in Data <abbr title="Uniform Resource Identifier">URI</abbr> format.
       </p>
 
-      <h4 id="assets-preload">preload <code>rippl.assets.preload(urls, callback)</code></h4>
+      <h4 id="assets-preload">preload <code>rippl.assets.preload(url, callback)</code></h4>
       <div class="indented">
         <ul class="unstyled">
-          <li><strong>url</strong>  <small class="muted">(String or Array)</small></li>
-          <li><strong>callback</strong> <span class="label">Optional</span> <small class="muted">(Function)</small></li>
+          <li><strong>url</strong>  <small class="muted">(String or Array)</small> &mdash; a singe url or an array of urls to preload.</li>
+          <li><strong>callback</strong> <span class="label">Optional</span> <small class="muted">(Function)</small> &mdash; callback function to fire when all urls are finished preloading.</li>
         </ul>
         <p>
           Preloads an image or a batch of images and fires the callback when done.
