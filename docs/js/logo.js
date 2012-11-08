@@ -22,7 +22,7 @@ var logo = new rippl.Sprite({
   anchorY: 0
 });
 
-var mask = new rippl.Shape({
+var mask = new rippl.Rectangle({
   alpha: 1,
   color: '#000',
   composition: 'source-atop',
@@ -34,7 +34,7 @@ var mask = new rippl.Shape({
   anchorY: 0
 });
 
-var bling = new rippl.Shape({
+var bling = new rippl.Rectangle({
   alpha: 0.66,
   color: '#fff',
   composition: 'source-atop',
