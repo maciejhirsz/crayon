@@ -85,6 +85,8 @@ class Transformation extends ObjectAbstract
         @getValue(from.a, to.a, stage)
       )
 
+    return to
+
   # -----------------------------------
 
   progress: (element, time) ->
