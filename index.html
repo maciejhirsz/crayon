@@ -64,6 +64,7 @@
         <li>
           <a href="#color">Color</a>
           <ul>
+            <li><a href="#color-rgba">r, g, b, a</a></li>
             <li><a href="#color-set">set</a></li>
             <li><a href="#color-tostring">toString</a></li>
           </ul>
@@ -135,7 +136,6 @@
         <p>
           Removes a single listener, all listeners to a specific event, or all listeners to all events altogether.
         </p>
-      </div>
 <pre class="prettyprint lang-js">
 // removes onChange listener from the frame event
 object.off("frame", onChange);
@@ -145,6 +145,7 @@ object.off("frame");
 
 // removes all listeners from the object
 object.off();</pre>
+      </div>
 
       <h4 id="events-trigger">trigger <code>object.trigger(event, argument)</code></h4>
       <div class="indented">
@@ -445,8 +446,21 @@ element.transform({
 
       <h3 id="color">Color <code>new rippl.Color(r, g, b, a)</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
       <p>
-        Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>).
+        Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>). Alpha (<strong>a</strong>) can be omitted, in which case it defaults to 255.
       </p>
+
+      <h4 id="color-rgba">r <code>color.r</code>, g <code>color.g</code>, b <code>color.b</code>, a <code>color.a</code></h4>
+      <p class="indented">
+        <span class="label label-important">Read only</span> Current values of color channels. Use the <strong>set</strong> method if you need to change them.
+      </p>
+      <pre class="prettyprint lang-js indented">
+// create a new color
+var green = new rippl.Color("#0f0");
+
+console.log(green.r); // prints out 0
+console.log(green.g); // prints out 255
+console.log(green.b); // prints out 0
+console.log(green.a); // prints out 255</pre>
 
       <h4 id="color-set">set <code>color.set(r, g, b, a)</code></h4>
       <p class="indented">
@@ -455,8 +469,15 @@ element.transform({
 
       <h4 id="color-tostring">toString <code>color.toString()</code></h4>
       <p class="indented">
-        Returns an rgba formatted string code of the color.
+        Returns an rgba formatted string code of the color. Will be used when casting type to string.
       </p>
+
+      <pre class="prettyprint lang-js indented">
+// create a new color
+var orange = new rippl.Color("#ff7f00");
+
+// pops an alert displaying "rgba(255,127,0,255)"
+alert(orange);</pre>
 
       <p><br><br><br><br></p>
     </div>
