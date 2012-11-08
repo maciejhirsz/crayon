@@ -61,7 +61,13 @@
             <li><a href="#assets-get">get</a></li>
           </ul>
         </li>
-        <li><a href="#color">Color</a></li>
+        <li>
+          <a href="#color">Color</a>
+          <ul>
+            <li><a href="#color-set">set</a></li>
+            <li><a href="#color-tostring">toString</a></li>
+          </ul>
+        </li>
       </ul>
     </div>
     <div class="container">
@@ -440,6 +446,16 @@ element.transform({
       <h3 id="color">Color <code>new rippl.Color(r, g, b, a)</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
       <p>
         Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>).
+      </p>
+
+      <h4 id="color-set">set <code>color.set(r, g, b, a)</code></h4>
+      <p class="indented">
+        Sets the color values to given, values given have to be integers ranging from 0 to 255.
+      </p>
+
+      <h4 id="color-tostring">toString <code>color.toString()</code></h4>
+      <p class="indented">
+        Returns an rgba formatted string code of the color.
       </p>
 
       <p><br><br><br><br></p>
