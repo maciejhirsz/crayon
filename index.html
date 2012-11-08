@@ -86,6 +86,7 @@
             <li><a href="#customshape-options">Options</a></li>
             <li><a href="#customshape-lineto">lineTo</a></li>
             <li><a href="#customshape-moveto">moveTo</a></li>
+            <li><a href="#customshape-close">close</a></li>
           </ul>
         </li>
         <li>
@@ -110,7 +111,7 @@
       <h1 id="header">
         Rippl
       </h1>
-      <p class="alert alert-error"><strong>THIS IS NOT A FINISHED DOCUMENT</strong></p>
+      <p class="alert alert-warning">A draft, but usable</p>
 
 
       <h3 id="intro">What is <em>Rippl</em>?</h3>
@@ -449,7 +450,7 @@ element.transform({
       <pre class="prettyprint lang-js">
 // create a sprite using rippl.png as source
 var logo = new rippl.Sprite({
-  src: 'rippl.png',
+  src: "rippl.png",
   x: 0,
   y: 0,
   width: 269,
@@ -459,14 +460,14 @@ var logo = new rippl.Sprite({
   anchorY: 0
 });
 
-// add the sprite to rendering queue
+// add the sprite to the rendering queue
 canvas.add(logo);</pre>
 
       <h4 id="sprite-options">Options</h4>
       <div class="indented">
-        <h5>src <small>(String, ImageAsset or Canvas) required</small></h5>
+        <h5>src <small>(String, ImageAsset or <a href="#canvas">Canvas</a>) required</small></h5>
         <p>
-          Image to be rendered, takes either an url string, <strong>ImageAsset</strong> class instance (read: <a href="#assets-get">assets.get</a>) or <strong>Canvas</strong> class instance.
+          Image source to be rendered, takes either an url string, <strong>ImageAsset</strong> class instance (read: <a href="#assets-get">assets.get</a>) or <strong>Canvas</strong> class instance.
         </p>
         <h5>cropX <small>and</small> cropY <small>(Number) default: <code>0</code></small></h5>
         <p>
@@ -532,6 +533,22 @@ canvas.add(logo);</pre>
       <hr>
 
       <h3 id="text">Text <code>new rippl.Text({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <pre class="prettyprint lang-js">
+// create a 'Hello World' text
+var logo = new rippl.Sprite({
+  label: "Hello World",
+  x: 200,
+  y: 50,
+  size: 20,
+  bold: true,
+  color: "#ff7f00",
+  stroke: 2,
+  strokeColor: "#000"
+});
+
+// add the text to the rendering queue
+canvas.add(text);</pre>
+
       <h4 id="text-options">Options</h4>
       <div class="indented">
         <h5>label <small>(String) default: <code>"Rippl"</code></small></h5>
@@ -563,6 +580,109 @@ canvas.add(logo);</pre>
           Baseline, or vertical alignment, allowed values are: <code>"top"</code>, <code>"hanging"</code>, <code>"middle"</code>, <code>"alphabetic"</code>, <code>"ideographic"</code> and <code>"bottom"</code>.
         </p>
       </div>
+
+      <hr>
+
+      <h3 id="rectangle">Rectangle <code>new rippl.Rectangle({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <pre class="prettyprint lang-js">
+// create a green rectangle
+var rect = new rippl.Rectangle({
+  color: "#0f0",
+  x: 200,
+  y: 50,
+  width: 150,
+  height: 150
+});
+
+// add the rectangle to the rendering queue
+canvas.add(rect);</pre>
+      <p>
+        <span class="label label-info">Heads up!</span>
+        <small>Just like <a href="#sprite"><strong>Sprite</strong></a>, <strong>Rectangle</strong> is anchored at it's center, if you want it to be drawn from top left corner (or otherwise) you must adjust the <strong>anchorX</strong> and <strong>anchorY</strong> options.</small>
+      </p>
+
+      <h4 id="rectangle-options">Options</h4>
+      <div class="indented">
+        <h5>radius <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Radius to which the corners should be rounded.
+        </p>
+      </div>
+
+      <hr>
+
+      <h3 id="circle">Circle <code>new rippl.Circle({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <pre class="prettyprint lang-js">
+// create a blue rectangle
+var rect = new rippl.Rectangle({
+  color: "#00f",
+  x: 200,
+  y: 50,
+  radius: 75
+});
+
+// add the rectangle to the rendering queue
+canvas.add(rect);</pre>
+
+      <h4 id="circle-options">Options</h4>
+      <div class="indented">
+        <h5>radius <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Radius of the circle to draw.
+        </p>
+      </div>
+
+      <hr>
+
+      <h3 id="customshape">CustomShape <code>new rippl.CustomShape({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <p>
+        Allows for complete freedom in drawing shapes.
+      </p>
+      <pre class="prettyprint lang-js">
+// create a violet custom shape for a triangle.
+var triangle = new rippl.Rectangle({
+  color: "#f0f",
+  x: 200,
+  y: 50,
+  rootX: -60,
+  rootY: -30
+});
+
+// set two lines forming arms of the triangle
+triangle.lineTo(60, -30);
+triangle.lineTo(0, 30);
+// close the path creating the third line
+triangle.close();
+
+// add the triangle to the rendering queue
+canvas.add(rect);</pre>
+
+      <h4 id="customshape-options">Options</h4>
+      <div class="indented">
+        <h5>rootX <small>and</small> rootY <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Starting point of the shape relative to the anchor.
+        </p>
+        <p>
+          <span class="label label-info">Heads up!</span>
+          <small>Due to it's nature, CustomShape has default <code>0</code> values for <strong>anchorX</strong> and <strong>anchorY</strong>, as well as <strong>anchorInPixels</strong> hard set to <code>true</code>.</small>
+        </p>
+      </div>
+
+      <h4 id="customshape-lineto">lineTo <code>shape.lineTo(x, y)</code></h4>
+      <p class="indented">
+        Draws a line from current point (starting from root) to specified.
+      </p>
+
+      <h4 id="customshape-moveto">moveTo <code>shape.moveTo(x, y)</code></h4>
+      <p class="indented">
+        Jumps to specified point without drawing a line.
+      </p>
+
+      <h4 id="customshape-close">close <code>shape.close()</code></h4>
+      <p class="indented">
+        Closes the path.
+      </p>
 
       <hr>
 
@@ -614,12 +734,12 @@ console.log(green.a); // prints out 255</pre>
 
       <h4 id="color-set">set <code>color.set(r, g, b, a)</code></h4>
       <p class="indented">
-        Sets the color values to given, values given have to be integers ranging from 0 to 255.
+        Sets the color values to new integers ranging from 0 to 255. Alpha (<strong>a</strong>) can be omitted in which case it keeps the current value.
       </p>
 
       <h4 id="color-tostring">toString <code>color.toString()</code></h4>
       <p class="indented">
-        Returns an rgba formatted string code of the color. Will be used when casting type to string.
+        Returns an rgba formatted string code of the color, used on type casting to string by default.
       </p>
 
       <pre class="prettyprint lang-js indented">
