@@ -19,12 +19,13 @@ rippl.Rectangle = class Rectangle extends Shape
   # -----------------------------------
 
   roundRect: (x, y, width, height, radius) ->
-    @canvas.ctx.moveTo(x + width - radius, y)
-    @canvas.ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-    @canvas.ctx.lineTo(x + width, y + height - radius)
-    @canvas.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-    @canvas.ctx.lineTo(x + radius, y + height)
-    @canvas.ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-    @canvas.ctx.lineTo(x, y + radius)
-    @canvas.ctx.quadraticCurveTo(x, y, x + radius, y)
-    @canvas.ctx.closePath()
+    ctx = @canvas.ctx
+    ctx.moveTo(x + width - radius, y)
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+    ctx.lineTo(x + width, y + height - radius)
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+    ctx.lineTo(x + radius, y + height)
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+    ctx.lineTo(x, y + radius)
+    ctx.quadraticCurveTo(x, y, x + radius, y)
+    ctx.closePath()

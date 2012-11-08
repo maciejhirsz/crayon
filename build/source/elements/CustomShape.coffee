@@ -23,16 +23,18 @@ rippl.CustomShape = class CustomShape extends Shape
   drawPath: ->
     anchor = @getAnchor()
 
-    @canvas.ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
+    ctx = @canvas.ctx
+
+    ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
     for point in @points
       if point is null
-        @canvas.ctx.closePath()
+        ctx.closePath()
       else
         [x, y, line] = point
         if line
-          @canvas.ctx.lineTo(x - anchor.x, y - anchor.y)
+          ctx.lineTo(x - anchor.x, y - anchor.y)
         else
-          @canvas.ctx.moveTo(x - anchor.x, y - anchor.y)
+          ctx.moveTo(x - anchor.x, y - anchor.y)
 
   # -----------------------------------
 

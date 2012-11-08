@@ -33,13 +33,15 @@ class Shape extends Element
   render: ->
     @canvas.setShadow(@options.shadowX, @options.shadowY, @options.shadowBlur, @options.shadowColor) if @options.shadow
 
-    @canvas.ctx.beginPath()
+    ctx = @canvas.ctx
+
+    ctx.beginPath()
 
     #
     # Set line properties
     #
-    @canvas.ctx.lineCap = @options.lineCap
-    @canvas.ctx.lineJoin = @options.lineJoin
+    ctx.lineCap = @options.lineCap
+    ctx.lineJoin = @options.lineJoin
 
     #
     # Draw path
@@ -50,11 +52,11 @@ class Shape extends Element
     # Erase background before drawing?
     #
     if @options.erase
-      @canvas.ctx.save()
-      @canvas.ctx.globalCompositeOperation = 'destination-out'
-      @canvas.ctx.globalAlpha = 1.0
+      ctx.save()
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.globalAlpha = 1.0
       @canvas.fill('#000000')
-      @canvas.ctx.restore()
+      ctx.restore()
 
     #
     # Fill and stroke if applicable
@@ -62,4 +64,4 @@ class Shape extends Element
     @canvas.fill(@options.color) if @options.fill
     @canvas.stroke(@options.stroke, @options.strokeColor) if @options.stroke > 0
 
-    @canvas.ctx.closePath()
+    #ctx.closePath()
