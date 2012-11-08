@@ -620,15 +620,17 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Element.prototype.prepare = function() {
-      this.canvas.ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, this.options.x, this.options.y);
+      var ctx;
+      ctx = this.canvas.ctx;
+      ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, this.options.x, this.options.y);
       if (this.options.alpha !== 1) {
-        this.canvas.setAlpha(this.options.alpha);
+        ctx.globalAlpha = this.options.alpha;
       }
       if (this.options.rotation !== 0) {
-        this.canvas.setRotation(this.options.rotation);
+        ctx.rotate(this.options.rotation);
       }
       if (this.options.composition !== 'source-over') {
-        return this.canvas.ctx.globalCompositeOperation = this.options.composition;
+        return ctx.globalCompositeOperation = this.options.composition;
       }
     };
 
@@ -740,7 +742,7 @@ var __hasProp = {}.hasOwnProperty,
 
     Sprite.prototype.createBuffer = function() {
       delete this.buffer;
-      this.buffer = this.canvas.newCanvas({
+      this.buffer = new Canvas({
         width: this.options.width,
         height: this.options.height
       });
@@ -1117,23 +1119,6 @@ var __hasProp = {}.hasOwnProperty,
       return this._canvas;
     };
 
-    Canvas.prototype.getCanvas = function() {
-      return this._canvas;
-    };
-
-    Canvas.prototype.newCanvas = function(options) {
-      return new Canvas(options);
-    };
-
-    Canvas.prototype.createImage = function(url, callback) {
-      var image;
-      image = new Image;
-      image.onload = function() {
-        return callback(image);
-      };
-      return image.src = url;
-    };
-
     Canvas.prototype.fill = function(color) {
       this.ctx.fillStyle = color.toString();
       return this.ctx.fill();
@@ -1174,22 +1159,6 @@ var __hasProp = {}.hasOwnProperty,
       this.ctx.shadowOffsetY = y;
       this.ctx.shadowBlur = blur;
       return this.ctx.shadowColor = color.toString();
-    };
-
-    Canvas.prototype.setScale = function(x, y) {
-      return this.ctx.scale(x, y);
-    };
-
-    Canvas.prototype.setAlpha = function(alpha) {
-      return this.ctx.globalAlpha = alpha;
-    };
-
-    Canvas.prototype.setRotation = function(rotation) {
-      return this.ctx.rotate(rotation);
-    };
-
-    Canvas.prototype.setPosition = function(x, y) {
-      return this.ctx.translate(x, y);
     };
 
     Canvas.prototype.add = function(element) {

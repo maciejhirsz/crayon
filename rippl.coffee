@@ -696,10 +696,11 @@ Rippl may be freely distributed under the MIT license.
     # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
     #
     prepare: ->
-      @canvas.ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
-      @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
-      @canvas.setRotation(@options.rotation) if @options.rotation isnt 0
-      @canvas.ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
+      ctx = @canvas.ctx
+      ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
+      ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
+      ctx.rotate(@options.rotation) if @options.rotation isnt 0
+      ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
   
     # -----------------------------------
     #
@@ -853,7 +854,7 @@ Rippl may be freely distributed under the MIT license.
   
     createBuffer: ->
       delete @buffer
-      @buffer = @canvas.newCanvas
+      @buffer = new Canvas
         width: @options.width
         height: @options.height
   
@@ -1292,23 +1293,6 @@ Rippl may be freely distributed under the MIT license.
   
     # -----------------------------------
   
-    getCanvas: ->
-      @_canvas
-  
-    # -----------------------------------
-  
-    newCanvas: (options) ->
-      return new Canvas(options)
-  
-    # -----------------------------------
-  
-    createImage: (url, callback) ->
-      image = new Image
-      image.onload = -> callback(image)
-      image.src = url
-  
-    # -----------------------------------
-  
     fill: (color) ->
       @ctx.fillStyle = color.toString()
       @ctx.fill()
@@ -1332,26 +1316,6 @@ Rippl may be freely distributed under the MIT license.
       @ctx.shadowOffsetY = y
       @ctx.shadowBlur = blur
       @ctx.shadowColor = color.toString()
-  
-    # -----------------------------------
-  
-    setScale: (x, y) ->
-      @ctx.scale(x, y)
-  
-    # -----------------------------------
-  
-    setAlpha: (alpha) ->
-      @ctx.globalAlpha = alpha
-  
-    # -----------------------------------
-  
-    setRotation: (rotation) ->
-      @ctx.rotate(rotation)
-  
-    # -----------------------------------
-  
-    setPosition: (x, y) ->
-      @ctx.translate(x, y)
   
     # -----------------------------------
   
