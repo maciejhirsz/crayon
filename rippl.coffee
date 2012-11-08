@@ -805,7 +805,7 @@ Rippl may be freely distributed under the MIT license.
       if typeof options.src is 'string'
         options.src = asset = rippl.assets.get(options.src)
         if not asset.__isLoaded
-          asset.on('loaded', => @canvas.touch())
+          asset.on('loaded', => @canvas.touch() if @canvas)
 
     # -----------------------------------
 

@@ -704,7 +704,9 @@ var __hasProp = {}.hasOwnProperty,
         options.src = asset = rippl.assets.get(options.src);
         if (!asset.__isLoaded) {
           return asset.on('loaded', function() {
-            return _this.canvas.touch();
+            if (_this.canvas) {
+              return _this.canvas.touch();
+            }
           });
         }
       }
