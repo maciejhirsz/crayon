@@ -183,14 +183,14 @@ object.off("frame");
 object.off();</pre>
       </div>
 
-      <h4 id="events-trigger">trigger <code>object.trigger(event, argument)</code></h4>
+      <h4 id="events-trigger">trigger <code>object.trigger(event, arguments...)</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>event</strong> <small class="muted">(String)</small></li>
-          <li><strong>argument</strong> <span class="label">Optional</span> <small class="muted">(Mixed)</small></li>
+          <li><strong>arguments...</strong> <span class="label">Optional</span> <small class="muted">(Mixed)</small></li>
         </ul>
         <p>
-          Triggers all listeners to a given event, the optional argument gets passed to the callback function.
+          Triggers all listeners to a given event, all extra arguments get passed to the callback function.
         </p>
       </div>
 
