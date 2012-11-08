@@ -56,8 +56,38 @@
             <li><a href="#sprite-options">Options</a></li>
           </ul>
         </li>
-        <li><a href="#text">Text</a></li>
-        <li><a href="#shape">Shape</a></li>
+        <li>
+          <a href="#shape">Shape</a>
+          <ul>
+            <li><a href="#shape-options">Options</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#text">Text</a>
+          <ul>
+            <li><a href="#text-options">Options</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#rectangle">Rectangle</a>
+          <ul>
+            <li><a href="#rectangle-options">Options</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#circle">Circle</a>
+          <ul>
+            <li><a href="#circle-options">Options</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#customshape">CustomShape</a>
+          <ul>
+            <li><a href="#customshape-options">Options</a></li>
+            <li><a href="#customshape-lineto">lineTo</a></li>
+            <li><a href="#customshape-moveto">moveTo</a></li>
+          </ul>
+        </li>
         <li>
           <a href="#assets">assets</a>
           <ul>
@@ -294,7 +324,7 @@ timer.on("frame", function(time){
       </p>
       <p>
         <span class="label label">Note</span>
-        <small>This is an abstract class and as such you will never encounter it directly, nor be able to use it anywhere but in the source code of <em>Rippl</em>.</small>
+        <small>This is an abstract class and as such you will never encounter it directly.</small>
       </p>
 
       <h4 id="element-options">Options</h4>
@@ -446,13 +476,93 @@ canvas.add(logo);</pre>
 
       <hr>
 
-      <h3 id="text">Text <code>new rippl.Text({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
-      <p class="alert alert-warning">Unstable API</p>
+      <h3 id="shape">Shape <small>inherits from <a href="#element">Element</a></small></h3>
+      <p>
+        <strong>Shape</strong> is a specialized type of an <strong>Element</strong> that deals with vector graphics (including <a href="#text"><strong>Text</strong></a>).
+      </p>
+      <p>
+        <span class="label label">Note</span>
+        <small>This is an abstract class and as such you will never encounter it directly.</small>
+      </p>
+
+      <h4 id="shape-options">Options</h4>
+      <div class="indented">
+        <h5>fill <small>(Boolean) default: <code>true</code></small></h5>
+        <p>
+          If set to <code>true</code> the drawn shape will be filled.
+        </p>
+        <h5>color <small>(String or <a href="#color">Color</a>) default: <code>"#000"</code></small></h5>
+        <p>
+          Color of the fill.
+        </p>
+        <h5>stroke <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Width of a stroke to be drawn over the shape.
+        </p>
+        <h5>strokeColor <small>(String or <a href="#color">Color</a>) default: <code>"#000"</code></small></h5>
+        <p>
+          Color of the stroke.
+        </p>
+        <h5>shadow <small>(Boolean) default: <code>false</code></small></h5>
+        <p>
+          If set to <code>true</code> shadow will be drawn.
+        </p>
+        <h5>shadowX <small>and</small> shadowY <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Offset at which the shadow should be drawn.
+        </p>
+        <h5>shadowBlur <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Blur to be applied to the shadow.
+        </p>
+        <h5>lineCap <small>(String) default: <code>"butt"</code></small></h5>
+        <p>
+          Defines how to render the ends of the stroke, allowed values are: <code>"butt"</code>, <code>"round"</code> and <code>"square"</code>.
+        </p>
+        <h5>lineJoin <small>(String) default: <code>"miter"</code></small></h5>
+        <p>
+          Defines how to render the joints of the stroke, allowed values are: <code>"miter"</code>, <code>"bevel"</code> and <code>"round"</code>.
+        </p>
+        <h5>erase <small>(Boolean) default: <code>false</code></small></h5>
+        <p>
+          If set to <code>true</code> the canvas area of the shape will be erased prior to rendering the shape.
+        </p>
+      </div>
 
       <hr>
 
-      <h3 id="shape">Shape <code>new rippl.Shape({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
-      <p class="alert alert-error">Very unstable API</p>
+      <h3 id="text">Text <code>new rippl.Text({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <h4 id="text-options">Options</h4>
+      <div class="indented">
+        <h5>label <small>(String) default: <code>"Rippl"</code></small></h5>
+        <p>
+          Text label to be rendered.
+        </p>
+        <h5>size <small>(Number) default: <code>12</code></small></h5>
+        <p>
+          Font size in pixels.
+        </p>
+        <h5>font <small>(String) default: <code>"sans-serif"</code></small></h5>
+        <p>
+          Font family to be used.
+        </p>
+        <h5>bold <small>(Boolean) default: <code>false</code></small></h5>
+        <p>
+          If set to true, text will be rendered as bold.
+        </p>
+        <h5>italic <small>(Boolean) default: <code>false</code></small></h5>
+        <p>
+          If set to true, text will be rendered as italic.
+        </p>
+        <h5>align <small>(String) default: <code>"center"</code></small></h5>
+        <p>
+          Horizontal alignment, allowed values are: <code>"left"</code>, <code>"center"</code> and <code>"right"</code>.
+        </p>
+        <h5>baseline <small>(String) default: <code>"middle"</code></small></h5>
+        <p>
+          Baseline, or vertical alignment, allowed values are: <code>"top"</code>, <code>"hanging"</code>, <code>"middle"</code>, <code>"alphabetic"</code>, <code>"ideographic"</code> and <code>"bottom"</code>.
+        </p>
+      </div>
 
       <hr>
 
