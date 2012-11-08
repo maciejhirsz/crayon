@@ -4,7 +4,8 @@
 Rippl may be freely distributed under the MIT license.
 */
 
-var __hasProp = {}.hasOwnProperty,
+var __slice = [].slice,
+  __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
@@ -15,8 +16,6 @@ var __hasProp = {}.hasOwnProperty,
     function ObjectAbstract() {}
 
     ObjectAbstract.prototype.options = {};
-
-    ObjectAbstract.prototype._eventHandlers = null;
 
     ObjectAbstract.prototype._validEventName = function(event) {
       if (typeof event !== 'string') {
@@ -33,64 +32,64 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     ObjectAbstract.prototype.on = function(event, callback) {
+      var handlers;
       if (!this._validEventName(event)) {
         return;
       }
       if (!this._validCallback(callback)) {
         return;
       }
-      if (this._eventHandlers === null) {
-        this._eventHandlers = {};
+      handlers = this._eventHandlers || (this._eventHandlers = {});
+      if (handlers[event] === void 0) {
+        handlers[event] = [];
       }
-      if (this._eventHandlers[event] === void 0) {
-        this._eventHandlers[event] = [];
-      }
-      return this._eventHandlers[event].push(callback);
+      return handlers[event].push(callback);
     };
 
     ObjectAbstract.prototype.off = function(event, callbackToRemove) {
-      var callback, stack, _i, _len, _ref;
-      if (this._eventHandlers === null) {
+      var callback, handlers, stack, _i, _len, _ref;
+      if (!(handlers = this._eventHandlers)) {
         return;
       }
       if (!this._validEventName(event)) {
         return this._eventHandlers = {};
       } else if (!this._validCallback(callbackToRemove)) {
-        if (this._eventHandlers[event] === void 0) {
+        if (handlers[event] === void 0) {
           return;
         }
-        return delete this._eventHandlers[event];
+        return delete handlers[event];
       } else {
-        if (this._eventHandlers[event] === void 0) {
+        if (handlers[event] === void 0) {
           return;
         }
         stack = [];
-        _ref = this._eventHandlers[event];
+        _ref = handlers[event];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           callback = _ref[_i];
           if (callback !== callbackToRemove) {
             stack.push(callback);
           }
         }
-        return this._eventHandlers[event] = stack;
+        return handlers[event] = stack;
       }
     };
 
-    ObjectAbstract.prototype.trigger = function(event, data) {
-      var callback, _i, _len, _ref;
-      if (this._eventHandlers === null) {
+    ObjectAbstract.prototype.trigger = function() {
+      var args, callback, event, handlers, _i, _len, _ref;
+      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (!(handlers = this._eventHandlers)) {
         return;
       }
       if (!this._validEventName(event)) {
         return;
       }
-      if (this._eventHandlers[event] === void 0) {
+      if (handlers[event] === void 0) {
         return false;
       }
-      _ref = this._eventHandlers[event];
+      _ref = handlers[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         callback = _ref[_i];
-        callback(data);
+        callback.apply(this, args);
       }
       return true;
     };
