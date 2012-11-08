@@ -7,10 +7,6 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
-  _eventHandlers: null
-
-  # -----------------------------------
-
   _validEventName: (event) ->
     return false if typeof event isnt 'string'
     return true
@@ -33,22 +29,23 @@ rippl.ObjectAbstract = class ObjectAbstract
     #
     # Create a container for event handlers
     #
-    @_eventHandlers = {} if @_eventHandlers is null
+    handlers = @_eventHandlers or (@_eventHandlers = {})
+    #@_eventHandlers = {} if @_eventHandlers is null
 
     #
     # create a new stack for the callbacks if not defined yet
     #
-    @_eventHandlers[event] = [] if @_eventHandlers[event] is undefined
+    handlers[event] = [] if handlers[event] is undefined
 
     #
     # push the callback onto the stack
     #
-    @_eventHandlers[event].push(callback)
+    handlers[event].push(callback)
 
   # -----------------------------------
 
   off: (event, callbackToRemove) ->
-    return if @_eventHandlers is null
+    return if not handlers = @_eventHandlers
 
     if not @_validEventName(event)
       #
@@ -60,36 +57,36 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop all listeners for specified event
       #
-      return if @_eventHandlers[event] is undefined
+      return if handlers[event] is undefined
 
-      delete @_eventHandlers[event]
+      delete handlers[event]
 
     else
       #
       # Drop only the specified callback from the stack
       #
-      return if @_eventHandlers[event] is undefined
+      return if handlers[event] is undefined
 
       stack = []
 
-      for callback in @_eventHandlers[event]
+      for callback in handlers[event]
         stack.push(callback) if callback isnt callbackToRemove
 
-      @_eventHandlers[event] = stack
+      handlers[event] = stack
 
   # -----------------------------------
 
-  trigger: (event, data) ->
-    return if @_eventHandlers is null
+  trigger: (event, args...) ->
+    return if not handlers = @_eventHandlers
 
     #
     # triggers all listener callbacks of a given event, pass on the data from second argument
     #
     return if not @_validEventName(event)
 
-    return false if @_eventHandlers[event] is undefined
+    return false if handlers[event] is undefined
 
-    callback(data) for callback in @_eventHandlers[event]
+    callback.apply(this, args) for callback in handlers[event]
 
     return true
 
