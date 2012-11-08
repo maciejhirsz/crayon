@@ -393,6 +393,7 @@ var __hasProp = {}.hasOwnProperty,
       if (from.__isColor) {
         return new Color(this.getValue(from.r, to.r, stage), this.getValue(from.g, to.g, stage), this.getValue(from.b, to.b, stage), this.getValue(from.a, to.a, stage));
       }
+      return to;
     };
 
     Transformation.prototype.progress = function(element, time) {
