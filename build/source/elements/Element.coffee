@@ -133,10 +133,11 @@ class Element extends ObjectAbstract
   # Used to set alpha, position, scale and rotation on the canvas prior to rendering.
   #
   prepare: ->
-    @canvas.ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
-    @canvas.setAlpha(@options.alpha) if @options.alpha isnt 1
-    @canvas.setRotation(@options.rotation) if @options.rotation isnt 0
-    @canvas.ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
+    ctx = @canvas.ctx
+    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
+    ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
+    ctx.rotate(@options.rotation) if @options.rotation isnt 0
+    ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
 
   # -----------------------------------
   #
