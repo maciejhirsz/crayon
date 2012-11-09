@@ -38,6 +38,10 @@ class Transformation extends ObjectAbstract
 
   constructor: (options) ->
     @setOptions(options)
+
+    @options.from = {} if @options.from is null
+    @options.to = {} if @options.to is null
+
     @startTime = Date.now() + @options.delay
     @endTime = @startTime + @options.duration
 
@@ -54,7 +58,7 @@ class Transformation extends ObjectAbstract
   # -----------------------------------
 
   getStage: (time) ->
-    return 0 if time < @startTime
+    return 0 if time <= @startTime
     return 1 if time >= @endTime
 
     stage = (time - @startTime) / @options.duration
@@ -91,6 +95,7 @@ class Transformation extends ObjectAbstract
 
   progress: (element, time) ->
     return if @finished
+    return if time < @startTime
 
     options = {}
     stage = @getStage(time)
