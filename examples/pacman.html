@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rippl - mirror example</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <canvas id="my-canvas" width="300" height="300"></canvas>
+
+    <script src="../rippl.min.js"></script>
+    <script>
+
+      var canvas = new rippl.Canvas({ id: "my-canvas" });
+
+      var timer = new rippl.Timer;
+      timer.bind(canvas);
+
+      var text = new rippl.Text({
+        label: "Mirror, mirror",
+        bold: true,
+        x: 200,
+        y: 50,
+        size: 60,
+        color: '#f80',
+        stroke: 1,
+        strokeColor: '#000'
+      });
+
+      var shape = new rippl.Circle({
+        x: 150,
+        y: 150,
+        z: 1,
+        color: '#ff0',
+        stroke: 4,
+        radius: 100,
+        rotation: Math.PI / 4,
+        angle: Math.PI * 1.5
+      });
+
+      canvas.add(shape);
+
+      pacman = function(){
+        shape.transform({
+          duration: 500,
+          to: {
+            angle: Math.PI * 2,
+            rotation: 0
+          }
+        });
+
+        shape.transform({
+          duration: 500,
+          delay: 500,
+          from: {
+            angle: Math.PI * 2,
+            rotation: 0
+          },
+          to: {
+            angle: Math.PI * 1.5,
+            rotation: Math.PI / 4
+          }
+        });
+
+        setTimeout(pacman, 1000);
+      }
+
+      pacman();
+
+    </script>
+  </body>
+</html>
