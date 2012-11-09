@@ -81,6 +81,9 @@
           </ul>
         </li>
         <li>
+          <a href="#ellipse">Ellipse</a>
+        </li>
+        <li>
           <a href="#customshape">CustomShape</a>
           <ul>
             <li><a href="#customshape-options">Options</a></li>
@@ -637,7 +640,29 @@ canvas.add(cirle);</pre>
         <p>
           Radius of the circle to draw.
         </p>
+        <h5>angle <small>(Number) default: <code>Math.PI * 2</code></small></h5>
+        <p>
+          Angle to draw, <code>Math.PI * 2</code> draws a closed circle.
+        </p>
+
       </div>
+
+      <hr>
+
+      <h3 id="ellipse">Ellipse <code>new rippl.Ellipse({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <pre class="prettyprint lang-js">
+// create a stroked ellipse
+var ellipse = new rippl.Ellipse({
+  fill: false,
+  stroke: 2,
+  x: 200,
+  y: 50,
+  width: 100,
+  height: 50
+});
+
+// add the ellipse to the rendering queue
+canvas.add(ellipse);</pre>
 
       <hr>
 
