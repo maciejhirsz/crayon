@@ -1,22 +1,10 @@
 
 rippl.Ellipse = class Ellipse extends Shape
-  constructor: (options, canvas) ->
-    @addDefaults
-      radius: 0 # radius of the circle
-
-    super(options, canvas)
-
-    @options.width = @options.radius * 2
-    @options.height = @options.radius * 2
-
-  # -----------------------------------
-
   drawPath: ->
     anchor = @getAnchor()
-    @ellipse(-anchor.x, -anchor.y, @options.width, @options.height)
 
     ctx = @canvas.ctx
-    w = -anchor.x
+    x = -anchor.x
     y = -anchor.y
     w = @options.width
     h = @options.height
