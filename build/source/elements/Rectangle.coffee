@@ -10,22 +10,23 @@ rippl.Rectangle = class Rectangle extends Shape
 
   drawPath: ->
     anchor = @getAnchor()
+    ctx = @canvas.ctx
 
     if @options.radius is 0
-      @canvas.ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
+      ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
     else
-      @roundRect(-anchor.x, -anchor.y, @options.width, @options.height, @options.radius)
+      x = -anchor.x
+      y = -anchor.y
+      w = @options.width
+      h = @options.height
+      r = @options.radius
 
-  # -----------------------------------
-
-  roundRect: (x, y, width, height, radius) ->
-    ctx = @canvas.ctx
-    ctx.moveTo(x + width - radius, y)
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-    ctx.lineTo(x + width, y + height - radius)
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-    ctx.lineTo(x + radius, y + height)
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-    ctx.lineTo(x, y + radius)
-    ctx.quadraticCurveTo(x, y, x + radius, y)
-    ctx.closePath()
+      ctx.moveTo(x + w - r, y)
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+      ctx.lineTo(x + w, y + h - r)
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+      ctx.lineTo(x + r, y + h)
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+      ctx.lineTo(x, y + r)
+      ctx.quadraticCurveTo(x, y, x + r, y)
+      ctx.closePath()
