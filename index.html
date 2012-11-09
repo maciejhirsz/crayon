@@ -166,11 +166,11 @@
         </p>
       </div>
 
-      <h4 id="events-off">off <code>object.off(event, callback)</code></h4>
+      <h4 id="events-off">off <code>object.off([event], [callback])</code></h4>
       <div class="indented">
         <ul class="unstyled">
-          <li><strong>event</strong> <span class="label">Optional</span> <small class="muted">(String)</small></li>
-          <li><strong>callback</strong> <span class="label">Optional</span> <small class="muted">(Function)</small></li>
+          <li><strong>event</strong> <small class="muted">(String)</small></li>
+          <li><strong>callback</strong> <small class="muted">(Function)</small></li>
         </ul>
         <p>
           Removes a single listener, all listeners to a specific event, or all listeners to all events altogether.
@@ -186,11 +186,11 @@ object.off("frame");
 object.off();</pre>
       </div>
 
-      <h4 id="events-trigger">trigger <code>object.trigger(event, arguments...)</code></h4>
+      <h4 id="events-trigger">trigger <code>object.trigger(event, [arguments...])</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>event</strong> <small class="muted">(String)</small></li>
-          <li><strong>arguments...</strong> <span class="label">Optional</span> <small class="muted">(Mixed)</small></li>
+          <li><strong>arguments...</strong> <small class="muted">(Mixed)</small></li>
         </ul>
         <p>
           Triggers all listeners to a given event, all extra arguments get passed to the callback function.
@@ -199,7 +199,7 @@ object.off();</pre>
 
       <hr>
 
-      <h3 id="canvas">Canvas <code>new rippl.Canvas({ options })</code></h3>
+      <h3 id="canvas">Canvas <code>new rippl.Canvas(options)</code></h3>
 
       <p>
         The <strong>Canvas</strong> class is the heart of <em>Rippl</em>, it wraps the native <code>&lt;canvas&gt</code> <abbr title="Document Object Model">DOM</abbr> element API and gives you all the power of drawing on it with none of the headache! In most cases you will only need one of these, but keep in mind sacking multiple <code>&lt;canvas&gt</code> elements to create layers &mdash; separating static and dynamic content &mdash; can increase performance. Basic use:
@@ -263,7 +263,7 @@ canvas.render();</pre>
 
       <hr>
 
-      <h3 id="timer">Timer <code>new rippl.Timer({ options })</code></h3>
+      <h3 id="timer">Timer <code>new rippl.Timer([options])</code></h3>
       <p>
         <strong>Timer</strong> is another important building block of <em>Rippl</em>. You should always initiate one (and preferably <strong>only one</strong>) timer instance for your application if you intend to do animations and use built in transformations. Basic use:
       </p>
@@ -403,7 +403,7 @@ timer.on("frame", function(time){
         </p>
       </div>
 
-      <h4 id="element-set">set <code>element.set({ options })</code> <small>or</small> <code>element.set(option, value)</code></h4>
+      <h4 id="element-set">set <code>element.set(options)</code> <small>or</small> <code>element.set(option, value)</code></h4>
       <p class="indented">
         Changes one or multiple options of the element.
       </p>
@@ -420,7 +420,7 @@ element.set({
         Returns current value of a given option.
       </p>
 
-      <h4 id="element-transform">transform <code>element.transform({ params })</code></h4>
+      <h4 id="element-transform">transform <code>element.transform(params)</code></h4>
       <div class="indented">
         <p>
           Animates one or more option of the element over time. Params are:
@@ -453,7 +453,7 @@ element.transform({
 
       <hr>
 
-      <h3 id="sprite">Sprite <code>new rippl.Sprite({ options })</code> <small>inherits from <a href="#element">Element</a></small></h3>
+      <h3 id="sprite">Sprite <code>new rippl.Sprite(options)</code> <small>inherits from <a href="#element">Element</a></small></h3>
       <p>
         Creates an image sprite that can be cropped and animated.
       </p>
@@ -542,7 +542,7 @@ canvas.add(logo);</pre>
 
       <hr>
 
-      <h3 id="text">Text <code>new rippl.Text({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <h3 id="text">Text <code>new rippl.Text(options)</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
       <pre class="prettyprint lang-js">
 // create a 'Hello World' text
 var logo = new rippl.Sprite({
@@ -593,7 +593,7 @@ canvas.add(text);</pre>
 
       <hr>
 
-      <h3 id="rectangle">Rectangle <code>new rippl.Rectangle({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <h3 id="rectangle">Rectangle <code>new rippl.Rectangle(options)</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
       <pre class="prettyprint lang-js">
 // create a green rectangle
 var rect = new rippl.Rectangle({
@@ -621,7 +621,7 @@ canvas.add(rect);</pre>
 
       <hr>
 
-      <h3 id="circle">Circle <code>new rippl.Circle({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <h3 id="circle">Circle <code>new rippl.Circle(options)</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
       <pre class="prettyprint lang-js">
 // create a blue filled circle
 var cirle = new rippl.Circle({
@@ -649,7 +649,7 @@ canvas.add(cirle);</pre>
 
       <hr>
 
-      <h3 id="ellipse">Ellipse <code>new rippl.Ellipse({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <h3 id="ellipse">Ellipse <code>new rippl.Ellipse(options)</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
       <pre class="prettyprint lang-js">
 // create a stroked ellipse
 var ellipse = new rippl.Ellipse({
@@ -666,7 +666,7 @@ canvas.add(ellipse);</pre>
 
       <hr>
 
-      <h3 id="customshape">CustomShape <code>new rippl.CustomShape({ options })</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
+      <h3 id="customshape">CustomShape <code>new rippl.CustomShape(options)</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
       <p>
         Allows for complete freedom in drawing shapes.
       </p>
@@ -723,11 +723,11 @@ canvas.add(triangle);</pre>
         <em>Rippl</em> comes with its own assets manager module to take away the burden of preloading images off your shoulders, as well as to make it easy to host images on external domains in the <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI</a> format.
       </p>
 
-      <h4 id="assets-preload">preload <code>rippl.assets.preload(url, callback)</code></h4>
+      <h4 id="assets-preload">preload <code>rippl.assets.preload(url, [callback])</code></h4>
       <div class="indented">
         <ul class="unstyled">
           <li><strong>url</strong>  <small class="muted">(String or Array)</small> &mdash; a singe url or an array of urls to preload.</li>
-          <li><strong>callback</strong> <span class="label">Optional</span> <small class="muted">(Function)</small> &mdash; callback function to fire when all urls are finished preloading.</li>
+          <li><strong>callback</strong> <small class="muted">(Function)</small> &mdash; callback function to fire when all urls are finished preloading.</li>
         </ul>
         <p>
           Preloads an image or a batch of images and fires the callback when done.
@@ -746,7 +746,7 @@ canvas.add(triangle);</pre>
 
       <hr>
 
-      <h3 id="color">Color <code>new rippl.Color(r, g, b, a)</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
+      <h3 id="color">Color <code>new rippl.Color(r, g, b, [a])</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
       <p>
         Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>). Alpha (<strong>a</strong>) can be omitted, in which case it defaults to 255.
       </p>
@@ -764,7 +764,7 @@ console.log(green.g); // prints out 255
 console.log(green.b); // prints out 0
 console.log(green.a); // prints out 255</pre>
 
-      <h4 id="color-set">set <code>color.set(r, g, b, a)</code></h4>
+      <h4 id="color-set">set <code>color.set(r, g, b, [a])</code></h4>
       <p class="indented">
         Sets the color values to new integers ranging from 0 to 255. Alpha (<strong>a</strong>) can be omitted in which case it keeps the current value.
       </p>
