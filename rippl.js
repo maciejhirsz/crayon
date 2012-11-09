@@ -9,7 +9,7 @@ var __slice = [].slice,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 (function() {
-  var Canvas, Circle, Color, CustomShape, Element, ImageAsset, ObjectAbstract, Rectangle, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len;
+  var Canvas, Circle, Color, CustomShape, Element, Ellipse, ImageAsset, ObjectAbstract, Rectangle, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len;
   window.rippl = rippl = {};
   rippl.ObjectAbstract = ObjectAbstract = (function() {
 
@@ -348,6 +348,12 @@ var __slice = [].slice,
     function Transformation(options) {
       var option, value, _ref, _ref1;
       this.setOptions(options);
+      if (this.options.from === null) {
+        this.options.from = {};
+      }
+      if (this.options.to === null) {
+        this.options.to = {};
+      }
       this.startTime = Date.now() + this.options.delay;
       this.endTime = this.startTime + this.options.duration;
       this;
@@ -370,7 +376,7 @@ var __slice = [].slice,
 
     Transformation.prototype.getStage = function(time) {
       var stage, transition;
-      if (time < this.startTime) {
+      if (time <= this.startTime) {
         return 0;
       }
       if (time >= this.endTime) {
@@ -398,6 +404,9 @@ var __slice = [].slice,
     Transformation.prototype.progress = function(element, time) {
       var from, option, options, stage, to;
       if (this.finished) {
+        return;
+      }
+      if (time < this.startTime) {
         return;
       }
       options = {};
@@ -982,27 +991,27 @@ var __slice = [].slice,
     }
 
     Rectangle.prototype.drawPath = function() {
-      var anchor;
+      var anchor, ctx, h, r, w, x, y;
       anchor = this.getAnchor();
-      if (this.options.radius === 0) {
-        return this.canvas.ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
-      } else {
-        return this.roundRect(-anchor.x, -anchor.y, this.options.width, this.options.height, this.options.radius);
-      }
-    };
-
-    Rectangle.prototype.roundRect = function(x, y, width, height, radius) {
-      var ctx;
       ctx = this.canvas.ctx;
-      ctx.moveTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      return ctx.closePath();
+      if (this.options.radius === 0) {
+        return ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
+      } else {
+        x = -anchor.x;
+        y = -anchor.y;
+        w = this.options.width;
+        h = this.options.height;
+        r = this.options.radius;
+        ctx.moveTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        return ctx.closePath();
+      }
     };
 
     return Rectangle;
@@ -1014,7 +1023,8 @@ var __slice = [].slice,
 
     function Circle(options, canvas) {
       this.addDefaults({
-        radius: 0
+        radius: 0,
+        angle: Math.PI * 2
       });
       Circle.__super__.constructor.call(this, options, canvas);
       this.options.width = this.options.radius * 2;
@@ -1022,10 +1032,50 @@ var __slice = [].slice,
     }
 
     Circle.prototype.drawPath = function() {
-      return this.canvas.ctx.arc(0, 0, this.options.radius, 0, Math.PI * 2, false);
+      var ctx;
+      ctx = this.canvas.ctx;
+      ctx.arc(0, 0, this.options.radius, 0, this.options.angle, false);
+      if (this.options.angle !== Math.PI * 2) {
+        ctx.lineTo(0, 0);
+      }
+      return ctx.closePath();
     };
 
     return Circle;
+
+  })(Shape);
+  rippl.Ellipse = Ellipse = (function(_super) {
+
+    __extends(Ellipse, _super);
+
+    function Ellipse() {
+      return Ellipse.__super__.constructor.apply(this, arguments);
+    }
+
+    Ellipse.prototype.drawPath = function() {
+      var anchor, ctx, h, magic, ox, oy, w, x, xe, xm, y, ye, ym;
+      anchor = this.getAnchor();
+      ctx = this.canvas.ctx;
+      x = -anchor.x;
+      y = -anchor.y;
+      w = this.options.width;
+      h = this.options.height;
+      magic = 0.551784;
+      ox = (w / 2) * magic;
+      oy = (h / 2) * magic;
+      xe = x + w;
+      ye = y + h;
+      xm = x + w / 2;
+      ym = y + h / 2;
+      ctx.moveTo(x, ym);
+      ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+      ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+      ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+      ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+      return ctx.closePath();
+    };
+
+    return Ellipse;
 
   })(Shape);
   rippl.CustomShape = CustomShape = (function(_super) {
