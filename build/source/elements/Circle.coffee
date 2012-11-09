@@ -3,6 +3,7 @@ rippl.Circle = class Circle extends Shape
   constructor: (options, canvas) ->
     @addDefaults
       radius: 0 # radius of the circle
+      angle: Math.PI * 2
 
     super(options, canvas)
 
@@ -12,4 +13,7 @@ rippl.Circle = class Circle extends Shape
   # -----------------------------------
 
   drawPath: ->
-    @canvas.ctx.arc(0, 0, @options.radius, 0, Math.PI * 2, false)
+    ctx = @canvas.ctx
+    ctx.arc(0, 0, @options.radius, 0, @options.angle, false)
+    ctx.lineTo(0, 0) if @options.angle isnt Math.PI * 2
+    ctx.closePath()
