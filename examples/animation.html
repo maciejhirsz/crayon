@@ -10,10 +10,12 @@
     </div>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../rippl.js"></script>
     <script>
 
       rippl.assets.preload('img/animation.png', function(){
+
+        rippl.assets.get('img/animation.png').cache('enrage', 'colorize', 0);
 
         var canvas = new rippl.Canvas({ id: "my-canvas" });
         var timer = new rippl.Timer({ fps: 60 });
@@ -66,6 +68,10 @@
 
         document.getElementById('enrage').onclick = function(){
           sprite.transformStop();
+          sprite.removeFilter();
+
+          sprite.set('src', rippl.assets.get('img/animation.png').cached('enrage'))
+
           sprite.transform({
             duration: 200,
             transition: 'easeIn',
@@ -85,12 +91,20 @@
                 scaleX: side,
                 scaleY: 1
               }
+            }).on('end', function(){
+              sprite.set('src', rippl.assets.get('img/animation.png'))
             });
           });
         }
 
         document.getElementById('damage').onclick = function(){
-          //sprite.transformStop();
+          sprite.transformStop();
+          sprite.set({
+            scaleX: side,
+            scaleY: 1,
+            src: rippl.assets.get('img/animation.png')
+          });
+
           sprite.transform({
             duration: 500,
             transition: 'easeIn',
