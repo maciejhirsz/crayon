@@ -13,6 +13,7 @@ class Transformation extends ObjectAbstract
     delay: 0
     from: null
     to: null
+    custom: null
     transition: 'linear'
 
   # -----------------------------------
@@ -28,14 +29,6 @@ class Transformation extends ObjectAbstract
 
   # -----------------------------------
 
-  parseColors: (value) ->
-    if typeof value is 'string' and value[0] is '#'
-      return new Color(value)
-
-    return value
-
-  # -----------------------------------
-
   constructor: (options) ->
     @setOptions(options)
 
@@ -44,11 +37,6 @@ class Transformation extends ObjectAbstract
 
     @startTime = Date.now() + @options.delay
     @endTime = @startTime + @options.duration
-
-    @
-
-    @options.from[option] = @parseColors(value) for option, value of @options.from
-    @options.to[option] = @parseColors(value) for option, value of @options.to
 
   # -----------------------------------
 
@@ -99,6 +87,8 @@ class Transformation extends ObjectAbstract
 
     options = {}
     stage = @getStage(time)
+
+    @options.custom.call(element, stage) if typeof @options.custom is 'function'
 
     from = @options.from
     to = @options.to
