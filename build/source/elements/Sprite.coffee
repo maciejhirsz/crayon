@@ -7,22 +7,51 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
+  _animated: false
+
+  # -----------------------------------
+
+  _frameDuration: 0
+
+  # -----------------------------------
+
+  _framesModulo: 0
+
+  # -----------------------------------
+
   constructor: (options, canvas) ->
     @addDefaults
       src: null
       cropX: 0
       cropY: 0
+      fps: 0
 
     super(options, canvas)
 
+    if @options.fps isnt 0
+      @_frameDuration = 1000 / options.fps
   # -----------------------------------
 
   validate: (options) ->
-    throw "Sprite: src option can't be null" if options.src is null
     if typeof options.src is 'string'
       options.src = asset = rippl.assets.get(options.src)
       if not asset.__isLoaded
-        asset.on('loaded', => @canvas.touch() if @canvas)
+        asset.on 'loaded', =>
+          @canvas.touch() if @canvas
+          @calculateFrames()
+      else
+        @calculateFrames()
+
+    if typeof options.fps is 'number'
+      if options.fps is 0
+        @stop()
+      else
+        @_frameDuration = 1000 / options.fps
+
+  # -----------------------------------
+
+  calculateFrames: ->
+    @_framesModulo = ~~(@options.src._width / @options.width)
 
   # -----------------------------------
 
@@ -33,6 +62,49 @@ rippl.Sprite = class Sprite extends Element
       @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
       @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+
+  # -----------------------------------
+
+  addAnimation: (label, frames) ->
+    animations = @_animations or (@_animations = {})
+    animations[label] = frames
+    @
+
+  # -----------------------------------
+
+  animate: (label) ->
+    label ? label = 'idle'
+    @_frames = @_animations[label]
+    @_currentIndex = -1
+    @_animationStart = Date.now()
+    @_animationEnd = @_animationStart + @_frames.length * @_frameDuration
+    @_animated = true
+
+  # -----------------------------------
+
+  progress: (frameTime) ->
+    super(frameTime);
+
+    if @_animated and @_framesModulo
+      return @animate() if frameTime >= @_animationEnd
+
+      index = ~~((frameTime - @_animationStart) / @_frameDuration)
+      if index isnt @_currentIndex
+        @_currentIndex = index
+
+        frame = @_frames[index]
+
+        frameX = frame % @_framesModulo
+        frameY = ~~(frame / @_framesModulo)
+
+        @options.cropX = frameX * @options.width
+        @options.cropY = frameY * @options.height
+        @canvas.touch()
+
+  # -----------------------------------
+
+  stop: ->
+    @_animated = false
 
   # -----------------------------------
 
