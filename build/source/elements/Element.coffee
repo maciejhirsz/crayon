@@ -7,6 +7,7 @@ class Element extends ObjectAbstract
     x: 0
     y: 0
     z: 0
+    snap: false
     anchorX: 0.5
     anchorY: 0.5
     anchorInPixels: false
@@ -134,7 +135,15 @@ class Element extends ObjectAbstract
   #
   prepare: ->
     ctx = @canvas.ctx
-    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
+
+    if @options.snap
+      x = ~~@options.x
+      y = ~~@options.y
+    else
+      x = @options.x
+      y = @options.y
+
+    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, x, y)
     ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
     ctx.rotate(@options.rotation) if @options.rotation isnt 0
     ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
@@ -150,16 +159,17 @@ class Element extends ObjectAbstract
   set: (target, value) ->
     if value isnt undefined and typeof target is 'string'
       option = target
+      @validate(option: target)
 
       if @options[option] isnt undefined and @options[option] isnt value
         @options[option] = value
-        @validate(@options)
-
         @trigger("change:#{option}")
         @trigger("change")
         return
 
     change = []
+
+    @validate(target)
 
     for option, value of target
       if @options[option] isnt undefined and @options[option] isnt value
@@ -167,7 +177,6 @@ class Element extends ObjectAbstract
         change.push(option)
 
     if change.length
-      @validate(@options)
       @trigger("change:#{option}") for option in change
       @trigger("change")
 
