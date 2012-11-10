@@ -11,8 +11,8 @@
   # -----------------------------------
 
   rgbToLumaChromaHue = (r, g, b) ->
-    luma = @rgbToLuma(r, g, b)
-    chroma = @rgbToChroma(r, g, b)
+    luma = rgbToLuma(r, g, b)
+    chroma = rgbToChroma(r, g, b)
 
     if chroma is 0
       hprime = 0
@@ -59,7 +59,7 @@
         g = 0
         b = x
 
-    component = luma - @rgbToLuma(r, g, b)
+    component = luma - rgbToLuma(r, g, b)
 
     r += component
     g += component
