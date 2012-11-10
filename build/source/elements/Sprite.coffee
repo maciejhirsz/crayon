@@ -83,7 +83,7 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   progress: (frameTime) ->
-    super(frameTime);
+    super(frameTime)
 
     if @_animated and @_framesModulo
       return @animate() if frameTime >= @_animationEnd
