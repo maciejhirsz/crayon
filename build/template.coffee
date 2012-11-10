@@ -11,6 +11,7 @@ window.rippl = rippl = {}
 #!include utils/Transformation.coffee
 #!include utils/ImageAsset.coffee
 #!include utils/assets.coffee
+#!include utils/filters.coffee
 #!include elements/Element.coffee
 #!include elements/Sprite.coffee
 #!include elements/Shape.coffee
