@@ -19,13 +19,34 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
   constructor: (url) ->
     @_image = new Image
     @_image.onload = =>
-      @__isLoaded = true
-
       @_width = @_image.naturalWidth
       @_height = @_image.naturalHeight
-
+      @__isLoaded = true
       @trigger('loaded')
     @_image.src = url
+
+  # -----------------------------------
+
+  cache: (label, filter, args...) ->
+    return if not @__isLoaded
+
+    cache = @_cache or (@_cache = {})
+
+    buffer = cache[label] = new Canvas
+      width: @_width
+      height: @_height
+
+    buffer.drawSprite(@, 0, 0, @_width, @_height)
+
+    args.unshift(filter)
+    buffer.filter.apply(buffer, args)
+
+  # -----------------------------------
+
+  cached: (label) ->
+    return @ if not @_cache
+    return @_cache[label] if @_cache[label]
+    return @
 
   # -----------------------------------
 
