@@ -37,33 +37,34 @@ Rippl may be freely distributed under the MIT license.
     ObjectAbstract.prototype.on = function(event, callback) {
       var handlers;
       if (!this._validEventName(event)) {
-        return;
+        return this;
       }
       if (!this._validCallback(callback)) {
-        return;
+        return this;
       }
       handlers = this._eventHandlers || (this._eventHandlers = {});
       if (handlers[event] === void 0) {
         handlers[event] = [];
       }
-      return handlers[event].push(callback);
+      handlers[event].push(callback);
+      return this;
     };
 
     ObjectAbstract.prototype.off = function(event, callbackToRemove) {
       var callback, handlers, stack, _i, _len, _ref;
       if (!(handlers = this._eventHandlers)) {
-        return;
+        return this;
       }
       if (!this._validEventName(event)) {
         return this._eventHandlers = {};
       } else if (!this._validCallback(callbackToRemove)) {
         if (handlers[event] === void 0) {
-          return;
+          return this;
         }
         return delete handlers[event];
       } else {
         if (handlers[event] === void 0) {
-          return;
+          return this;
         }
         stack = [];
         _ref = handlers[event];
@@ -81,20 +82,20 @@ Rippl may be freely distributed under the MIT license.
       var args, callback, event, handlers, _i, _len, _ref;
       event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       if (!(handlers = this._eventHandlers)) {
-        return;
+        return this;
       }
       if (!this._validEventName(event)) {
-        return;
+        return this;
       }
       if (handlers[event] === void 0) {
-        return false;
+        return this;
       }
       _ref = handlers[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         callback = _ref[_i];
         callback.apply(this, args);
       }
-      return true;
+      return this;
     };
 
     ObjectAbstract.prototype.addDefaults = function(defaults) {
@@ -426,10 +427,15 @@ Rippl may be freely distributed under the MIT license.
       }
       element.set(options);
       if (time >= this.endTime) {
+        this.destroy();
         this.finished = true;
-        delete this.options.to;
-        return delete this.options.from;
+        return this.trigger('end');
       }
+    };
+
+    Transformation.prototype.destroy = function() {
+      delete this.options.to;
+      return delete this.options.from;
     };
 
     return Transformation;
@@ -627,22 +633,43 @@ Rippl may be freely distributed under the MIT license.
       return transform;
     };
 
+    Element.prototype.transformStop = function() {
+      var transform, _j, _len1, _ref;
+      _ref = this.transformStack;
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        transform = _ref[_j];
+        transform.destroy();
+      }
+      this.transformStack = [];
+      return this.transformCount = 0;
+    };
+
     Element.prototype.progress = function(frameTime) {
-      var newStack, transform, _j, _len1, _ref;
+      var newStack, remove, transform, _j, _k, _len1, _len2, _ref, _ref1;
       if (!this.transformCount) {
         return;
       }
-      newStack = [];
+      remove = false;
       _ref = this.transformStack;
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
         transform = _ref[_j];
         transform.progress(this, frameTime);
-        if (!transform.isFinished()) {
-          newStack.push(transform);
+        if (transform.isFinished()) {
+          remove = true;
         }
       }
-      this.transformStack = newStack;
-      return this.transformCount = newStack.length;
+      if (remove) {
+        newStack = [];
+        _ref1 = this.transformStack;
+        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+          transform = _ref1[_k];
+          if (!transform.isFinished()) {
+            newStack.push(transform);
+          }
+        }
+        this.transformStack = newStack;
+        return this.transformCount = newStack.length;
+      }
     };
 
     Element.prototype.prepare = function() {

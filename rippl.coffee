@@ -35,8 +35,8 @@ rippl.ObjectAbstract = class ObjectAbstract
     #
     # sets up an event handler for a specific event
     #
-    return if not @_validEventName(event)
-    return if not @_validCallback(callback)
+    return @ if not @_validEventName(event)
+    return @ if not @_validCallback(callback)
 
     #
     # Create a container for event handlers
@@ -54,10 +54,12 @@ rippl.ObjectAbstract = class ObjectAbstract
     #
     handlers[event].push(callback)
 
+    @
+
   # -----------------------------------
 
   off: (event, callbackToRemove) ->
-    return if not handlers = @_eventHandlers
+    return @ if not handlers = @_eventHandlers
 
     if not @_validEventName(event)
       #
@@ -69,7 +71,7 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop all listeners for specified event
       #
-      return if handlers[event] is undefined
+      return @ if handlers[event] is undefined
 
       delete handlers[event]
 
@@ -77,7 +79,7 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop only the specified callback from the stack
       #
-      return if handlers[event] is undefined
+      return @ if handlers[event] is undefined
 
       stack = []
 
@@ -89,18 +91,18 @@ rippl.ObjectAbstract = class ObjectAbstract
   # -----------------------------------
 
   trigger: (event, args...) ->
-    return if not handlers = @_eventHandlers
+    return @ if not handlers = @_eventHandlers
 
     #
     # triggers all listener callbacks of a given event, pass on the data from second argument
     #
-    return if not @_validEventName(event)
+    return @ if not @_validEventName(event)
 
-    return false if handlers[event] is undefined
+    return @ if handlers[event] is undefined
 
     callback.apply(this, args) for callback in handlers[event]
 
-    return true
+    return @
 
   # -----------------------------------
 
@@ -465,12 +467,18 @@ class Transformation extends ObjectAbstract
     # Finish the transformation
     #
     if time >= @endTime
+      @destroy()
       @finished = true
-      #
-      # Avoid memleaks
-      #
-      delete @options.to
-      delete @options.from
+      @trigger('end')
+
+  # -----------------------------------
+
+  destroy: ->
+    #
+    # Avoid memleaks
+    #
+    delete @options.to
+    delete @options.from
 
 # =============================================
 #
@@ -691,19 +699,37 @@ class Element extends ObjectAbstract
     transform
 
   # -----------------------------------
+
+  transformStop: ->
+    for transform in @transformStack
+      transform.destroy()
+
+    @transformStack = []
+    @transformCount = 0
+
+  # -----------------------------------
   #
   # Used to progress current tranformation stack
   #
   progress: (frameTime) ->
     return if not @transformCount
 
-    newStack = []
+    remove = false
+
     for transform in @transformStack
       transform.progress(@, frameTime)
-      newStack.push(transform) if not transform.isFinished()
+      remove = true if transform.isFinished()
 
-    @transformStack = newStack
-    @transformCount = newStack.length
+    #
+    # Second pass to avoid conflicts with anything happening on transformation events
+    #
+    if remove
+      newStack = []
+      for transform in @transformStack
+        newStack.push(transform) if not transform.isFinished()
+
+      @transformStack = newStack
+      @transformCount = newStack.length
 
   # -----------------------------------
   #
@@ -857,7 +883,7 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   progress: (frameTime) ->
-    super(frameTime);
+    super(frameTime)
 
     if @_animated and @_framesModulo
       return @animate() if frameTime >= @_animationEnd
