@@ -684,12 +684,16 @@ Rippl may be freely distributed under the MIT license.
           return [r, g, b, a];
         });
       },
-      ghost: function(alpha) {
+      ghost: function(alpha, hue) {
         var opacity;
         opacity = 1 - alpha;
         return this.rgbaFilter(function(r, g, b, a) {
-          var luma;
+          var chroma, luma, _ref;
           luma = rgbToLuma(r, g, b);
+          if (typeof hue === 'number') {
+            chroma = rgbToChroma(r, g, b);
+            _ref = lumaChromaHueToRgb(luma, chroma, hue), r = _ref[0], g = _ref[1], b = _ref[2];
+          }
           a = (a / 255) * (luma * alpha + 255 * opacity);
           return [r, g, b, a];
         });
