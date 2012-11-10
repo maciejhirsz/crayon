@@ -176,6 +176,14 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
+  filter: (filter, args...) ->
+    fn = rippl.filters[filter]
+    return if typeof fn isnt 'function'
+
+    fn.apply(@, args)
+
+  # -----------------------------------
+
   rgbaFilter: (filter) ->
     imageData = @ctx.getImageData(0, 0, @options.width, @options.height)
 
