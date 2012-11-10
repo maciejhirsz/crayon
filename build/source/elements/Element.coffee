@@ -90,8 +90,6 @@ class Element extends ObjectAbstract
   # -----------------------------------
 
   transform: (options) ->
-    return if typeof options.to isnt 'object'
-
     #
     # Set starting values if not defined
     #
