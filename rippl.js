@@ -255,13 +255,13 @@ Rippl may be freely distributed under the MIT license.
 
     Color.prototype.b = 255;
 
-    Color.prototype.a = 255;
+    Color.prototype.a = 1;
 
     Color.prototype.__isColor = true;
 
-    Color.prototype.string = 'rgba(255,255,255,255)';
+    Color.prototype.string = 'rgba(255,255,255,1)';
 
-    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\s*\\)\\s*', 'i');
+    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([\.0-9]+)\s*\\)\\s*', 'i');
 
     function Color(r, g, b, a) {
       var hash, l, matches;
@@ -297,7 +297,7 @@ Rippl may be freely distributed under the MIT license.
       this.g = ~~g;
       this.b = ~~b;
       if (a !== void 0) {
-        this.a = ~~a;
+        this.a = a;
       }
       return this.cacheString();
     };
@@ -444,11 +444,17 @@ Rippl may be freely distributed under the MIT license.
 
     ImageAsset.prototype.__isLoaded = false;
 
+    ImageAsset.prototype._width = 0;
+
+    ImageAsset.prototype._height = 0;
+
     function ImageAsset(url) {
       var _this = this;
       this._image = new Image;
       this._image.onload = function() {
         _this.__isLoaded = true;
+        _this._width = _this._image.naturalWidth;
+        _this._height = _this._image.naturalHeight;
         return _this.trigger('loaded');
       };
       this._image.src = url;
@@ -514,6 +520,7 @@ Rippl may be freely distributed under the MIT license.
       x: 0,
       y: 0,
       z: 0,
+      snap: false,
       anchorX: 0.5,
       anchorY: 0.5,
       anchorInPixels: false,
@@ -639,9 +646,16 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Element.prototype.prepare = function() {
-      var ctx;
+      var ctx, x, y;
       ctx = this.canvas.ctx;
-      ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, this.options.x, this.options.y);
+      if (this.options.snap) {
+        x = ~~this.options.x;
+        y = ~~this.options.y;
+      } else {
+        x = this.options.x;
+        y = this.options.y;
+      }
+      ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, x, y);
       if (this.options.alpha !== 1) {
         ctx.globalAlpha = this.options.alpha;
       }
@@ -659,15 +673,18 @@ Rippl may be freely distributed under the MIT license.
       var change, option, _j, _len1;
       if (value !== void 0 && typeof target === 'string') {
         option = target;
+        this.validate({
+          option: target
+        });
         if (this.options[option] !== void 0 && this.options[option] !== value) {
           this.options[option] = value;
-          this.validate(this.options);
           this.trigger("change:" + option);
           this.trigger("change");
           return;
         }
       }
       change = [];
+      this.validate(target);
       for (option in target) {
         value = target[option];
         if (this.options[option] !== void 0 && this.options[option] !== value) {
@@ -676,7 +693,6 @@ Rippl may be freely distributed under the MIT license.
         }
       }
       if (change.length) {
-        this.validate(this.options);
         for (_j = 0, _len1 = change.length; _j < _len1; _j++) {
           option = change[_j];
           this.trigger("change:" + option);
@@ -699,31 +715,52 @@ Rippl may be freely distributed under the MIT license.
 
     Sprite.prototype.buffer = null;
 
+    Sprite.prototype._animated = false;
+
+    Sprite.prototype._frameDuration = 0;
+
+    Sprite.prototype._framesModulo = 0;
+
     function Sprite(options, canvas) {
       this.addDefaults({
         src: null,
         cropX: 0,
-        cropY: 0
+        cropY: 0,
+        fps: 0
       });
       Sprite.__super__.constructor.call(this, options, canvas);
+      if (this.options.fps !== 0) {
+        this._frameDuration = 1000 / options.fps;
+      }
     }
 
     Sprite.prototype.validate = function(options) {
       var asset,
         _this = this;
-      if (options.src === null) {
-        throw "Sprite: src option can't be null";
-      }
       if (typeof options.src === 'string') {
         options.src = asset = rippl.assets.get(options.src);
         if (!asset.__isLoaded) {
-          return asset.on('loaded', function() {
+          asset.on('loaded', function() {
             if (_this.canvas) {
-              return _this.canvas.touch();
+              _this.canvas.touch();
             }
+            return _this.calculateFrames();
           });
+        } else {
+          this.calculateFrames();
         }
       }
+      if (typeof options.fps === 'number') {
+        if (options.fps === 0) {
+          return this.stop();
+        } else {
+          return this._frameDuration = 1000 / options.fps;
+        }
+      }
+    };
+
+    Sprite.prototype.calculateFrames = function() {
+      return this._framesModulo = ~~(this.options.src._width / this.options.width);
     };
 
     Sprite.prototype.render = function() {
@@ -734,6 +771,51 @@ Rippl may be freely distributed under the MIT license.
       } else {
         return this.canvas.drawSprite(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
       }
+    };
+
+    Sprite.prototype.addAnimation = function(label, frames) {
+      var animations;
+      animations = this._animations || (this._animations = {});
+      animations[label] = frames;
+      return this;
+    };
+
+    Sprite.prototype.animate = function(label) {
+            if (label != null) {
+        label;
+
+      } else {
+        label = 'idle';
+      };
+      this._frames = this._animations[label];
+      this._currentIndex = -1;
+      this._animationStart = Date.now();
+      this._animationEnd = this._animationStart + this._frames.length * this._frameDuration;
+      return this._animated = true;
+    };
+
+    Sprite.prototype.progress = function(frameTime) {
+      var frame, frameX, frameY, index;
+      Sprite.__super__.progress.call(this, frameTime);
+      if (this._animated && this._framesModulo) {
+        if (frameTime >= this._animationEnd) {
+          return this.animate();
+        }
+        index = ~~((frameTime - this._animationStart) / this._frameDuration);
+        if (index !== this._currentIndex) {
+          this._currentIndex = index;
+          frame = this._frames[index];
+          frameX = frame % this._framesModulo;
+          frameY = ~~(frame / this._framesModulo);
+          this.options.cropX = frameX * this.options.width;
+          this.options.cropY = frameY * this.options.height;
+          return this.canvas.touch();
+        }
+      }
+    };
+
+    Sprite.prototype.stop = function() {
+      return this._animated = false;
     };
 
     Sprite.prototype.createBuffer = function() {
@@ -1056,12 +1138,12 @@ Rippl may be freely distributed under the MIT license.
       this.setOptions(options);
       if (this.options.id !== null) {
         this._canvas = document.getElementById(this.options.id);
-        this.options.width = Number(this._canvas.width);
-        this.options.height = Number(this._canvas.height);
+        this._width = this.options.width = Number(this._canvas.width);
+        this._height = this.options.height = Number(this._canvas.height);
       } else {
         this._canvas = document.createElement('canvas');
-        this._canvas.setAttribute('width', this.options.width);
-        this._canvas.setAttribute('height', this.options.height);
+        this._width = this._canvas.setAttribute('width', this.options.width);
+        this._height = this._canvas.setAttribute('height', this.options.height);
       }
       this.ctx = this._canvas.getContext('2d');
       this.ctx.save();

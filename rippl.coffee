@@ -276,7 +276,7 @@ rippl.Color = class Color
   r: 255
   g: 255
   b: 255
-  a: 255
+  a: 1
 
   # -----------------------------------
 
@@ -284,11 +284,11 @@ rippl.Color = class Color
 
   # -----------------------------------
 
-  string: 'rgba(255,255,255,255)'
+  string: 'rgba(255,255,255,1)'
 
   # -----------------------------------
 
-  rgbaPattern: new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\s*\\)\\s*', 'i')
+  rgbaPattern: new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([\.0-9]+)\s*\\)\\s*', 'i')
 
   # -----------------------------------
 
@@ -327,7 +327,7 @@ rippl.Color = class Color
     @r = ~~r
     @g = ~~g
     @b = ~~b
-    @a = ~~a if a isnt undefined
+    @a = a if a isnt undefined
     @cacheString()
 
   # -----------------------------------
@@ -493,10 +493,22 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
 
   # -----------------------------------
 
+  _width: 0
+
+  # -----------------------------------
+
+  _height: 0
+
+  # -----------------------------------
+
   constructor: (url) ->
     @_image = new Image
     @_image.onload = =>
       @__isLoaded = true
+
+      @_width = @_image.naturalWidth
+      @_height = @_image.naturalHeight
+
       @trigger('loaded')
     @_image.src = url
 
@@ -571,6 +583,7 @@ class Element extends ObjectAbstract
     x: 0
     y: 0
     z: 0
+    snap: false
     anchorX: 0.5
     anchorY: 0.5
     anchorInPixels: false
@@ -698,7 +711,15 @@ class Element extends ObjectAbstract
   #
   prepare: ->
     ctx = @canvas.ctx
-    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
+
+    if @options.snap
+      x = ~~@options.x
+      y = ~~@options.y
+    else
+      x = @options.x
+      y = @options.y
+
+    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, x, y)
     ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
     ctx.rotate(@options.rotation) if @options.rotation isnt 0
     ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
@@ -714,16 +735,17 @@ class Element extends ObjectAbstract
   set: (target, value) ->
     if value isnt undefined and typeof target is 'string'
       option = target
+      @validate(option: target)
 
       if @options[option] isnt undefined and @options[option] isnt value
         @options[option] = value
-        @validate(@options)
-
         @trigger("change:#{option}")
         @trigger("change")
         return
 
     change = []
+
+    @validate(target)
 
     for option, value of target
       if @options[option] isnt undefined and @options[option] isnt value
@@ -731,7 +753,6 @@ class Element extends ObjectAbstract
         change.push(option)
 
     if change.length
-      @validate(@options)
       @trigger("change:#{option}") for option in change
       @trigger("change")
 
@@ -760,22 +781,51 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
+  _animated: false
+
+  # -----------------------------------
+
+  _frameDuration: 0
+
+  # -----------------------------------
+
+  _framesModulo: 0
+
+  # -----------------------------------
+
   constructor: (options, canvas) ->
     @addDefaults
       src: null
       cropX: 0
       cropY: 0
+      fps: 0
 
     super(options, canvas)
 
+    if @options.fps isnt 0
+      @_frameDuration = 1000 / options.fps
   # -----------------------------------
 
   validate: (options) ->
-    throw "Sprite: src option can't be null" if options.src is null
     if typeof options.src is 'string'
       options.src = asset = rippl.assets.get(options.src)
       if not asset.__isLoaded
-        asset.on('loaded', => @canvas.touch() if @canvas)
+        asset.on 'loaded', =>
+          @canvas.touch() if @canvas
+          @calculateFrames()
+      else
+        @calculateFrames()
+
+    if typeof options.fps is 'number'
+      if options.fps is 0
+        @stop()
+      else
+        @_frameDuration = 1000 / options.fps
+
+  # -----------------------------------
+
+  calculateFrames: ->
+    @_framesModulo = ~~(@options.src._width / @options.width)
 
   # -----------------------------------
 
@@ -786,6 +836,49 @@ rippl.Sprite = class Sprite extends Element
       @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
       @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+
+  # -----------------------------------
+
+  addAnimation: (label, frames) ->
+    animations = @_animations or (@_animations = {})
+    animations[label] = frames
+    @
+
+  # -----------------------------------
+
+  animate: (label) ->
+    label ? label = 'idle'
+    @_frames = @_animations[label]
+    @_currentIndex = -1
+    @_animationStart = Date.now()
+    @_animationEnd = @_animationStart + @_frames.length * @_frameDuration
+    @_animated = true
+
+  # -----------------------------------
+
+  progress: (frameTime) ->
+    super(frameTime);
+
+    if @_animated and @_framesModulo
+      return @animate() if frameTime >= @_animationEnd
+
+      index = ~~((frameTime - @_animationStart) / @_frameDuration)
+      if index isnt @_currentIndex
+        @_currentIndex = index
+
+        frame = @_frames[index]
+
+        frameX = frame % @_framesModulo
+        frameY = ~~(frame / @_framesModulo)
+
+        @options.cropX = frameX * @options.width
+        @options.cropY = frameY * @options.height
+        @canvas.touch()
+
+  # -----------------------------------
+
+  stop: ->
+    @_animated = false
 
   # -----------------------------------
 
@@ -1154,12 +1247,12 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     if @options.id isnt null
       @_canvas = document.getElementById(@options.id)
-      @options.width = Number @_canvas.width
-      @options.height = Number @_canvas.height
+      @_width = @options.width = Number @_canvas.width
+      @_height = @options.height = Number @_canvas.height
     else
       @_canvas = document.createElement('canvas')
-      @_canvas.setAttribute('width', @options.width)
-      @_canvas.setAttribute('height', @options.height)
+      @_width = @_canvas.setAttribute('width', @options.width)
+      @_height = @_canvas.setAttribute('height', @options.height)
 
     @ctx = @_canvas.getContext('2d')
     @ctx.save()
