@@ -34,6 +34,7 @@ rippl.Sprite = class Sprite extends Element
 
     if @options.fps isnt 0
       @_frameDuration = 1000 / options.fps
+
   # -----------------------------------
 
   validate: (options) ->
@@ -128,6 +129,7 @@ rippl.Sprite = class Sprite extends Element
       @buffer.clear()
 
     @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer
 
   # -----------------------------------
 
@@ -136,6 +138,7 @@ rippl.Sprite = class Sprite extends Element
     return if typeof fn isnt 'function'
 
     @createBuffer()
+
     fn.apply(@buffer, args)
 
   # -----------------------------------
