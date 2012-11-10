@@ -112,10 +112,15 @@ class Transformation extends ObjectAbstract
     # Finish the transformation
     #
     if time >= @endTime
+      @destroy()
       @finished = true
-      #
-      # Avoid memleaks
-      #
-      delete @options.to
-      delete @options.from
       @trigger('end')
+
+  # -----------------------------------
+
+  destroy: ->
+    #
+    # Avoid memleaks
+    #
+    delete @options.to
+    delete @options.from
