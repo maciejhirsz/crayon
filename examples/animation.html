@@ -17,6 +17,7 @@
 
         rippl.assets.get('img/animation.png').cache('enrage', 'colorize', 0);
         rippl.assets.get('img/animation.png').cache('incorporeal', 'ghost', 0.5, Math.PI);
+        rippl.assets.get('img/animation.png').cache('incorporeal-enrage', 'ghost', 0.5, 0);
 
         var canvas = new rippl.Canvas({ id: "my-canvas" });
         var timer = new rippl.Timer({ fps: 60 });
@@ -72,7 +73,11 @@
           sprite.transformStop();
           sprite.removeFilter();
 
-          sprite.set('src', rippl.assets.get('img/animation.png').cached('enrage'))
+          if(incorporeal){
+            sprite.set('src', rippl.assets.get('img/animation.png').cached('incorporeal-enrage'));
+          }else{
+            sprite.set('src', rippl.assets.get('img/animation.png').cached('enrage'));
+          }
 
           sprite.transform({
             duration: 200,
@@ -94,7 +99,11 @@
                 scaleY: 1
               }
             }).on('end', function(){
-              sprite.set('src', rippl.assets.get('img/animation.png'));
+              if(incorporeal){
+                sprite.set('src', rippl.assets.get('img/animation.png').cached('incorporeal'));
+              }else{
+                sprite.set('src','img/animation.png');
+              }
             });
           });
         }
@@ -103,8 +112,7 @@
           sprite.transformStop();
           sprite.set({
             scaleX: side,
-            scaleY: 1,
-            src: rippl.assets.get('img/animation.png')
+            scaleY: 1
           });
 
           sprite.transform({
@@ -137,7 +145,7 @@
         document.getElementById('incorporeal').onclick = function(){
           if(incorporeal){
             incorporeal = false;
-            sprite.set('src', rippl.assets.get('img/animation.png'));
+            sprite.set('src', 'img/animation.png');
           }else{
             incorporeal = true;
             sprite.set('src', rippl.assets.get('img/animation.png').cached('incorporeal'));
