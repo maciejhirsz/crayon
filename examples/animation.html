@@ -5,6 +5,9 @@
     <meta charset="utf-8">
   </head>
   <body>
+    <div>
+      <button id="attack">Attack</button> <button id="hover">Toggle Hover</button> <button id="side">Toggle Side</button>
+    </div>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
     <script src="../rippl.min.js"></script>
@@ -14,6 +17,7 @@
 
         var canvas = new rippl.Canvas({ id: "my-canvas" });
         var timer = new rippl.Timer({ fps: 60 });
+        var hover = true;
 
         timer.bind(canvas);
 
@@ -38,14 +42,6 @@
 
         canvas.add(sprite);
 
-        var label = new rippl.Text({
-          label: "Click to attack!",
-          x: 200,
-          y: 250
-        })
-
-        canvas.add(label);
-
         var tile = new rippl.CustomShape({
           x: 200,
           y: 200,
@@ -62,17 +58,34 @@
 
         canvas.add(tile);
 
-        canvas.getDocumentElement().onclick = function(){
+        document.getElementById('attack').onclick = function(){
           sprite.animate('attack');
+        }
+
+        document.getElementById('hover').onclick = function(){
+          if(hover){
+            sprite.set({
+              y: 200
+            });
+            hover = false;
+          }else{
+            hover = true;
+          }
+        }
+
+        document.getElementById('side').onclick = function(){
+          sprite.set('scaleX', sprite.get('scaleX') * -1);
         }
 
         timer.on('frame', function(time) {
           var t = time / 1000;
           var sin = Math.sin(t * 2);
 
-          sprite.set({
-            y: 175 + sin * 10
-          })
+          if(hover){
+            sprite.set({
+              y: 175 + sin * 10
+            })
+          }
         });
 
       });
