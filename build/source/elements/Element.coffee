@@ -115,19 +115,37 @@ class Element extends ObjectAbstract
     transform
 
   # -----------------------------------
+
+  transformStop: ->
+    for transform in @transformStack
+      transform.destroy()
+
+    @transformStack = []
+    @transformCount = 0
+
+  # -----------------------------------
   #
   # Used to progress current tranformation stack
   #
   progress: (frameTime) ->
     return if not @transformCount
 
-    newStack = []
+    remove = false
+
     for transform in @transformStack
       transform.progress(@, frameTime)
-      newStack.push(transform) if not transform.isFinished()
+      remove = true if transform.isFinished()
 
-    @transformStack = newStack
-    @transformCount = newStack.length
+    #
+    # Second pass to avoid conflicts with anything happening on transformation events
+    #
+    if remove
+      newStack = []
+      for transform in @transformStack
+        newStack.push(transform) if not transform.isFinished()
+
+      @transformStack = newStack
+      @transformCount = newStack.length
 
   # -----------------------------------
   #
