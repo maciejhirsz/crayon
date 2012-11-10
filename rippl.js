@@ -328,6 +328,7 @@ Rippl may be freely distributed under the MIT license.
       delay: 0,
       from: null,
       to: null,
+      custom: null,
       transition: 'linear'
     };
 
@@ -347,15 +348,7 @@ Rippl may be freely distributed under the MIT license.
       }
     };
 
-    Transformation.prototype.parseColors = function(value) {
-      if (typeof value === 'string' && value[0] === '#') {
-        return new Color(value);
-      }
-      return value;
-    };
-
     function Transformation(options) {
-      var option, value, _ref, _ref1;
       this.setOptions(options);
       if (this.options.from === null) {
         this.options.from = {};
@@ -365,18 +358,6 @@ Rippl may be freely distributed under the MIT license.
       }
       this.startTime = Date.now() + this.options.delay;
       this.endTime = this.startTime + this.options.duration;
-      this;
-
-      _ref = this.options.from;
-      for (option in _ref) {
-        value = _ref[option];
-        this.options.from[option] = this.parseColors(value);
-      }
-      _ref1 = this.options.to;
-      for (option in _ref1) {
-        value = _ref1[option];
-        this.options.to[option] = this.parseColors(value);
-      }
     }
 
     Transformation.prototype.isFinished = function() {
@@ -420,6 +401,9 @@ Rippl may be freely distributed under the MIT license.
       }
       options = {};
       stage = this.getStage(time);
+      if (typeof this.options.custom === 'function') {
+        this.options.custom.call(element, stage);
+      }
       from = this.options.from;
       to = this.options.to;
       for (option in to) {
@@ -518,6 +502,175 @@ Rippl may be freely distributed under the MIT license.
     }
   };
 
+  (function(rippl) {
+    var lumaChromaHueToRgb, rgbToChroma, rgbToLuma, rgbToLumaChromaHue;
+    rgbToLuma = function(r, g, b) {
+      return 0.30 * r + 0.59 * g + 0.11 * b;
+    };
+    rgbToChroma = function(r, g, b) {
+      return Math.max(r, g, b) - Math.min(r, g, b);
+    };
+    rgbToLumaChromaHue = function(r, g, b) {
+      var chroma, hprime, hue, luma;
+      luma = this.rgbToLuma(r, g, b);
+      chroma = this.rgbToChroma(r, g, b);
+      if (chroma === 0) {
+        hprime = 0;
+      } else if (r === max) {
+        hprime = ((g - b) / chroma) % 6;
+      } else if (g === max) {
+        hprime = ((b - r) / chroma) + 2;
+      } else if (b === max) {
+        hprime = ((r - g) / chroma) + 4;
+      }
+      hue = hprime * (Math.PI / 3);
+      return [luma, chroma, hue];
+    };
+    lumaChromaHueToRgb = function(luma, chroma, hue) {
+      var b, component, g, hprime, r, sextant, x;
+      hprime = hue / (Math.PI / 3);
+      x = chroma * (1 - Math.abs(hprime % 2 - 1));
+      sextant = ~~hprime;
+      switch (sextant) {
+        case 0:
+          r = chroma;
+          g = x;
+          b = 0;
+          break;
+        case 1:
+          r = x;
+          g = chroma;
+          b = 0;
+          break;
+        case 2:
+          r = 0;
+          g = chroma;
+          b = x;
+          break;
+        case 3:
+          r = 0;
+          g = x;
+          b = chroma;
+          break;
+        case 4:
+          r = x;
+          g = 0;
+          b = chroma;
+          break;
+        case 5:
+          r = chroma;
+          g = 0;
+          b = x;
+      }
+      component = luma - this.rgbToLuma(r, g, b);
+      r += component;
+      g += component;
+      b += component;
+      return [r, g, b];
+    };
+    return rippl.filters = {
+      colorOverlay: function(color) {
+        var ctx;
+        if (!color.__isColor) {
+          color = new Color(color);
+        }
+        ctx = this.ctx;
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = color.toString();
+        ctx.fillRect(0, 0, this._width, this._height);
+        return ctx.restore();
+      },
+      invertColors: function() {
+        return this.rgbaFilter(function(r, g, b, a) {
+          r = 255 - r;
+          g = 255 - g;
+          b = 255 - b;
+          return [r, g, b, a];
+        });
+      },
+      saturation: function(saturation) {
+        var grayscale;
+        saturation += 1;
+        grayscale = 1 - saturation;
+        return this.rgbaFilter(function(r, g, b, a) {
+          var luma;
+          luma = rgbToLuma(r, g, b);
+          r = r * saturation + luma * grayscale;
+          g = g * saturation + luma * grayscale;
+          b = b * saturation + luma * grayscale;
+          return [r, g, b, a];
+        });
+      },
+      contrast: function(contrast) {
+        var gray, original;
+        gray = -contrast;
+        original = 1 + contrast;
+        return this.rgbaFilter(function(r, g, b, a) {
+          r = r * original + 127 * gray;
+          g = g * original + 127 * gray;
+          b = b * original + 127 * gray;
+          return [r, g, b, a];
+        });
+      },
+      brightness: function(brightness) {
+        var change;
+        change = 255 * brightness;
+        return this.rgbaFilter(function(r, g, b, a) {
+          r += change;
+          g += change;
+          b += change;
+          return [r, g, b, a];
+        });
+      },
+      gamma: function(gamma) {
+        gamma += 1;
+        return this.rgbaFilter(function(r, g, b, a) {
+          r *= gamma;
+          g *= gamma;
+          b *= gamma;
+          return [r, g, b, a];
+        });
+      },
+      hueShift: function(shift) {
+        var fullAngle,
+          _this = this;
+        fullAngle = Math.PI * 2;
+        shift = shift % fullAngle;
+        return this.rgbaFilter(function(r, g, b, a) {
+          var chroma, hue, luma, _ref, _ref1;
+          _ref = rgbToLumaChromaHue(r, g, b), luma = _ref[0], chroma = _ref[1], hue = _ref[2];
+          hue = (hue + shift) % fullAngle;
+          if (hue < 0) {
+            hue += fullAngle;
+          }
+          _ref1 = lumaChromaHueToRgb(luma, chroma, hue), r = _ref1[0], g = _ref1[1], b = _ref1[2];
+          return [r, g, b, a];
+        });
+      },
+      colorize: function(hue) {
+        hue = hue % (Math.PI * 2);
+        return this.rgbaFilter(function(r, g, b, a) {
+          var chroma, luma, _ref;
+          luma = rgbToLuma(r, g, b);
+          chroma = rgbToChroma(r, g, b);
+          _ref = lumaChromaHueToRgb(luma, chroma, hue), r = _ref[0], g = _ref[1], b = _ref[2];
+          return [r, g, b, a];
+        });
+      },
+      ghost: function(alpha) {
+        var opacity;
+        opacity = 1 - alpha;
+        return this.rgbaFilter(function(r, g, b, a) {
+          var luma;
+          luma = rgbToLuma(r, g, b);
+          a = (a / 255) * (luma * alpha + 255 * opacity);
+          return [r, g, b, a];
+        });
+      }
+    };
+  })(rippl);
+
   Element = (function(_super) {
 
     __extends(Element, _super);
@@ -600,9 +753,6 @@ Rippl may be freely distributed under the MIT license.
 
     Element.prototype.transform = function(options) {
       var option, transform, _ref, _ref1;
-      if (typeof options.to !== 'object') {
-        return;
-      }
             if ((_ref = options.from) != null) {
         _ref;
 
@@ -742,6 +892,8 @@ Rippl may be freely distributed under the MIT license.
 
     Sprite.prototype.buffer = null;
 
+    Sprite.prototype._useBuffer = false;
+
     Sprite.prototype._animated = false;
 
     Sprite.prototype._frameDuration = 0;
@@ -822,8 +974,7 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Sprite.prototype.progress = function(frameTime) {
-      var frame, frameX, frameY, index;
-      Sprite.__super__.progress.call(this, frameTime);
+      var index;
       if (this._animated && this._framesModulo) {
         if (frameTime >= this._animationEnd) {
           return this.animate();
@@ -831,14 +982,20 @@ Rippl may be freely distributed under the MIT license.
         index = ~~((frameTime - this._animationStart) / this._frameDuration);
         if (index !== this._currentIndex) {
           this._currentIndex = index;
-          frame = this._frames[index];
-          frameX = frame % this._framesModulo;
-          frameY = ~~(frame / this._framesModulo);
-          this.options.cropX = frameX * this.options.width;
-          this.options.cropY = frameY * this.options.height;
-          return this.canvas.touch();
+          this.setFrame(this._frames[index]);
         }
       }
+      return Sprite.__super__.progress.call(this, frameTime);
+    };
+
+    Sprite.prototype.setFrame = function(frame) {
+      var frameX, frameY;
+      this._useBuffer = false;
+      frameX = frame % this._framesModulo;
+      frameY = ~~(frame / this._framesModulo);
+      this.options.cropX = frameX * this.options.width;
+      this.options.cropY = frameY * this.options.height;
+      return this.canvas.touch();
     };
 
     Sprite.prototype.stop = function() {
@@ -846,12 +1003,26 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Sprite.prototype.createBuffer = function() {
-      delete this.buffer;
-      this.buffer = new Canvas({
-        width: this.options.width,
-        height: this.options.height
-      });
+      if (!this.buffer) {
+        this.buffer = new Canvas({
+          width: this.options.width,
+          height: this.options.height
+        });
+      } else {
+        this.buffer.clear();
+      }
       return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+    };
+
+    Sprite.prototype.filter = function() {
+      var args, filter, fn;
+      filter = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      fn = rippl.filters[filter];
+      if (typeof fn !== 'function') {
+        return;
+      }
+      this.createBuffer();
+      return fn.apply(this.buffer, args);
     };
 
     Sprite.prototype.clearFilters = function() {
@@ -862,7 +1033,7 @@ Rippl may be freely distributed under the MIT license.
       return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
     };
 
-    Sprite.prototype.removeFilters = function() {
+    Sprite.prototype.removeFilter = function() {
       delete this.buffer;
       this.buffer = null;
       return this.canvas.touch();
@@ -1169,8 +1340,10 @@ Rippl may be freely distributed under the MIT license.
         this._height = this.options.height = Number(this._canvas.height);
       } else {
         this._canvas = document.createElement('canvas');
-        this._width = this._canvas.setAttribute('width', this.options.width);
-        this._height = this._canvas.setAttribute('height', this.options.height);
+        this._canvas.setAttribute('width', this.options.width);
+        this._canvas.setAttribute('height', this.options.height);
+        this._width = this.options.width;
+        this._height = this.options.height;
       }
       this.ctx = this._canvas.getContext('2d');
       this.ctx.save();
