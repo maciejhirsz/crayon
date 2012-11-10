@@ -699,14 +699,6 @@ Rippl may be freely distributed under the MIT license.
 
     Sprite.prototype.buffer = null;
 
-    Sprite.prototype.animated = false;
-
-    Sprite.prototype.count = 0;
-
-    Sprite.playFrames = [];
-
-    Sprite.prototype.currentFrame = 0;
-
     function Sprite(options, canvas) {
       this.addDefaults({
         src: null,
@@ -714,7 +706,6 @@ Rippl may be freely distributed under the MIT license.
         cropY: 0
       });
       Sprite.__super__.constructor.call(this, options, canvas);
-      this.frames = [];
     }
 
     Sprite.prototype.validate = function(options) {
@@ -735,23 +726,8 @@ Rippl may be freely distributed under the MIT license.
       }
     };
 
-    Sprite.prototype.setFrame = function(index) {
-      var frame;
-      frame = this.frames[index];
-      this.options.cropX = frame[0];
-      this.options.cropY = frame[1];
-      return this.removeFilters();
-    };
-
     Sprite.prototype.render = function() {
       var anchor;
-      if (this.animated && this.count % this.animated === 0) {
-        this.setFrame(this.playFrames[this.currentFrame]);
-        this.currentFrame += 1;
-        if (this.currentFrame === this.playFrames.length) {
-          this.currentFrame = 0;
-        }
-      }
       anchor = this.getAnchor();
       if (this.buffer != null) {
         return this.canvas.drawSprite(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
@@ -781,97 +757,6 @@ Rippl may be freely distributed under the MIT license.
       delete this.buffer;
       this.buffer = null;
       return this.canvas.touch();
-    };
-
-    Sprite.prototype.invertColorsFilter = function() {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.invertColorsFilter();
-    };
-
-    Sprite.prototype.saturationFilter = function(saturation) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.saturationFilter(saturation);
-    };
-
-    Sprite.prototype.contrastFilter = function(contrast) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.contrastFilter(contrast);
-    };
-
-    Sprite.prototype.brightnessFilter = function(brightness) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.brightnessFilter(brightness);
-    };
-
-    Sprite.prototype.gammaFilter = function(gamma) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.gammaFilter(gamma);
-    };
-
-    Sprite.prototype.hueShiftFilter = function(shift) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.hueShiftFilter(shift);
-    };
-
-    Sprite.prototype.colorizeFilter = function(hue) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.colorizeFilter(hue);
-    };
-
-    Sprite.prototype.ghostFilter = function(alpha) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.ghostFilter(alpha);
-    };
-
-    Sprite.prototype.animate = function(interval, from, to) {
-      var _j, _results;
-            if (interval != null) {
-        interval;
-
-      } else {
-        interval = 1;
-      };
-      if (from === void 0) {
-        from = 0;
-      }
-      if (to === void 0) {
-        to = this.frames.length - 1;
-      }
-      this.playFrames = (function() {
-        _results = [];
-        for (var _j = from; from <= to ? _j <= to : _j >= to; from <= to ? _j++ : _j--){ _results.push(_j); }
-        return _results;
-      }).apply(this);
-      this.currentFrame = 0;
-      if (this.playFrames.length) {
-        this.count = 0;
-        return this.animated = interval;
-      }
-    };
-
-    Sprite.prototype.stop = function() {
-      this.playFrames = [];
-      return this.animated = 0;
-    };
-
-    Sprite.prototype.addFrame = function(cropX, cropY) {
-      return this.frames.push([cropX, cropY]);
     };
 
     return Sprite;
