@@ -31,8 +31,10 @@ rippl.Canvas = class Canvas extends ObjectAbstract
       @_height = @options.height = Number @_canvas.height
     else
       @_canvas = document.createElement('canvas')
-      @_width = @_canvas.setAttribute('width', @options.width)
-      @_height = @_canvas.setAttribute('height', @options.height)
+      @_canvas.setAttribute('width', @options.width)
+      @_canvas.setAttribute('height', @options.height)
+      @_width = @options.width
+      @_height = @options.height
 
     @ctx = @_canvas.getContext('2d')
     @ctx.save()
