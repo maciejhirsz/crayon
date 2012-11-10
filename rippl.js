@@ -877,18 +877,11 @@ Rippl may be freely distributed under the MIT license.
     Element.prototype.render = function() {};
 
     Element.prototype.set = function(target, value) {
-      var change, option, _j, _len1;
+      var change, option, options, _j, _len1;
       if (value !== void 0 && typeof target === 'string') {
-        option = target;
-        this.validate({
-          option: target
-        });
-        if (this.options[option] !== void 0 && this.options[option] !== value) {
-          this.options[option] = value;
-          this.trigger("change:" + option);
-          this.trigger("change");
-          return;
-        }
+        options = {};
+        options[target] = value;
+        target = options;
       }
       change = [];
       this.validate(target);

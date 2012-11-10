@@ -958,14 +958,9 @@ class Element extends ObjectAbstract
 
   set: (target, value) ->
     if value isnt undefined and typeof target is 'string'
-      option = target
-      @validate(option: target)
-
-      if @options[option] isnt undefined and @options[option] isnt value
-        @options[option] = value
-        @trigger("change:#{option}")
-        @trigger("change")
-        return
+      options = {}
+      options[target] = value
+      target = options
 
     change = []
 
