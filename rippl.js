@@ -442,13 +442,39 @@ Rippl may be freely distributed under the MIT license.
       var _this = this;
       this._image = new Image;
       this._image.onload = function() {
-        _this.__isLoaded = true;
         _this._width = _this._image.naturalWidth;
         _this._height = _this._image.naturalHeight;
+        _this.__isLoaded = true;
         return _this.trigger('loaded');
       };
       this._image.src = url;
     }
+
+    ImageAsset.prototype.cache = function() {
+      var args, buffer, cache, filter, label;
+      label = arguments[0], filter = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      if (!this.__isLoaded) {
+        return;
+      }
+      cache = this._cache || (this._cache = {});
+      buffer = cache[label] = new Canvas({
+        width: this._width,
+        height: this._height
+      });
+      buffer.drawSprite(this, 0, 0, this._width, this._height);
+      args.unshift(filter);
+      return buffer.filter.apply(buffer, args);
+    };
+
+    ImageAsset.prototype.cached = function(label) {
+      if (!this._cache) {
+        return this;
+      }
+      if (this._cache[label]) {
+        return this._cache[label];
+      }
+      return this;
+    };
 
     ImageAsset.prototype.getDocumentElement = function() {
       if (this.__isLoaded) {
@@ -512,8 +538,8 @@ Rippl may be freely distributed under the MIT license.
     };
     rgbToLumaChromaHue = function(r, g, b) {
       var chroma, hprime, hue, luma;
-      luma = this.rgbToLuma(r, g, b);
-      chroma = this.rgbToChroma(r, g, b);
+      luma = rgbToLuma(r, g, b);
+      chroma = rgbToChroma(r, g, b);
       if (chroma === 0) {
         hprime = 0;
       } else if (r === max) {
@@ -562,7 +588,7 @@ Rippl may be freely distributed under the MIT license.
           g = 0;
           b = x;
       }
-      component = luma - this.rgbToLuma(r, g, b);
+      component = luma - rgbToLuma(r, g, b);
       r += component;
       g += component;
       b += component;
@@ -1011,7 +1037,8 @@ Rippl may be freely distributed under the MIT license.
       } else {
         this.buffer.clear();
       }
-      return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      return this.buffer;
     };
 
     Sprite.prototype.filter = function() {
@@ -1508,6 +1535,16 @@ Rippl may be freely distributed under the MIT license.
       x = Math.round(x);
       y = Math.round(y);
       return this.ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height);
+    };
+
+    Canvas.prototype.filter = function() {
+      var args, filter, fn;
+      filter = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      fn = rippl.filters[filter];
+      if (typeof fn !== 'function') {
+        return;
+      }
+      return fn.apply(this, args);
     };
 
     Canvas.prototype.rgbaFilter = function(filter) {

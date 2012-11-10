@@ -502,13 +502,34 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
   constructor: (url) ->
     @_image = new Image
     @_image.onload = =>
-      @__isLoaded = true
-
       @_width = @_image.naturalWidth
       @_height = @_image.naturalHeight
-
+      @__isLoaded = true
       @trigger('loaded')
     @_image.src = url
+
+  # -----------------------------------
+
+  cache: (label, filter, args...) ->
+    return if not @__isLoaded
+
+    cache = @_cache or (@_cache = {})
+
+    buffer = cache[label] = new Canvas
+      width: @_width
+      height: @_height
+
+    buffer.drawSprite(@, 0, 0, @_width, @_height)
+
+    args.unshift(filter)
+    buffer.filter.apply(buffer, args)
+
+  # -----------------------------------
+
+  cached: (label) ->
+    return @ if not @_cache
+    return @_cache[label] if @_cache[label]
+    return @
 
   # -----------------------------------
 
@@ -585,8 +606,8 @@ rippl.assets =
   # -----------------------------------
 
   rgbToLumaChromaHue = (r, g, b) ->
-    luma = @rgbToLuma(r, g, b)
-    chroma = @rgbToChroma(r, g, b)
+    luma = rgbToLuma(r, g, b)
+    chroma = rgbToChroma(r, g, b)
 
     if chroma is 0
       hprime = 0
@@ -633,7 +654,7 @@ rippl.assets =
         g = 0
         b = x
 
-    component = luma - @rgbToLuma(r, g, b)
+    component = luma - rgbToLuma(r, g, b)
 
     r += component
     g += component
@@ -1008,6 +1029,7 @@ rippl.Sprite = class Sprite extends Element
 
     if @options.fps isnt 0
       @_frameDuration = 1000 / options.fps
+
   # -----------------------------------
 
   validate: (options) ->
@@ -1102,6 +1124,7 @@ rippl.Sprite = class Sprite extends Element
       @buffer.clear()
 
     @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer
 
   # -----------------------------------
 
@@ -1110,6 +1133,7 @@ rippl.Sprite = class Sprite extends Element
     return if typeof fn isnt 'function'
 
     @createBuffer()
+
     fn.apply(@buffer, args)
 
   # -----------------------------------
@@ -1615,6 +1639,14 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     y = Math.round(y)
 
     @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
+
+  # -----------------------------------
+
+  filter: (filter, args...) ->
+    fn = rippl.filters[filter]
+    return if typeof fn isnt 'function'
+
+    fn.apply(@, args)
 
   # -----------------------------------
 
