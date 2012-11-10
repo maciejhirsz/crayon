@@ -4,24 +4,26 @@
     <title>Rippl - animation example</title>
     <meta charset="utf-8">
   </head>
-  <body>
+  <body style="background-color: #888;">
     <div>
-      <button id="attack">Attack</button> <button id="enrage">Enrage</button> <button id="damage">Take Damage</button> <button id="hover">Toggle Hover</button> <button id="side">Toggle Side</button>
+      <button id="attack">Attack</button> <button id="enrage">Enrage</button> <button id="damage">Take Damage</button> <button id="hover">Toggle Hover</button> <button id="side">Toggle Side</button> <button id="incorporeal">Toggle Incorporeal</button>
     </div>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
-    <script src="../rippl.js"></script>
+    <script src="../rippl.min.js"></script>
     <script>
 
       rippl.assets.preload('img/animation.png', function(){
 
         rippl.assets.get('img/animation.png').cache('enrage', 'colorize', 0);
+        rippl.assets.get('img/animation.png').cache('incorporeal', 'ghost', 0.5, Math.PI);
 
         var canvas = new rippl.Canvas({ id: "my-canvas" });
         var timer = new rippl.Timer({ fps: 60 });
 
         var hover = true;
         var side = 1;
+        var incorporeal = false;
 
         timer.bind(canvas);
 
@@ -92,7 +94,7 @@
                 scaleY: 1
               }
             }).on('end', function(){
-              sprite.set('src', rippl.assets.get('img/animation.png'))
+              sprite.set('src', rippl.assets.get('img/animation.png'));
             });
           });
         }
@@ -130,6 +132,16 @@
         document.getElementById('side').onclick = function(){
           side *= -1;
           sprite.set('scaleX', side);
+        }
+
+        document.getElementById('incorporeal').onclick = function(){
+          if(incorporeal){
+            incorporeal = false;
+            sprite.set('src', rippl.assets.get('img/animation.png'));
+          }else{
+            incorporeal = true;
+            sprite.set('src', rippl.assets.get('img/animation.png').cached('incorporeal'));
+          }
         }
 
         timer.on('frame', function(time) {
