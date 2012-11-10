@@ -15,10 +15,7 @@
 
       rippl.assets.preload('img/animation.png', function(){
 
-        //rippl.assets.get('img/animation.png').cache('enrage', 'colorize', 0);
-        rippl.assets.get('img/animation.png').cache('enrage', 'colorOverlay', new rippl.Color(255,0,0,0.1));
         rippl.assets.get('img/animation.png').cache('incorporeal', 'ghost', 0.5, Math.PI);
-        rippl.assets.get('img/animation.png').cache('incorporeal-enrage', 'ghost', 0.5, 0);
 
         var canvas = new rippl.Canvas({ id: "my-canvas" });
         var timer = new rippl.Timer({ fps: 60 });
@@ -74,12 +71,6 @@
           sprite.transformStop();
           sprite.removeFilter();
 
-          if(incorporeal){
-            sprite.set('src', rippl.assets.get('img/animation.png').cached('incorporeal-enrage'));
-          }else{
-            sprite.set('src', rippl.assets.get('img/animation.png').cached('enrage'));
-          }
-
           sprite.transform({
             duration: 200,
             transition: 'easeIn',
@@ -90,6 +81,9 @@
             to: {
               scaleX: 1.3 * side,
               scaleY: 1.3
+            },
+            custom: function(stage){
+              this.filter('colorOverlay', new rippl.Color(255, 0, 0, (stage) * 0.2));
             }
           }).on('end', function(){
             sprite.transform({
@@ -98,13 +92,12 @@
               to: {
                 scaleX: side,
                 scaleY: 1
+              },
+              custom: function(stage){
+                this.filter('colorOverlay', new rippl.Color(255, 0, 0, (1-stage) * 0.2));
               }
             }).on('end', function(){
-              if(incorporeal){
-                sprite.set('src', rippl.assets.get('img/animation.png').cached('incorporeal'));
-              }else{
-                sprite.set('src','img/animation.png');
-              }
+              sprite.removeFilter();
             });
           });
         }
