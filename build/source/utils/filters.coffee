@@ -69,8 +69,20 @@
   #######################
 
   rippl.filters =
+    colorOverlay: (color) ->
+      color = new Color(color) if not color.__isColor
+
+      ctx = @ctx
+      ctx.save()
+      ctx.globalCompositeOperation = 'source-atop'
+      ctx.fillStyle = color.toString()
+      ctx.fillRect(0, 0, @_width, @_height)
+      ctx.restore()
+
+    # -----------------------------------
+
     invertColors: ->
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         r = 255 - r
         g = 255 - g
         b = 255 - b
@@ -82,7 +94,7 @@
       saturation += 1
       grayscale = 1 - saturation
 
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         luma = rgbToLuma(r, g, b)
 
         r = r * saturation + luma * grayscale
@@ -96,7 +108,7 @@
       gray = -contrast
       original = 1 + contrast
 
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         r = r * original + 127 * gray
         g = g * original + 127 * gray
         b = b * original + 127 * gray
@@ -107,7 +119,7 @@
     brightness: (brightness) ->
       change = 255 * brightness
 
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         r += change
         g += change
         b += change
@@ -118,7 +130,7 @@
     gamma: (gamma) ->
       gamma += 1
 
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         r *= gamma
         g *= gamma
         b *= gamma
@@ -130,7 +142,7 @@
       fullAngle = Math.PI * 2
       shift = shift % fullAngle
 
-      (r, g, b, a) =>
+      @rgbaFilter (r, g, b, a) =>
         [luma, chroma, hue] = rgbToLumaChromaHue(r, g, b)
 
         hue = (hue + shift) % fullAngle
@@ -144,7 +156,7 @@
     colorize: (hue) ->
       hue = hue % (Math.PI * 2)
 
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         luma = rgbToLuma(r, g, b)
         chroma = rgbToChroma(r, g, b)
         [r, g, b] = lumaChromaHueToRgb(luma, chroma, hue)
@@ -155,7 +167,7 @@
     ghost: (alpha) ->
       opacity = 1 - alpha
 
-      (r, g, b, a) ->
+      @rgbaFilter (r, g, b, a) ->
         luma = rgbToLuma(r, g, b)
         a = (a / 255) * (luma * alpha + 255 * opacity)
         [r, g, b, a]
