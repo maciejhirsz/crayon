@@ -15,7 +15,8 @@
 
       rippl.assets.preload('img/animation.png', function(){
 
-        rippl.assets.get('img/animation.png').cache('enrage', 'colorize', 0);
+        //rippl.assets.get('img/animation.png').cache('enrage', 'colorize', 0);
+        rippl.assets.get('img/animation.png').cache('enrage', 'colorOverlay', new rippl.Color(255,0,0,0.1));
         rippl.assets.get('img/animation.png').cache('incorporeal', 'ghost', 0.5, Math.PI);
         rippl.assets.get('img/animation.png').cache('incorporeal-enrage', 'ghost', 0.5, 0);
 
