@@ -118,3 +118,4 @@ class Transformation extends ObjectAbstract
       #
       delete @options.to
       delete @options.from
+      @trigger('end')
