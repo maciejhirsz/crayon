@@ -164,11 +164,14 @@
 
     # -----------------------------------
 
-    ghost: (alpha) ->
+    ghost: (alpha, hue) ->
       opacity = 1 - alpha
 
       @rgbaFilter (r, g, b, a) ->
         luma = rgbToLuma(r, g, b)
+        if typeof hue is 'number'
+          chroma = rgbToChroma(r, g, b)
+          [r, g, b] = lumaChromaHueToRgb(luma, chroma, hue)
         a = (a / 255) * (luma * alpha + 255 * opacity)
         [r, g, b, a]
 
