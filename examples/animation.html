@@ -6,7 +6,7 @@
   </head>
   <body>
     <div>
-      <button id="attack">Attack</button> <button id="enrage">Enrage</button> <button id="hover">Toggle Hover</button> <button id="side">Toggle Side</button>
+      <button id="attack">Attack</button> <button id="enrage">Enrage</button> <button id="damage">Take Damage</button> <button id="hover">Toggle Hover</button> <button id="side">Toggle Side</button>
     </div>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
@@ -89,6 +89,19 @@
           });
         }
 
+        document.getElementById('damage').onclick = function(){
+          //sprite.transformStop();
+          sprite.transform({
+            duration: 500,
+            transition: 'easeIn',
+            custom: function(stage){
+              this.filter('colorOverlay', new rippl.Color(255, 0, 0, (1-stage) * 0.75));
+            }
+          }).on('end', function(){
+            sprite.removeFilter();
+          });
+        }
+
         document.getElementById('hover').onclick = function(){
           if(hover){
             sprite.set({
@@ -106,6 +119,7 @@
         }
 
         timer.on('frame', function(time) {
+
           var t = time / 1000;
           var sin = Math.sin(t * 2);
 
