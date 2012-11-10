@@ -7,6 +7,10 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
+  _useBuffer: false
+
+  # -----------------------------------
+
   _animated: false
 
   # -----------------------------------
@@ -83,23 +87,30 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   progress: (frameTime) ->
-    super(frameTime)
-
     if @_animated and @_framesModulo
       return @animate() if frameTime >= @_animationEnd
 
       index = ~~((frameTime - @_animationStart) / @_frameDuration)
       if index isnt @_currentIndex
         @_currentIndex = index
+        @setFrame(@_frames[index])
 
-        frame = @_frames[index]
+    #
+    # Progress transformations *AFTER* frame has been set
+    #
+    super(frameTime)
 
-        frameX = frame % @_framesModulo
-        frameY = ~~(frame / @_framesModulo)
+  # -----------------------------------
 
-        @options.cropX = frameX * @options.width
-        @options.cropY = frameY * @options.height
-        @canvas.touch()
+  setFrame: (frame) ->
+    @_useBuffer = false
+
+    frameX = frame % @_framesModulo
+    frameY = ~~(frame / @_framesModulo)
+
+    @options.cropX = frameX * @options.width
+    @options.cropY = frameY * @options.height
+    @canvas.touch()
 
   # -----------------------------------
 
@@ -109,12 +120,23 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   createBuffer: ->
-    delete @buffer
-    @buffer = new Canvas
-      width: @options.width
-      height: @options.height
+    if not @buffer
+      @buffer = new Canvas
+        width: @options.width
+        height: @options.height
+    else
+      @buffer.clear()
 
     @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+
+  # -----------------------------------
+
+  filter: (filter, args...) ->
+    fn = rippl.filters[filter]
+    return if typeof fn isnt 'function'
+
+    @createBuffer()
+    fn.apply(@buffer, args)
 
   # -----------------------------------
 
@@ -125,7 +147,7 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
-  removeFilters: ->
+  removeFilter: ->
     delete @buffer
     @buffer = null
     @canvas.touch()
