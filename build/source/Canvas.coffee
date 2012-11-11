@@ -7,6 +7,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     id: null
     width: 0
     height: 0
+    static: false
 
   # -----------------------------------
 
@@ -40,6 +41,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     @ctx.save()
 
     @elements = []
+
+    rippl.timer.bind(@) if not @options.static
 
   # -----------------------------------
 
