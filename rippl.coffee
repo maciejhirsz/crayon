@@ -19,6 +19,10 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
+  _eventSeparator: new RegExp("\\s+")
+
+  # -----------------------------------
+
   _validEventName: (event) ->
     return false if typeof event isnt 'string'
     return true
@@ -31,28 +35,28 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
-  on: (event, callback) ->
+  on: (events, callback) ->
     #
     # sets up an event handler for a specific event
     #
-    return @ if not @_validEventName(event)
     return @ if not @_validCallback(callback)
 
-    #
-    # Create a container for event handlers
-    #
-    handlers = @_eventHandlers or (@_eventHandlers = {})
-    #@_eventHandlers = {} if @_eventHandlers is null
+    for event in events.split(@_eventSeparator)
+      #
+      # Create a container for event handlers
+      #
+      handlers = @_eventHandlers or (@_eventHandlers = {})
+      #@_eventHandlers = {} if @_eventHandlers is null
 
-    #
-    # create a new stack for the callbacks if not defined yet
-    #
-    handlers[event] = [] if handlers[event] is undefined
+      #
+      # create a new stack for the callbacks if not defined yet
+      #
+      handlers[event] = [] if handlers[event] is undefined
 
-    #
-    # push the callback onto the stack
-    #
-    handlers[event].push(callback)
+      #
+      # push the callback onto the stack
+      #
+      handlers[event].push(callback)
 
     @
 
@@ -836,6 +840,12 @@ class Element extends ObjectAbstract
     @transformStack = []
     @transformCount = 0
 
+    #
+    # cache anchor position
+    #
+    @on('change:anchorX change:anchorY change:anchorInPixels', => @calculateAnchor())
+    @calculateAnchor()
+
   # -----------------------------------
   #
   # Override to validate specific options, such as colors or images
@@ -850,13 +860,24 @@ class Element extends ObjectAbstract
 
   # -----------------------------------
 
-  getAnchor: ->
+  calculateAnchor: ->
     if @options.anchorInPixels
-      x: @options.anchorX
-      y: @options.anchorY
+      @_anchor =
+        x: @options.anchorX
+        y: @options.anchorY
     else
-      x: @options.anchorX * @options.width
-      y: @options.anchorY * @options.height
+      @_anchor =
+        x: @options.anchorX * @options.width
+        y: @options.anchorY * @options.height
+
+    if @options.snap
+      @_anchor.x = Math.round(@_anchor.x)
+      @_anchor.y = Math.round(@_anchor.y)
+
+  # -----------------------------------
+
+  getAnchor: ->
+    @_anchor
 
   # -----------------------------------
 
@@ -943,8 +964,8 @@ class Element extends ObjectAbstract
     ctx = @canvas.ctx
 
     if @options.snap
-      x = ~~@options.x
-      y = ~~@options.y
+      x = Math.round(@options.x)
+      y = Math.round(@options.y)
     else
       x = @options.x
       y = @options.y
@@ -1043,6 +1064,7 @@ rippl.Sprite = class Sprite extends Element
         asset.on 'loaded', =>
           @canvas.touch() if @canvas
           @calculateFrames()
+          @calculateAnchor()
       else
         @calculateFrames()
 
@@ -1639,16 +1661,13 @@ rippl.Canvas = class Canvas extends ObjectAbstract
   # -----------------------------------
 
   drawSprite: (asset, x, y, width, height, cropX, cropY) ->
-    return if not asset or asset.__isAsset
+    return if not asset or not asset.__isAsset
 
     element = asset.getDocumentElement()
     return if not element
 
     cropX ? cropX = 0
     cropY ? cropY = 0
-
-    x = Math.round(x)
-    y = Math.round(y)
 
     @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
 

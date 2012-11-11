@@ -20,6 +20,8 @@ Rippl may be freely distributed under the MIT license.
 
     ObjectAbstract.prototype.options = {};
 
+    ObjectAbstract.prototype._eventSeparator = new RegExp("\\s+");
+
     ObjectAbstract.prototype._validEventName = function(event) {
       if (typeof event !== 'string') {
         return false;
@@ -34,19 +36,20 @@ Rippl may be freely distributed under the MIT license.
       return true;
     };
 
-    ObjectAbstract.prototype.on = function(event, callback) {
-      var handlers;
-      if (!this._validEventName(event)) {
-        return this;
-      }
+    ObjectAbstract.prototype.on = function(events, callback) {
+      var event, handlers, _i, _len, _ref;
       if (!this._validCallback(callback)) {
         return this;
       }
-      handlers = this._eventHandlers || (this._eventHandlers = {});
-      if (handlers[event] === void 0) {
-        handlers[event] = [];
+      _ref = events.split(this._eventSeparator);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        event = _ref[_i];
+        handlers = this._eventHandlers || (this._eventHandlers = {});
+        if (handlers[event] === void 0) {
+          handlers[event] = [];
+        }
+        handlers[event].push(callback);
       }
-      handlers[event].push(callback);
       return this;
     };
 
@@ -733,10 +736,15 @@ Rippl may be freely distributed under the MIT license.
     Element.prototype.__isElement = true;
 
     function Element(options) {
+      var _this = this;
       this.setOptions(options);
       this.validate(this.options);
       this.transformStack = [];
       this.transformCount = 0;
+      this.on('change:anchorX change:anchorY change:anchorInPixels', function() {
+        return _this.calculateAnchor();
+      });
+      this.calculateAnchor();
     }
 
     Element.prototype.validate = function(options) {};
@@ -748,18 +756,26 @@ Rippl may be freely distributed under the MIT license.
       return value;
     };
 
-    Element.prototype.getAnchor = function() {
+    Element.prototype.calculateAnchor = function() {
       if (this.options.anchorInPixels) {
-        return {
+        this._anchor = {
           x: this.options.anchorX,
           y: this.options.anchorY
         };
       } else {
-        return {
+        this._anchor = {
           x: this.options.anchorX * this.options.width,
           y: this.options.anchorY * this.options.height
         };
       }
+      if (this.options.snap) {
+        this._anchor.x = Math.round(this._anchor.x);
+        return this._anchor.y = Math.round(this._anchor.y);
+      }
+    };
+
+    Element.prototype.getAnchor = function() {
+      return this._anchor;
     };
 
     Element.prototype.hide = function() {
@@ -857,8 +873,8 @@ Rippl may be freely distributed under the MIT license.
       var ctx, x, y;
       ctx = this.canvas.ctx;
       if (this.options.snap) {
-        x = ~~this.options.x;
-        y = ~~this.options.y;
+        x = Math.round(this.options.x);
+        y = Math.round(this.options.y);
       } else {
         x = this.options.x;
         y = this.options.y;
@@ -947,7 +963,8 @@ Rippl may be freely distributed under the MIT license.
             if (_this.canvas) {
               _this.canvas.touch();
             }
-            return _this.calculateFrames();
+            _this.calculateFrames();
+            return _this.calculateAnchor();
           });
         } else {
           this.calculateFrames();
@@ -1525,7 +1542,7 @@ Rippl may be freely distributed under the MIT license.
 
     Canvas.prototype.drawSprite = function(asset, x, y, width, height, cropX, cropY) {
       var element;
-      if (!asset || asset.__isAsset) {
+      if (!asset || !asset.__isAsset) {
         return;
       }
       element = asset.getDocumentElement();
@@ -1544,8 +1561,6 @@ Rippl may be freely distributed under the MIT license.
       } else {
         cropY = 0;
       };
-      x = Math.round(x);
-      y = Math.round(y);
       return this.ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height);
     };
 
