@@ -68,9 +68,9 @@ rippl.Sprite = class Sprite extends Element
     anchor = @getAnchor()
 
     if @_useBuffer
-      @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
+      @canvas.drawAsset(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
-      @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+      @canvas.drawAsset(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
@@ -133,7 +133,7 @@ rippl.Sprite = class Sprite extends Element
     else
       @buffer.clear()
 
-    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawAsset(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
     @buffer
 
   # -----------------------------------
@@ -152,7 +152,7 @@ rippl.Sprite = class Sprite extends Element
   clearFilters: ->
     return if not @buffer?
     @buffer.clear()
-    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawAsset(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 

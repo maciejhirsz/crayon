@@ -163,7 +163,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  drawSprite: (asset, x, y, width, height, cropX, cropY) ->
+  drawAsset: (asset, x, y, width, height, cropX, cropY) ->
     return if not asset or not asset.__isAsset
 
     element = asset.getDocumentElement()

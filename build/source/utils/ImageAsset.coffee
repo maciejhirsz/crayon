@@ -39,7 +39,7 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
       height: @_height
       static: true
 
-    buffer.drawSprite(@, 0, 0, @_width, @_height)
+    buffer.drawAsset(@, 0, 0, @_width, @_height)
 
     args.unshift(filter)
     buffer.filter.apply(buffer, args)
