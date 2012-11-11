@@ -96,8 +96,6 @@
               custom: function(stage){
                 this.filter('colorOverlay', new rippl.Color(255, 0, 0, (1-stage) * 0.2));
               }
-            }).on('end', function(){
-              sprite.removeFilter();
             });
           });
         }
@@ -115,8 +113,6 @@
             custom: function(stage){
               this.filter('colorOverlay', new rippl.Color(255, 0, 0, (1-stage) * 0.75));
             }
-          }).on('end', function(){
-            sprite.removeFilter();
           });
         }
 
