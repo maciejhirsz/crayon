@@ -148,7 +148,7 @@ Rippl may be freely distributed under the MIT license.
     }
   }
 
-  rippl.Timer = Timer = (function(_super) {
+  Timer = (function(_super) {
 
     __extends(Timer, _super);
 
@@ -248,6 +248,8 @@ Rippl may be freely distributed under the MIT license.
 
   })(ObjectAbstract);
 
+  rippl.timer = new Timer;
+
   rippl.Color = Color = (function() {
 
     Color.prototype.r = 255;
@@ -262,7 +264,7 @@ Rippl may be freely distributed under the MIT license.
 
     Color.prototype.string = 'rgba(255,255,255,1)';
 
-    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([\.0-9]+)\s*\\)\\s*', 'i');
+    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*([\.\\d]+)\s*\\)\\s*', 'i');
 
     function Color(r, g, b, a) {
       var hash, l, matches;
@@ -445,7 +447,8 @@ Rippl may be freely distributed under the MIT license.
         _this._width = _this._image.naturalWidth;
         _this._height = _this._image.naturalHeight;
         _this.__isLoaded = true;
-        return _this.trigger('loaded');
+        _this.trigger('loaded');
+        return _this.off('loaded');
       };
       this._image.src = url;
     }
@@ -459,7 +462,8 @@ Rippl may be freely distributed under the MIT license.
       cache = this._cache || (this._cache = {});
       buffer = cache[label] = new Canvas({
         width: this._width,
-        height: this._height
+        height: this._height,
+        "static": true
       });
       buffer.drawSprite(this, 0, 0, this._width, this._height);
       args.unshift(filter);
@@ -962,7 +966,15 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Sprite.prototype.calculateFrames = function() {
-      return this._framesModulo = ~~(this.options.src._width / this.options.width);
+      var src;
+      src = this.options.src;
+      if (this.options.width === 0) {
+        this.options.width = src._width;
+      }
+      if (this.options.height === 0) {
+        this.options.height = src._height;
+      }
+      return this._framesModulo = ~~(src._width / this.options.width);
     };
 
     Sprite.prototype.render = function() {
@@ -1029,7 +1041,8 @@ Rippl may be freely distributed under the MIT license.
       if (!this.buffer) {
         this.buffer = new Canvas({
           width: this.options.width,
-          height: this.options.height
+          height: this.options.height,
+          "static": true
         });
       } else {
         this.buffer.clear();
@@ -1190,7 +1203,7 @@ Rippl may be freely distributed under the MIT license.
 
     function Rectangle(options, canvas) {
       this.addDefaults({
-        radius: 0
+        cornerRadius: 0
       });
       Rectangle.__super__.constructor.call(this, options, canvas);
     }
@@ -1199,14 +1212,14 @@ Rippl may be freely distributed under the MIT license.
       var anchor, ctx, h, r, w, x, y;
       anchor = this.getAnchor();
       ctx = this.canvas.ctx;
-      if (this.options.radius === 0) {
+      if (this.options.cornerRadius === 0) {
         return ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
       } else {
         x = -anchor.x;
         y = -anchor.y;
         w = this.options.width;
         h = this.options.height;
-        r = this.options.radius;
+        r = this.options.cornerRadius;
         ctx.moveTo(x + w - r, y);
         ctx.quadraticCurveTo(x + w, y, x + w, y + r);
         ctx.lineTo(x + w, y + h - r);
@@ -1348,7 +1361,8 @@ Rippl may be freely distributed under the MIT license.
     Canvas.prototype.options = {
       id: null,
       width: 0,
-      height: 0
+      height: 0,
+      "static": false
     };
 
     Canvas.prototype.__isAsset = true;
@@ -1373,6 +1387,9 @@ Rippl may be freely distributed under the MIT license.
       this.ctx = this._canvas.getContext('2d');
       this.ctx.save();
       this.elements = [];
+      if (!this.options["static"]) {
+        rippl.timer.bind(this);
+      }
     }
 
     Canvas.prototype.getDocumentElement = function() {

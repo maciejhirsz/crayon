@@ -161,7 +161,8 @@ if window.requestAnimationFrame is undefined
       window.requestAnimationFrame = window[vendor+'RequestAnimationFrame']
       window.cancelAnimationFrame = window[vendor+'CancelAnimationFrame'] || window[vendor+'CancelRequestAnimationFrame']
 
-rippl.Timer = class Timer extends ObjectAbstract
+#rippl.Timer = class Timer extends ObjectAbstract
+class Timer extends ObjectAbstract
   #
   # Default options
   #
@@ -262,6 +263,10 @@ rippl.Timer = class Timer extends ObjectAbstract
       delay
     )
 
+#
+# Initialize a global timer
+#
+rippl.timer = new Timer
 # =============================================
 #
 # End contents of utils/Timer.coffee
@@ -290,7 +295,7 @@ rippl.Color = class Color
 
   # -----------------------------------
 
-  rgbaPattern: new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([\.0-9]+)\s*\\)\\s*', 'i')
+  rgbaPattern: new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*([\.\\d]+)\s*\\)\\s*', 'i')
 
   # -----------------------------------
 
@@ -506,6 +511,8 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
       @_height = @_image.naturalHeight
       @__isLoaded = true
       @trigger('loaded')
+      @off('loaded') # loaded happens only once
+
     @_image.src = url
 
   # -----------------------------------
@@ -518,6 +525,7 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
     buffer = cache[label] = new Canvas
       width: @_width
       height: @_height
+      static: true
 
     buffer.drawSprite(@, 0, 0, @_width, @_height)
 
@@ -1049,7 +1057,10 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   calculateFrames: ->
-    @_framesModulo = ~~(@options.src._width / @options.width)
+    src = @options.src
+    @options.width = src._width if @options.width is 0
+    @options.height = src._height if @options.height is 0
+    @_framesModulo = ~~(src._width / @options.width)
 
   # -----------------------------------
 
@@ -1118,6 +1129,7 @@ rippl.Sprite = class Sprite extends Element
       @buffer = new Canvas
         width: @options.width
         height: @options.height
+        static: true
     else
       @buffer.clear()
 
@@ -1293,7 +1305,7 @@ rippl.Text = class Text extends Shape
 rippl.Rectangle = class Rectangle extends Shape
   constructor: (options, canvas) ->
     @addDefaults
-      radius: 0 # radius of rounded corners
+      cornerRadius: 0 # radius of rounded corners
 
     super(options, canvas)
 
@@ -1303,14 +1315,14 @@ rippl.Rectangle = class Rectangle extends Shape
     anchor = @getAnchor()
     ctx = @canvas.ctx
 
-    if @options.radius is 0
+    if @options.cornerRadius is 0
       ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
     else
       x = -anchor.x
       y = -anchor.y
       w = @options.width
       h = @options.height
-      r = @options.radius
+      r = @options.cornerRadius
 
       ctx.moveTo(x + w - r, y)
       ctx.quadraticCurveTo(x + w, y, x + w, y + r)
@@ -1472,6 +1484,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     id: null
     width: 0
     height: 0
+    static: false
 
   # -----------------------------------
 
@@ -1505,6 +1518,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     @ctx.save()
 
     @elements = []
+
+    rippl.timer.bind(@) if not @options.static
 
   # -----------------------------------
 
