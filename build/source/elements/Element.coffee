@@ -46,6 +46,12 @@ class Element extends ObjectAbstract
     @transformStack = []
     @transformCount = 0
 
+    #
+    # cache anchor position
+    #
+    @on('change:anchorX change:anchorY change:anchorInPixels', => @calculateAnchor())
+    @calculateAnchor()
+
   # -----------------------------------
   #
   # Override to validate specific options, such as colors or images
@@ -60,13 +66,24 @@ class Element extends ObjectAbstract
 
   # -----------------------------------
 
-  getAnchor: ->
+  calculateAnchor: ->
     if @options.anchorInPixels
-      x: @options.anchorX
-      y: @options.anchorY
+      @_anchor =
+        x: @options.anchorX
+        y: @options.anchorY
     else
-      x: @options.anchorX * @options.width
-      y: @options.anchorY * @options.height
+      @_anchor =
+        x: @options.anchorX * @options.width
+        y: @options.anchorY * @options.height
+
+    if @options.snap
+      @_anchor.x = Math.round(@_anchor.x)
+      @_anchor.y = Math.round(@_anchor.y)
+
+  # -----------------------------------
+
+  getAnchor: ->
+    @_anchor
 
   # -----------------------------------
 
@@ -153,8 +170,8 @@ class Element extends ObjectAbstract
     ctx = @canvas.ctx
 
     if @options.snap
-      x = ~~@options.x
-      y = ~~@options.y
+      x = Math.round(@options.x)
+      y = Math.round(@options.y)
     else
       x = @options.x
       y = @options.y
