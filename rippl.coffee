@@ -529,7 +529,7 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
       height: @_height
       static: true
 
-    buffer.drawSprite(@, 0, 0, @_width, @_height)
+    buffer.drawAsset(@, 0, 0, @_width, @_height)
 
     args.unshift(filter)
     buffer.filter.apply(buffer, args)
@@ -1088,9 +1088,9 @@ rippl.Sprite = class Sprite extends Element
     anchor = @getAnchor()
 
     if @_useBuffer
-      @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
+      @canvas.drawAsset(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
-      @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+      @canvas.drawAsset(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
@@ -1153,7 +1153,7 @@ rippl.Sprite = class Sprite extends Element
     else
       @buffer.clear()
 
-    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawAsset(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
     @buffer
 
   # -----------------------------------
@@ -1172,7 +1172,7 @@ rippl.Sprite = class Sprite extends Element
   clearFilters: ->
     return if not @buffer?
     @buffer.clear()
-    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawAsset(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
@@ -1660,7 +1660,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  drawSprite: (asset, x, y, width, height, cropX, cropY) ->
+  drawAsset: (asset, x, y, width, height, cropX, cropY) ->
     return if not asset or not asset.__isAsset
 
     element = asset.getDocumentElement()

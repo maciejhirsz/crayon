@@ -465,7 +465,7 @@ Rippl may be freely distributed under the MIT license.
         height: this._height,
         "static": true
       });
-      buffer.drawSprite(this, 0, 0, this._width, this._height);
+      buffer.drawAsset(this, 0, 0, this._width, this._height);
       args.unshift(filter);
       return buffer.filter.apply(buffer, args);
     };
@@ -995,9 +995,9 @@ Rippl may be freely distributed under the MIT license.
       var anchor;
       anchor = this.getAnchor();
       if (this._useBuffer) {
-        return this.canvas.drawSprite(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
+        return this.canvas.drawAsset(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
       } else {
-        return this.canvas.drawSprite(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+        return this.canvas.drawAsset(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
       }
     };
 
@@ -1061,7 +1061,7 @@ Rippl may be freely distributed under the MIT license.
       } else {
         this.buffer.clear();
       }
-      this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      this.buffer.drawAsset(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
       return this.buffer;
     };
 
@@ -1082,7 +1082,7 @@ Rippl may be freely distributed under the MIT license.
         return;
       }
       this.buffer.clear();
-      return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      return this.buffer.drawAsset(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
     };
 
     Sprite.prototype.removeFilter = function() {
@@ -1540,7 +1540,7 @@ Rippl may be freely distributed under the MIT license.
       return this.changed = false;
     };
 
-    Canvas.prototype.drawSprite = function(asset, x, y, width, height, cropX, cropY) {
+    Canvas.prototype.drawAsset = function(asset, x, y, width, height, cropX, cropY) {
       var element;
       if (!asset || !asset.__isAsset) {
         return;
