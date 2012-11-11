@@ -832,6 +832,9 @@ Rippl may be freely distributed under the MIT license.
 
     Element.prototype.stop = function() {
       var transform, _j, _len1, _ref;
+      if (!this.transformStack) {
+        return;
+      }
       _ref = this.transformStack;
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
         transform = _ref[_j];
