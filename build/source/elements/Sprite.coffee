@@ -56,7 +56,10 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   calculateFrames: ->
-    @_framesModulo = ~~(@options.src._width / @options.width)
+    src = @options.src
+    @options.width = src._width if @options.width is 0
+    @options.height = src._height if @options.height is 0
+    @_framesModulo = ~~(src._width / @options.width)
 
   # -----------------------------------
 
@@ -125,6 +128,7 @@ rippl.Sprite = class Sprite extends Element
       @buffer = new Canvas
         width: @options.width
         height: @options.height
+        static: true
     else
       @buffer.clear()
 
