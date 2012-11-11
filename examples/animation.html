@@ -37,10 +37,10 @@
           fps: 12
         });
 
-        sprite.addAnimation('idle', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
-        sprite.addAnimation('attack', [17,18,19,20,21,22,23,24,25,26,27,28,29]);
+        sprite.addAnimation('idle', 0, 16); // define default idle animation on frames 0 to 16
+        sprite.addAnimation('attack', 17, 29); // define attack animation on frames 17 to 29
 
-        sprite.animate();
+        sprite.animate(); // no argument triggers 'idle' by default
 
         canvas.add(sprite);
 
@@ -65,7 +65,7 @@
         }
 
         document.getElementById('enrage').onclick = function(){
-          sprite.transformStop();
+          sprite.stop();
           sprite.removeFilter();
 
           sprite.transform({
@@ -98,7 +98,7 @@
         }
 
         document.getElementById('damage').onclick = function(){
-          sprite.transformStop();
+          sprite.stop();
           sprite.set({
             scaleX: side,
             scaleY: 1
