@@ -47,12 +47,16 @@
             <li><a href="#element-set">set</a></li>
             <li><a href="#element-get">get</a></li>
             <li><a href="#element-transform">transform</a></li>
+            <li><a href="#element-stop">stop</a></li>
           </ul>
         </li>
         <li>
           <a href="#sprite">Sprite</a>
           <ul>
             <li><a href="#sprite-options">Options</a></li>
+            <li><a href="#sprite-addanimation">addAnimation</a></li>
+            <li><a href="#sprite-freeze">freeze</a></li>
+            <li><a href="#sprite-setframe">setFrame</a></li>
           </ul>
         </li>
         <li>
@@ -445,8 +449,12 @@ element.transform({
     y: 75
   }
 });</pre>
-
         </div>
+
+      <h4 id="element-stop">stop <code>element.stop()</code></h4>
+      <p class="indented">
+        Stops all ongoing transformations on the element.
+      </p>
 
       <hr>
 
@@ -486,7 +494,53 @@ canvas.add(logo);</pre>
         <p>
           Offsets the original image to a specific point on the source image.
         </p>
+        <p>
+          <span class="label label-important">Warning</span>
+          <small>Using spritesheet animation or <strong>setFrame</strong> will ignore and override any <strong>CropX</strong> and <strong>CropY</strong> settings.</small>
+        </p>
+        <h5>fps <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Frames per second of frame sprite-sheet animation, if <code>0</code> animations will be disabled.
+        </p>
+        <p>
+          <span class="label label-info">Heads up!</span>
+          <small>This only affects the frame animation of the sprite, not transformations or general canvas rendering queue.</small>
+        </p>
       </div>
+
+      <h4 id="sprite-addanimation">addAnimation <code>sprite.addAnimation(label, frames)</code> <small>or</small> <code>sprite.addAnimation(label, first, last)</code></h4>
+      <p class="indented">
+        Defines a new animation label and attaches a list of frames to it. Can take either a complete list of frames as an array, or starting and ending index as integers - in which case an array is formed with all frames in between, including the ones given.
+      </p>
+      <pre class="prettyprint lang-js">
+sprite.addAnimation("idle", [0,1,2,3,4,5]);
+// the line above does the same thing as the line below
+sprite.addAnimation("idle", 0, 5);</pre>
+
+      <h4 id="sprite-animate">animate <code>sprite.animate([label])</code></h4>
+      <p class="indented">
+        Starts playing an animation with given label. If label is omitted then it defaults to <code>"idle"</code>. Any animation upon it's end will attempt to trigger <strong>animate</strong> again to switch back and loop <code>"idle"</code>.
+      </p>
+
+      <h4 id="sprite-freeze">freeze <code>sprite.freeze()</code></h4>
+      <p class="indented">
+        Stops any frame animation and freezes the sprite at current frame.
+      </p>
+
+      <h4 id="sprite-setframe">setFrame <code>sprite.setFrame(index)</code></h4>
+      <p class="indented">
+        Switches the sprite to frame at given index. Frames are calculated as factors of sprite's width and height on the spritesheet (<strong>src</strong>), order is left to right top to bottom. For a sprite sheet having 8 frames in a 4 by 2 grid indexes are as follows:
+      </p>
+      <table class="indented table table-bordered table-frames">
+        <tbody>
+          <tr>
+            <td>0</td><td>1</td><td>2</td><td>3</td>
+          </tr>
+          <tr>
+            <td>4</td><td>5</td><td>6</td><td>7</td>
+          </tr>
+        </tbody>
+      </table>
 
       <hr>
 
@@ -548,7 +602,7 @@ canvas.add(logo);</pre>
       <h3 id="text">Text <code>new rippl.Text(options)</code> <small>inherits from <a href="#shape">Shape</a></small></h3>
       <pre class="prettyprint lang-js">
 // create a 'Hello World' text
-var logo = new rippl.Sprite({
+var text = new rippl.Text({
   label: "Hello World",
   x: 200,
   y: 50,
