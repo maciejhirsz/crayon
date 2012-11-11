@@ -11,9 +11,6 @@
     <script>
 
       var canvas = new rippl.Canvas({ id: "my-canvas" });
-      var timer = new rippl.Timer({ fps: 60 });
-
-      timer.bind(canvas);
 
       var i, limit = 250;
       var counter, sprite, sprites = [];
@@ -23,9 +20,7 @@
           src: 'img/html5.png',
           x: 200 + (Math.random() - 0.5) * 400,
           y: 200 + (Math.random() - 0.5) * 400,
-          alpha: 0.25,
-          width: 128,
-          height: 128
+          alpha: 0.25
         });
         canvas.add(sprite);
         sprites.push(sprite);
@@ -49,7 +44,7 @@
       var fps, totalTime, lastTime = Date.now();
       var times = [0, 0, 0, 0, 0, 0];
 
-      timer.on('frame', function(time) {
+      rippl.timer.on('frame', function(time) {
 
         times.shift();
         times.push(time - lastTime);
