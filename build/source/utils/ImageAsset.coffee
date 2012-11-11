@@ -23,6 +23,8 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
       @_height = @_image.naturalHeight
       @__isLoaded = true
       @trigger('loaded')
+      @off('loaded') # loaded happens only once
+
     @_image.src = url
 
   # -----------------------------------
@@ -35,6 +37,7 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
     buffer = cache[label] = new Canvas
       width: @_width
       height: @_height
+      static: true
 
     buffer.drawSprite(@, 0, 0, @_width, @_height)
 
