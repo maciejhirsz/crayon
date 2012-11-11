@@ -161,18 +161,16 @@ if window.requestAnimationFrame is undefined
       window.requestAnimationFrame = window[vendor+'RequestAnimationFrame']
       window.cancelAnimationFrame = window[vendor+'CancelAnimationFrame'] || window[vendor+'CancelRequestAnimationFrame']
 
-#rippl.Timer = class Timer extends ObjectAbstract
 class Timer extends ObjectAbstract
   #
   # Default options
   #
   options:
     fps: 60
-    autoStart: true
 
   # -----------------------------------
 
-  _useAnimatinFrame: false
+  _useAnimationFrame: false
 
   # -----------------------------------
 
@@ -185,11 +183,11 @@ class Timer extends ObjectAbstract
 
     @frameDuration = 1000 / @options.fps
 
-    #@_useAnimatinFrame = true if window.requestAnimationFrame and @options.fps is 60
+    #@_useAnimationFrame = true if window.requestAnimationFrame and @options.fps is 60
 
     @canvas = []
 
-    @start() if @options.autoStart
+    @start()
 
   # -----------------------------------
 
@@ -207,7 +205,7 @@ class Timer extends ObjectAbstract
   start: ->
     @time = Date.now()
 
-    if @_useAnimatinFrame
+    if @_useAnimationFrame
       @timerid = window.requestAnimationFrame (time) => @tick(time)
     else
       @timerid = setTimeout(
@@ -218,7 +216,7 @@ class Timer extends ObjectAbstract
   # -----------------------------------
 
   stop: ->
-    if @_useAnimatinFrame
+    if @_useAnimationFrame
       window.cancelAnimationFrame(@timerid)
     else
       window.clearTimeout(@timerid)
@@ -1641,7 +1639,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
   # -----------------------------------
 
   drawSprite: (asset, x, y, width, height, cropX, cropY) ->
-    throw "Canvas.drawSprite: invalid asset" if not asset.__isAsset
+    return if not asset or asset.__isAsset
 
     element = asset.getDocumentElement()
     return if not element

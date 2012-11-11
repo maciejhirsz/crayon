@@ -153,11 +153,10 @@ Rippl may be freely distributed under the MIT license.
     __extends(Timer, _super);
 
     Timer.prototype.options = {
-      fps: 60,
-      autoStart: true
+      fps: 60
     };
 
-    Timer.prototype._useAnimatinFrame = false;
+    Timer.prototype._useAnimationFrame = false;
 
     Timer.prototype.frameDuration = 0;
 
@@ -165,9 +164,7 @@ Rippl may be freely distributed under the MIT license.
       this.setOptions(options);
       this.frameDuration = 1000 / this.options.fps;
       this.canvas = [];
-      if (this.options.autoStart) {
-        this.start();
-      }
+      this.start();
     }
 
     Timer.prototype.setFps = function(fps) {
@@ -182,7 +179,7 @@ Rippl may be freely distributed under the MIT license.
     Timer.prototype.start = function() {
       var _this = this;
       this.time = Date.now();
-      if (this._useAnimatinFrame) {
+      if (this._useAnimationFrame) {
         return this.timerid = window.requestAnimationFrame(function(time) {
           return _this.tick(time);
         });
@@ -194,7 +191,7 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Timer.prototype.stop = function() {
-      if (this._useAnimatinFrame) {
+      if (this._useAnimationFrame) {
         return window.cancelAnimationFrame(this.timerid);
       } else {
         return window.clearTimeout(this.timerid);
@@ -1528,8 +1525,8 @@ Rippl may be freely distributed under the MIT license.
 
     Canvas.prototype.drawSprite = function(asset, x, y, width, height, cropX, cropY) {
       var element;
-      if (!asset.__isAsset) {
-        throw "Canvas.drawSprite: invalid asset";
+      if (!asset || asset.__isAsset) {
+        return;
       }
       element = asset.getDocumentElement();
       if (!element) {
