@@ -1,77 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - sprite performance example</title>
+    <title>Rippl - sprite example</title>
     <meta charset="utf-8">
   </head>
   <body>
-    <canvas id="my-canvas" width="400" height="400"></canvas>
+    <canvas id="my-canvas" width="200" height="200"></canvas>
 
     <script src="../rippl.min.js"></script>
     <script>
 
+      // grab the canvas
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
-      var i, limit = 250;
-      var counter, sprite, sprites = [];
-
-      for(i=0; i<limit; i+=1){
-        sprite = new rippl.Sprite({
-          src: 'img/html5.png',
-          x: 200 + (Math.random() - 0.5) * 400,
-          y: 200 + (Math.random() - 0.5) * 400,
-          alpha: 0.25
-        });
-        canvas.add(sprite);
-        sprites.push(sprite);
-      }
-
-      counter = new rippl.Text({
-        label: "FPS: 0",
-        align: 'left',
-        bold: true,
-        x: 10,
-        y: 20,
-        size: 20,
-        z: 1,
-        shadow: true,
-        shadowBlur: 5,
-        shadowColor: '#fff'
+      // create a sprite
+      sprite = new rippl.Sprite({
+        src: 'img/html5.png', // note we are not doing any resource preloading, rippl handles all that for us
+        x: 100,
+        y: 100
       });
 
-      canvas.add(counter);
+      // add sprite to canvas
+      canvas.add(sprite);
 
-      var fps, totalTime, lastTime = Date.now();
-      var times = [0, 0, 0, 0, 0, 0];
-
-      rippl.timer.on('frame', function(time) {
-
-        times.shift();
-        times.push(time - lastTime);
-        lastTime = time;
-
-        totalTime = 0;
-        for(i=0; i<6; i+=1){
-          totalTime += times[i];
-        }
-
-        fps = (Math.round(600000 / totalTime)) / 100;
-
-        counter.set('label', 'FPS: ' + fps);
-
-        var t = time / 1000;
-        var sin = Math.sin(t * 4);
-
-        var x = 1 + sin / 10;
-        var y = 1 - sin / 10;
-
-        for(i=0; i<limit; i+=1){
-          sprites[i].set({
-            scaleX: x,
-            scaleY: y
-          });
-        }
-      });
+      // done!
 
     </script>
   </body>
