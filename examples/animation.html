@@ -18,13 +18,10 @@
         rippl.assets.get('img/animation.png').cache('incorporeal', 'ghost', 0.5, Math.PI);
 
         var canvas = new rippl.Canvas({ id: "my-canvas" });
-        var timer = new rippl.Timer({ fps: 60 });
 
         var hover = true;
         var side = 1;
         var incorporeal = false;
-
-        timer.bind(canvas);
 
         var sprite = new rippl.Sprite({
           src: 'img/animation.png',
@@ -142,7 +139,7 @@
           }
         }
 
-        timer.on('frame', function(time) {
+        rippl.timer.on('frame', function(time) {
 
           var t = time / 1000;
           var sin = Math.sin(t * 2);
