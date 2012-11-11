@@ -7,6 +7,10 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
+  _eventSeparator: new RegExp("\\s+")
+
+  # -----------------------------------
+
   _validEventName: (event) ->
     return false if typeof event isnt 'string'
     return true
@@ -19,28 +23,28 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
-  on: (event, callback) ->
+  on: (events, callback) ->
     #
     # sets up an event handler for a specific event
     #
-    return @ if not @_validEventName(event)
     return @ if not @_validCallback(callback)
 
-    #
-    # Create a container for event handlers
-    #
-    handlers = @_eventHandlers or (@_eventHandlers = {})
-    #@_eventHandlers = {} if @_eventHandlers is null
+    for event in events.split(@_eventSeparator)
+      #
+      # Create a container for event handlers
+      #
+      handlers = @_eventHandlers or (@_eventHandlers = {})
+      #@_eventHandlers = {} if @_eventHandlers is null
 
-    #
-    # create a new stack for the callbacks if not defined yet
-    #
-    handlers[event] = [] if handlers[event] is undefined
+      #
+      # create a new stack for the callbacks if not defined yet
+      #
+      handlers[event] = [] if handlers[event] is undefined
 
-    #
-    # push the callback onto the stack
-    #
-    handlers[event].push(callback)
+      #
+      # push the callback onto the stack
+      #
+      handlers[event].push(callback)
 
     @
 
