@@ -1112,6 +1112,7 @@ rippl.Sprite = class Sprite extends Element
   animate: (label) ->
     label ? label = 'idle'
     @_frames = @_animations[label]
+    return if not @_frames
     @_currentIndex = -1
     @_animationStart = Date.now()
     @_animationEnd = @_animationStart + @_frames.length * @_frameDuration

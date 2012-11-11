@@ -1029,6 +1029,9 @@ Rippl may be freely distributed under the MIT license.
         label = 'idle';
       };
       this._frames = this._animations[label];
+      if (!this._frames) {
+        return;
+      }
       this._currentIndex = -1;
       this._animationStart = Date.now();
       this._animationEnd = this._animationStart + this._frames.length * this._frameDuration;
