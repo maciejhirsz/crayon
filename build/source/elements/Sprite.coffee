@@ -74,7 +74,14 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
-  addAnimation: (label, frames) ->
+  addAnimation: (label, frames, lastFrame) ->
+    #
+    # Handle frame ranges
+    #
+    if typeof frames is 'number'
+      lastFrame = frames if typeof lastFrame isnt 'number'
+      frames = [frames..lastFrame]
+
     animations = @_animations or (@_animations = {})
     animations[label] = frames
     @
@@ -119,7 +126,7 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
-  stop: ->
+  freeze: ->
     @_animated = false
 
   # -----------------------------------
