@@ -172,9 +172,6 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     cropX ? cropX = 0
     cropY ? cropY = 0
 
-    x = Math.round(x)
-    y = Math.round(y)
-
     @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
 
   # -----------------------------------
