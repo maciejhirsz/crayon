@@ -968,7 +968,7 @@ Rippl may be freely distributed under the MIT license.
     Sprite.prototype.render = function() {
       var anchor;
       anchor = this.getAnchor();
-      if (this.buffer != null) {
+      if (this._useBuffer) {
         return this.canvas.drawSprite(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
       } else {
         return this.canvas.drawSprite(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
@@ -1046,6 +1046,7 @@ Rippl may be freely distributed under the MIT license.
         return;
       }
       this.createBuffer();
+      this._useBuffer = true;
       return fn.apply(this.buffer, args);
     };
 
