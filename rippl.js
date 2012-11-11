@@ -830,7 +830,7 @@ Rippl may be freely distributed under the MIT license.
       return transform;
     };
 
-    Element.prototype.transformStop = function() {
+    Element.prototype.stop = function() {
       var transform, _j, _len1, _ref;
       _ref = this.transformStack;
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
@@ -1001,8 +1001,18 @@ Rippl may be freely distributed under the MIT license.
       }
     };
 
-    Sprite.prototype.addAnimation = function(label, frames) {
-      var animations;
+    Sprite.prototype.addAnimation = function(label, frames, lastFrame) {
+      var animations, _j, _results;
+      if (typeof frames === 'number') {
+        if (typeof lastFrame !== 'number') {
+          lastFrame = frames;
+        }
+        frames = (function() {
+          _results = [];
+          for (var _j = frames; frames <= lastFrame ? _j <= lastFrame : _j >= lastFrame; frames <= lastFrame ? _j++ : _j--){ _results.push(_j); }
+          return _results;
+        }).apply(this);
+      }
       animations = this._animations || (this._animations = {});
       animations[label] = frames;
       return this;
@@ -1047,7 +1057,7 @@ Rippl may be freely distributed under the MIT license.
       return this.canvas.touch();
     };
 
-    Sprite.prototype.stop = function() {
+    Sprite.prototype.freeze = function() {
       return this._animated = false;
     };
 
