@@ -297,7 +297,7 @@ rippl.Color = class Color
 
   # -----------------------------------
 
-  rgbaPattern: new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*([\.\\d]+)\s*\\)\\s*', 'i')
+  rgbaPattern: new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d+\.?\\d*|\\d*\.?\\d+)\s*\\)\\s*', 'i')
 
   # -----------------------------------
 
@@ -323,7 +323,7 @@ rippl.Color = class Color
         b = Number matches[3]
         a = Number matches[4]
       else
-        throw "Invalid color string: "+hash
+        throw "Invalid color string: "+r
 
     @set(r, g, b, a)
 

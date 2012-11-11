@@ -264,7 +264,7 @@ Rippl may be freely distributed under the MIT license.
 
     Color.prototype.string = 'rgba(255,255,255,1)';
 
-    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*([\.\\d]+)\s*\\)\\s*', 'i');
+    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d+\.?\\d*|\\d*\.?\\d+)\s*\\)\\s*', 'i');
 
     function Color(r, g, b, a) {
       var hash, l, matches;
@@ -289,7 +289,7 @@ Rippl may be freely distributed under the MIT license.
           b = Number(matches[3]);
           a = Number(matches[4]);
         } else {
-          throw "Invalid color string: " + hash;
+          throw "Invalid color string: " + r;
         }
       }
       this.set(r, g, b, a);
