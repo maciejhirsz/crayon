@@ -31,9 +31,8 @@
           </ul>
         </li>
         <li>
-          <a href="#timer">Timer</a>
+          <a href="#timer">timer</a>
           <ul>
-            <li><a href="#timer-options">Options</a></li>
             <li><a href="#timer-events">Events</a></li>
             <li><a href="#timer-bind">bind</a></li>
             <li><a href="#timer-start">start</a></li>
@@ -226,6 +225,10 @@ canvas.render();</pre>
         <p>
           Height of canvas to create, if id was given then this value is ignored and instead the property of the element is used.
         </p>
+        <h5>static <small>(Boolean) default: <code>false</code></small></h5>
+        <p>
+          If set to <code>true</code> instance will not be bound to the <strong>timer</strong> and any (re-)rendering will have to be invoked manually.
+        </p>
       </div>
 
       <h4 id="canvas-getdocumentelement">getDocumentElement <code>canvas.getDocumentElement()</code></h4>
@@ -238,8 +241,8 @@ canvas.render();</pre>
         Renders a frame. Unlike raw canvas API elements added to the <strong>Canvas</strong> are not drawn until <strong>render</strong> method is called.
       </p>
       <p class="indented">
-        <span class="label label-important">Warning</span>
-        <small>If you are using a <strong>Timer</strong> you should <em>never</em> call this method.</small>
+        <span class="label label-info">Heads up!</span>
+        <small>You only need to call <strong>render</strong> manually for static <strong>Canvas</strong>.</small>
       </p>
 
       <h4 id="canvas-touch">touch <code>canvas.touch()</code></h4>
@@ -248,7 +251,7 @@ canvas.render();</pre>
       </p>
       <p class="indented">
         <span class="label label-info">Heads up!</span>
-        <small>Unlike <strong>render</strong>, using <strong>touch</strong> alone does nothing but flags to render the canvas on the next frame, use only with <strong>Timer</strong>.</small>
+        <small>Unlike <strong>render</strong>, using <strong>touch</strong> alone does nothing but flags to render the canvas on the next frame.</small>
       </p>
 
       <h4 id="canvas-add">add <code>canvas.add(element)</code></h4>
@@ -261,37 +264,27 @@ canvas.render();</pre>
         Removes specific <strong>Element</strong> from the <strong>Canvas</strong>.
       </p>
 
+      <h4 id="canvas-remove">wipe <code>canvas.wipe()</code></h4>
+      <p class="indented">
+        Removes everything from the <strong>Canvas</strong>.
+      </p>
+
       <hr>
 
-      <h3 id="timer">Timer <code>new rippl.Timer([options])</code></h3>
+      <h3 id="timer">timer</h3>
       <p>
-        <strong>Timer</strong> is another important building block of <em>Rippl</em>. You should always initiate one (and preferably <strong>only one</strong>) timer instance for your application if you intend to do animations and use built in transformations. Basic use:
+        The <strong>timer</strong> is another important building block of <em>Rippl</em> that enables animations on any non-static <strong>Canvas</strong>. Basic use:
       </p>
 
 <pre class="prettyprint lang-js">
 var canvas = new rippl.Canvas({ id: "my-canvas" });
-var timer = new rippl.Timer;
-
-timer.bind(canvas);
 
 // add some elements
 
-timer.on("frame", function(time){
+rippl.timer.on("frame", function(time){
   // do stuff on the elements
 });
 </pre>
-
-      <h4 id="timer-options">Options</h4>
-      <div class="indented">
-        <h5>fps <small>(Number) default: <code>60</code></small></h5>
-        <p>
-          Frames per second at which the <strong>Timer</strong> <em>should</em> work. If performance drops for any reason, the actual fps will become fluid.
-        </p>
-        <h5>autoStart <small>(Boolean) default: <code>true</code></small></h5>
-        <p>
-          If set to <code>true</code> will start the timer without having to call the <strong>start</strong> method.
-        </p>
-      </div>
 
       <h4 id="timer-events">Events</h4>
       <div class="indented">
@@ -314,10 +307,14 @@ timer.on("frame", function(time){
       <p class="indented">
         Starts the <strong>Timer</strong>.
       </p>
+      <p class="indented">
+        <span class="label label-info">Heads up!</span>
+        <small>By default <strong>timer</strong> is initialized running, so there is no need to call this method unless you <strong>stop</strong> it first.</small>
+      </p>
 
       <h4 id="timer-stop">stop <code>timer.stop()</code></h4>
       <p class="indented">
-        Stops the <strong>Timer</strong>.
+        Stops the <strong>timer</strong>.
       </p>
 
       <hr>
@@ -348,6 +345,10 @@ timer.on("frame", function(time){
         <h5>z <small>(Number) default: <code>0</code></small></h5>
         <p>
           Depth of the element. By default elements are sorted by the order you add them to the <strong>Canvas</strong>, changing <strong>z</strong> changes that order &mdash; elements with higher value of <strong>z</strong> are rendered on top. Can take any floating point value, including negative numbers.
+        </p>
+        <h5>snap <small>(Boolean) default: <code>false</code></small></h5>
+        <p>
+          When set to <code>true</code> the element will position itself to full pixel value of <strong>x</strong> and <strong>y</strong>, regardless of their values, useful for <a href="#sprite">sprites</a>.
         </p>
         <h5>width <small>(Number) default: <code>0</code></small></h5>
         <p>
@@ -463,8 +464,6 @@ var logo = new rippl.Sprite({
   src: "rippl.png",
   x: 0,
   y: 0,
-  width: 269,
-  height: 120,
   // reset anchor to top left corner
   anchorX: 0,
   anchorY: 0
@@ -478,6 +477,14 @@ canvas.add(logo);</pre>
         <h5>src <small>(String, ImageAsset or <a href="#canvas">Canvas</a>) required</small></h5>
         <p>
           Image source to be rendered, takes either an url string, <strong>ImageAsset</strong> class instance (read: <a href="#assets-get">assets.get</a>) or <strong>Canvas</strong> class instance.
+        </p>
+        <h5>width <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Same as <a href="#element-options"><strong>Element</strong></a>, will default to asset's width if set to <code>0</code>.
+        </p>
+        <h5>height <small>(Number) default: <code>0</code></small></h5>
+        <p>
+          Same as <a href="#element-options"><strong>Element</strong></a>, will default to asset's height if set to <code>0</code>.
         </p>
         <h5>cropX <small>and</small> cropY <small>(Number) default: <code>0</code></small></h5>
         <p>
@@ -613,7 +620,7 @@ canvas.add(rect);</pre>
 
       <h4 id="rectangle-options">Options</h4>
       <div class="indented">
-        <h5>radius <small>(Number) default: <code>0</code></small></h5>
+        <h5>cornerRadius <small>(Number) default: <code>0</code></small></h5>
         <p>
           Radius to which the corners should be rounded.
         </p>
@@ -748,7 +755,7 @@ canvas.add(triangle);</pre>
 
       <h3 id="color">Color <code>new rippl.Color(r, g, b, [a])</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
       <p>
-        Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from 0 to 255. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 255)"</code>). Alpha (<strong>a</strong>) can be omitted, in which case it defaults to 255.
+        Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from <code>0</code> to <code>255</code>, while alpha value is a float ranging from <code>0</code> to <code>1</code>. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 1.0)"</code>). Alpha (<strong>a</strong>) can be omitted, in which case it defaults to <code>1</code>.
       </p>
 
       <h4 id="color-rgba">r <code>color.r</code>, g <code>color.g</code>, b <code>color.b</code>, a <code>color.a</code></h4>
@@ -762,11 +769,11 @@ var green = new rippl.Color("#0f0");
 console.log(green.r); // prints out 0
 console.log(green.g); // prints out 255
 console.log(green.b); // prints out 0
-console.log(green.a); // prints out 255</pre>
+console.log(green.a); // prints out 1</pre>
 
       <h4 id="color-set">set <code>color.set(r, g, b, [a])</code></h4>
       <p class="indented">
-        Sets the color values to new integers ranging from 0 to 255. Alpha (<strong>a</strong>) can be omitted in which case it keeps the current value.
+        Sets new color values. Alpha (<strong>a</strong>) can be omitted in which case it keeps the current value.
       </p>
 
       <h4 id="color-tostring">toString <code>color.toString()</code></h4>
@@ -778,7 +785,7 @@ console.log(green.a); // prints out 255</pre>
 // create a new color
 var orange = new rippl.Color("#ff7f00");
 
-// pops an alert displaying "rgba(255,127,0,255)"
+// pops an alert displaying "rgba(255,127,0,1)"
 alert(orange);</pre>
 
       <p><br><br><br><br></p>
