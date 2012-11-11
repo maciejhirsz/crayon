@@ -132,6 +132,7 @@ class Element extends ObjectAbstract
   # -----------------------------------
 
   stop: ->
+    return if not @transformStack
     for transform in @transformStack
       transform.destroy()
 
