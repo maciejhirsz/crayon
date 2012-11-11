@@ -11,17 +11,16 @@ if window.requestAnimationFrame is undefined
       window.requestAnimationFrame = window[vendor+'RequestAnimationFrame']
       window.cancelAnimationFrame = window[vendor+'CancelAnimationFrame'] || window[vendor+'CancelRequestAnimationFrame']
 
-rippl.Timer = class Timer extends ObjectAbstract
+class Timer extends ObjectAbstract
   #
   # Default options
   #
   options:
     fps: 60
-    autoStart: true
 
   # -----------------------------------
 
-  _useAnimatinFrame: false
+  _useAnimationFrame: false
 
   # -----------------------------------
 
@@ -34,11 +33,11 @@ rippl.Timer = class Timer extends ObjectAbstract
 
     @frameDuration = 1000 / @options.fps
 
-    #@_useAnimatinFrame = true if window.requestAnimationFrame and @options.fps is 60
+    #@_useAnimationFrame = true if window.requestAnimationFrame and @options.fps is 60
 
     @canvas = []
 
-    @start() if @options.autoStart
+    @start()
 
   # -----------------------------------
 
@@ -56,7 +55,7 @@ rippl.Timer = class Timer extends ObjectAbstract
   start: ->
     @time = Date.now()
 
-    if @_useAnimatinFrame
+    if @_useAnimationFrame
       @timerid = window.requestAnimationFrame (time) => @tick(time)
     else
       @timerid = setTimeout(
@@ -67,7 +66,7 @@ rippl.Timer = class Timer extends ObjectAbstract
   # -----------------------------------
 
   stop: ->
-    if @_useAnimatinFrame
+    if @_useAnimationFrame
       window.cancelAnimationFrame(@timerid)
     else
       window.clearTimeout(@timerid)
@@ -111,3 +110,8 @@ rippl.Timer = class Timer extends ObjectAbstract
       => @tickLegacy()
       delay
     )
+
+#
+# Initialize a global timer
+#
+rippl.timer = new Timer
