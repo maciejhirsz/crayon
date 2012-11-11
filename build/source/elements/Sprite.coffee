@@ -63,7 +63,7 @@ rippl.Sprite = class Sprite extends Element
   render: ->
     anchor = @getAnchor()
 
-    if @buffer?
+    if @_useBuffer
       @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
       @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
@@ -139,6 +139,7 @@ rippl.Sprite = class Sprite extends Element
 
     @createBuffer()
 
+    @_useBuffer = true
     fn.apply(@buffer, args)
 
   # -----------------------------------
