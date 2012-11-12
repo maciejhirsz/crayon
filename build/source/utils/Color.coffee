@@ -3,7 +3,7 @@ rippl.Color = class Color
   r: 255
   g: 255
   b: 255
-  a: 255
+  a: 1
 
   # -----------------------------------
 
@@ -11,11 +11,11 @@ rippl.Color = class Color
 
   # -----------------------------------
 
-  string: 'rgba(255,255,255,255)'
+  string: 'rgba(255,255,255,1)'
 
   # -----------------------------------
 
-  rgbaPattern: new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\s*\\)\\s*', 'i')
+  rgbaPattern: new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d+\.?\\d*|\\d*\.?\\d+)\s*\\)\\s*', 'i')
 
   # -----------------------------------
 
@@ -41,7 +41,7 @@ rippl.Color = class Color
         b = Number matches[3]
         a = Number matches[4]
       else
-        throw "Invalid color string: "+hash
+        throw "Invalid color string: "+r
 
     @set(r, g, b, a)
 
@@ -54,7 +54,7 @@ rippl.Color = class Color
     @r = ~~r
     @g = ~~g
     @b = ~~b
-    @a = ~~a if a isnt undefined
+    @a = a if a isnt undefined
     @cacheString()
 
   # -----------------------------------

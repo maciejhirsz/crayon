@@ -11,6 +11,17 @@
   overflow-y: auto;
 }
 
+.table-frames {
+  width: auto;
+}
+
+.table-frames td {
+  width: 30px;
+  background: #fff;
+  text-align: center;
+  font-weight: bold;
+}
+
 .sidebar > ul > li {
   margin-top: 15px;
 }

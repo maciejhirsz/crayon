@@ -7,6 +7,10 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
+  _eventSeparator: new RegExp("\\s+")
+
+  # -----------------------------------
+
   _validEventName: (event) ->
     return false if typeof event isnt 'string'
     return true
@@ -19,33 +23,35 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
-  on: (event, callback) ->
+  on: (events, callback) ->
     #
     # sets up an event handler for a specific event
     #
-    return if not @_validEventName(event)
-    return if not @_validCallback(callback)
+    return @ if not @_validCallback(callback)
 
-    #
-    # Create a container for event handlers
-    #
-    handlers = @_eventHandlers or (@_eventHandlers = {})
-    #@_eventHandlers = {} if @_eventHandlers is null
+    for event in events.split(@_eventSeparator)
+      #
+      # Create a container for event handlers
+      #
+      handlers = @_eventHandlers or (@_eventHandlers = {})
+      #@_eventHandlers = {} if @_eventHandlers is null
 
-    #
-    # create a new stack for the callbacks if not defined yet
-    #
-    handlers[event] = [] if handlers[event] is undefined
+      #
+      # create a new stack for the callbacks if not defined yet
+      #
+      handlers[event] = [] if handlers[event] is undefined
 
-    #
-    # push the callback onto the stack
-    #
-    handlers[event].push(callback)
+      #
+      # push the callback onto the stack
+      #
+      handlers[event].push(callback)
+
+    @
 
   # -----------------------------------
 
   off: (event, callbackToRemove) ->
-    return if not handlers = @_eventHandlers
+    return @ if not handlers = @_eventHandlers
 
     if not @_validEventName(event)
       #
@@ -57,7 +63,7 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop all listeners for specified event
       #
-      return if handlers[event] is undefined
+      return @ if handlers[event] is undefined
 
       delete handlers[event]
 
@@ -65,7 +71,7 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop only the specified callback from the stack
       #
-      return if handlers[event] is undefined
+      return @ if handlers[event] is undefined
 
       stack = []
 
@@ -77,18 +83,18 @@ rippl.ObjectAbstract = class ObjectAbstract
   # -----------------------------------
 
   trigger: (event, args...) ->
-    return if not handlers = @_eventHandlers
+    return @ if not handlers = @_eventHandlers
 
     #
     # triggers all listener callbacks of a given event, pass on the data from second argument
     #
-    return if not @_validEventName(event)
+    return @ if not @_validEventName(event)
 
-    return false if handlers[event] is undefined
+    return @ if handlers[event] is undefined
 
     callback.apply(this, args) for callback in handlers[event]
 
-    return true
+    return @
 
   # -----------------------------------
 

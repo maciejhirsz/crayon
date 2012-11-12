@@ -20,6 +20,8 @@ Rippl may be freely distributed under the MIT license.
 
     ObjectAbstract.prototype.options = {};
 
+    ObjectAbstract.prototype._eventSeparator = new RegExp("\\s+");
+
     ObjectAbstract.prototype._validEventName = function(event) {
       if (typeof event !== 'string') {
         return false;
@@ -34,36 +36,38 @@ Rippl may be freely distributed under the MIT license.
       return true;
     };
 
-    ObjectAbstract.prototype.on = function(event, callback) {
-      var handlers;
-      if (!this._validEventName(event)) {
-        return;
-      }
+    ObjectAbstract.prototype.on = function(events, callback) {
+      var event, handlers, _i, _len, _ref;
       if (!this._validCallback(callback)) {
-        return;
+        return this;
       }
-      handlers = this._eventHandlers || (this._eventHandlers = {});
-      if (handlers[event] === void 0) {
-        handlers[event] = [];
+      _ref = events.split(this._eventSeparator);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        event = _ref[_i];
+        handlers = this._eventHandlers || (this._eventHandlers = {});
+        if (handlers[event] === void 0) {
+          handlers[event] = [];
+        }
+        handlers[event].push(callback);
       }
-      return handlers[event].push(callback);
+      return this;
     };
 
     ObjectAbstract.prototype.off = function(event, callbackToRemove) {
       var callback, handlers, stack, _i, _len, _ref;
       if (!(handlers = this._eventHandlers)) {
-        return;
+        return this;
       }
       if (!this._validEventName(event)) {
         return this._eventHandlers = {};
       } else if (!this._validCallback(callbackToRemove)) {
         if (handlers[event] === void 0) {
-          return;
+          return this;
         }
         return delete handlers[event];
       } else {
         if (handlers[event] === void 0) {
-          return;
+          return this;
         }
         stack = [];
         _ref = handlers[event];
@@ -81,20 +85,20 @@ Rippl may be freely distributed under the MIT license.
       var args, callback, event, handlers, _i, _len, _ref;
       event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       if (!(handlers = this._eventHandlers)) {
-        return;
+        return this;
       }
       if (!this._validEventName(event)) {
-        return;
+        return this;
       }
       if (handlers[event] === void 0) {
-        return false;
+        return this;
       }
       _ref = handlers[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         callback = _ref[_i];
         callback.apply(this, args);
       }
-      return true;
+      return this;
     };
 
     ObjectAbstract.prototype.addDefaults = function(defaults) {
@@ -147,16 +151,15 @@ Rippl may be freely distributed under the MIT license.
     }
   }
 
-  rippl.Timer = Timer = (function(_super) {
+  Timer = (function(_super) {
 
     __extends(Timer, _super);
 
     Timer.prototype.options = {
-      fps: 60,
-      autoStart: true
+      fps: 60
     };
 
-    Timer.prototype._useAnimatinFrame = false;
+    Timer.prototype._useAnimationFrame = false;
 
     Timer.prototype.frameDuration = 0;
 
@@ -164,9 +167,7 @@ Rippl may be freely distributed under the MIT license.
       this.setOptions(options);
       this.frameDuration = 1000 / this.options.fps;
       this.canvas = [];
-      if (this.options.autoStart) {
-        this.start();
-      }
+      this.start();
     }
 
     Timer.prototype.setFps = function(fps) {
@@ -181,7 +182,7 @@ Rippl may be freely distributed under the MIT license.
     Timer.prototype.start = function() {
       var _this = this;
       this.time = Date.now();
-      if (this._useAnimatinFrame) {
+      if (this._useAnimationFrame) {
         return this.timerid = window.requestAnimationFrame(function(time) {
           return _this.tick(time);
         });
@@ -193,7 +194,7 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Timer.prototype.stop = function() {
-      if (this._useAnimatinFrame) {
+      if (this._useAnimationFrame) {
         return window.cancelAnimationFrame(this.timerid);
       } else {
         return window.clearTimeout(this.timerid);
@@ -247,6 +248,8 @@ Rippl may be freely distributed under the MIT license.
 
   })(ObjectAbstract);
 
+  rippl.timer = new Timer;
+
   rippl.Color = Color = (function() {
 
     Color.prototype.r = 255;
@@ -255,13 +258,13 @@ Rippl may be freely distributed under the MIT license.
 
     Color.prototype.b = 255;
 
-    Color.prototype.a = 255;
+    Color.prototype.a = 1;
 
     Color.prototype.__isColor = true;
 
-    Color.prototype.string = 'rgba(255,255,255,255)';
+    Color.prototype.string = 'rgba(255,255,255,1)';
 
-    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\s*\\)\\s*', 'i');
+    Color.prototype.rgbaPattern = new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d+\.?\\d*|\\d*\.?\\d+)\s*\\)\\s*', 'i');
 
     function Color(r, g, b, a) {
       var hash, l, matches;
@@ -286,7 +289,7 @@ Rippl may be freely distributed under the MIT license.
           b = Number(matches[3]);
           a = Number(matches[4]);
         } else {
-          throw "Invalid color string: " + hash;
+          throw "Invalid color string: " + r;
         }
       }
       this.set(r, g, b, a);
@@ -297,7 +300,7 @@ Rippl may be freely distributed under the MIT license.
       this.g = ~~g;
       this.b = ~~b;
       if (a !== void 0) {
-        this.a = ~~a;
+        this.a = a;
       }
       return this.cacheString();
     };
@@ -327,6 +330,7 @@ Rippl may be freely distributed under the MIT license.
       delay: 0,
       from: null,
       to: null,
+      custom: null,
       transition: 'linear'
     };
 
@@ -346,15 +350,7 @@ Rippl may be freely distributed under the MIT license.
       }
     };
 
-    Transformation.prototype.parseColors = function(value) {
-      if (typeof value === 'string' && value[0] === '#') {
-        return new Color(value);
-      }
-      return value;
-    };
-
     function Transformation(options) {
-      var option, value, _ref, _ref1;
       this.setOptions(options);
       if (this.options.from === null) {
         this.options.from = {};
@@ -364,18 +360,6 @@ Rippl may be freely distributed under the MIT license.
       }
       this.startTime = Date.now() + this.options.delay;
       this.endTime = this.startTime + this.options.duration;
-      this;
-
-      _ref = this.options.from;
-      for (option in _ref) {
-        value = _ref[option];
-        this.options.from[option] = this.parseColors(value);
-      }
-      _ref1 = this.options.to;
-      for (option in _ref1) {
-        value = _ref1[option];
-        this.options.to[option] = this.parseColors(value);
-      }
     }
 
     Transformation.prototype.isFinished = function() {
@@ -419,6 +403,9 @@ Rippl may be freely distributed under the MIT license.
       }
       options = {};
       stage = this.getStage(time);
+      if (typeof this.options.custom === 'function') {
+        this.options.custom.call(element, stage);
+      }
       from = this.options.from;
       to = this.options.to;
       for (option in to) {
@@ -426,10 +413,15 @@ Rippl may be freely distributed under the MIT license.
       }
       element.set(options);
       if (time >= this.endTime) {
+        this.destroy();
         this.finished = true;
-        delete this.options.to;
-        return delete this.options.from;
+        return this.trigger('end');
       }
+    };
+
+    Transformation.prototype.destroy = function() {
+      delete this.options.to;
+      return delete this.options.from;
     };
 
     return Transformation;
@@ -444,15 +436,49 @@ Rippl may be freely distributed under the MIT license.
 
     ImageAsset.prototype.__isLoaded = false;
 
+    ImageAsset.prototype._width = 0;
+
+    ImageAsset.prototype._height = 0;
+
     function ImageAsset(url) {
       var _this = this;
       this._image = new Image;
       this._image.onload = function() {
+        _this._width = _this._image.naturalWidth;
+        _this._height = _this._image.naturalHeight;
         _this.__isLoaded = true;
-        return _this.trigger('loaded');
+        _this.trigger('loaded');
+        return _this.off('loaded');
       };
       this._image.src = url;
     }
+
+    ImageAsset.prototype.cache = function() {
+      var args, buffer, cache, filter, label;
+      label = arguments[0], filter = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      if (!this.__isLoaded) {
+        return;
+      }
+      cache = this._cache || (this._cache = {});
+      buffer = cache[label] = new Canvas({
+        width: this._width,
+        height: this._height,
+        "static": true
+      });
+      buffer.drawAsset(this, 0, 0, this._width, this._height);
+      args.unshift(filter);
+      return buffer.filter.apply(buffer, args);
+    };
+
+    ImageAsset.prototype.cached = function(label) {
+      if (!this._cache) {
+        return this;
+      }
+      if (this._cache[label]) {
+        return this._cache[label];
+      }
+      return this;
+    };
 
     ImageAsset.prototype.getDocumentElement = function() {
       if (this.__isLoaded) {
@@ -506,6 +532,179 @@ Rippl may be freely distributed under the MIT license.
     }
   };
 
+  (function(rippl) {
+    var lumaChromaHueToRgb, rgbToChroma, rgbToLuma, rgbToLumaChromaHue;
+    rgbToLuma = function(r, g, b) {
+      return 0.30 * r + 0.59 * g + 0.11 * b;
+    };
+    rgbToChroma = function(r, g, b) {
+      return Math.max(r, g, b) - Math.min(r, g, b);
+    };
+    rgbToLumaChromaHue = function(r, g, b) {
+      var chroma, hprime, hue, luma;
+      luma = rgbToLuma(r, g, b);
+      chroma = rgbToChroma(r, g, b);
+      if (chroma === 0) {
+        hprime = 0;
+      } else if (r === max) {
+        hprime = ((g - b) / chroma) % 6;
+      } else if (g === max) {
+        hprime = ((b - r) / chroma) + 2;
+      } else if (b === max) {
+        hprime = ((r - g) / chroma) + 4;
+      }
+      hue = hprime * (Math.PI / 3);
+      return [luma, chroma, hue];
+    };
+    lumaChromaHueToRgb = function(luma, chroma, hue) {
+      var b, component, g, hprime, r, sextant, x;
+      hprime = hue / (Math.PI / 3);
+      x = chroma * (1 - Math.abs(hprime % 2 - 1));
+      sextant = ~~hprime;
+      switch (sextant) {
+        case 0:
+          r = chroma;
+          g = x;
+          b = 0;
+          break;
+        case 1:
+          r = x;
+          g = chroma;
+          b = 0;
+          break;
+        case 2:
+          r = 0;
+          g = chroma;
+          b = x;
+          break;
+        case 3:
+          r = 0;
+          g = x;
+          b = chroma;
+          break;
+        case 4:
+          r = x;
+          g = 0;
+          b = chroma;
+          break;
+        case 5:
+          r = chroma;
+          g = 0;
+          b = x;
+      }
+      component = luma - rgbToLuma(r, g, b);
+      r += component;
+      g += component;
+      b += component;
+      return [r, g, b];
+    };
+    return rippl.filters = {
+      colorOverlay: function(color) {
+        var ctx;
+        if (!color.__isColor) {
+          color = new Color(color);
+        }
+        ctx = this.ctx;
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = color.toString();
+        ctx.fillRect(0, 0, this._width, this._height);
+        return ctx.restore();
+      },
+      invertColors: function() {
+        return this.rgbaFilter(function(r, g, b, a) {
+          r = 255 - r;
+          g = 255 - g;
+          b = 255 - b;
+          return [r, g, b, a];
+        });
+      },
+      saturation: function(saturation) {
+        var grayscale;
+        saturation += 1;
+        grayscale = 1 - saturation;
+        return this.rgbaFilter(function(r, g, b, a) {
+          var luma;
+          luma = rgbToLuma(r, g, b);
+          r = r * saturation + luma * grayscale;
+          g = g * saturation + luma * grayscale;
+          b = b * saturation + luma * grayscale;
+          return [r, g, b, a];
+        });
+      },
+      contrast: function(contrast) {
+        var gray, original;
+        gray = -contrast;
+        original = 1 + contrast;
+        return this.rgbaFilter(function(r, g, b, a) {
+          r = r * original + 127 * gray;
+          g = g * original + 127 * gray;
+          b = b * original + 127 * gray;
+          return [r, g, b, a];
+        });
+      },
+      brightness: function(brightness) {
+        var change;
+        change = 255 * brightness;
+        return this.rgbaFilter(function(r, g, b, a) {
+          r += change;
+          g += change;
+          b += change;
+          return [r, g, b, a];
+        });
+      },
+      gamma: function(gamma) {
+        gamma += 1;
+        return this.rgbaFilter(function(r, g, b, a) {
+          r *= gamma;
+          g *= gamma;
+          b *= gamma;
+          return [r, g, b, a];
+        });
+      },
+      hueShift: function(shift) {
+        var fullAngle,
+          _this = this;
+        fullAngle = Math.PI * 2;
+        shift = shift % fullAngle;
+        return this.rgbaFilter(function(r, g, b, a) {
+          var chroma, hue, luma, _ref, _ref1;
+          _ref = rgbToLumaChromaHue(r, g, b), luma = _ref[0], chroma = _ref[1], hue = _ref[2];
+          hue = (hue + shift) % fullAngle;
+          if (hue < 0) {
+            hue += fullAngle;
+          }
+          _ref1 = lumaChromaHueToRgb(luma, chroma, hue), r = _ref1[0], g = _ref1[1], b = _ref1[2];
+          return [r, g, b, a];
+        });
+      },
+      colorize: function(hue) {
+        hue = hue % (Math.PI * 2);
+        return this.rgbaFilter(function(r, g, b, a) {
+          var chroma, luma, _ref;
+          luma = rgbToLuma(r, g, b);
+          chroma = rgbToChroma(r, g, b);
+          _ref = lumaChromaHueToRgb(luma, chroma, hue), r = _ref[0], g = _ref[1], b = _ref[2];
+          return [r, g, b, a];
+        });
+      },
+      ghost: function(alpha, hue) {
+        var opacity;
+        opacity = 1 - alpha;
+        return this.rgbaFilter(function(r, g, b, a) {
+          var chroma, luma, _ref;
+          luma = rgbToLuma(r, g, b);
+          if (typeof hue === 'number') {
+            chroma = rgbToChroma(r, g, b);
+            _ref = lumaChromaHueToRgb(luma, chroma, hue), r = _ref[0], g = _ref[1], b = _ref[2];
+          }
+          a = (a / 255) * (luma * alpha + 255 * opacity);
+          return [r, g, b, a];
+        });
+      }
+    };
+  })(rippl);
+
   Element = (function(_super) {
 
     __extends(Element, _super);
@@ -514,6 +713,7 @@ Rippl may be freely distributed under the MIT license.
       x: 0,
       y: 0,
       z: 0,
+      snap: false,
       anchorX: 0.5,
       anchorY: 0.5,
       anchorInPixels: false,
@@ -536,10 +736,15 @@ Rippl may be freely distributed under the MIT license.
     Element.prototype.__isElement = true;
 
     function Element(options) {
+      var _this = this;
       this.setOptions(options);
       this.validate(this.options);
       this.transformStack = [];
       this.transformCount = 0;
+      this.on('change:anchorX change:anchorY change:anchorInPixels', function() {
+        return _this.calculateAnchor();
+      });
+      this.calculateAnchor();
     }
 
     Element.prototype.validate = function(options) {};
@@ -551,18 +756,26 @@ Rippl may be freely distributed under the MIT license.
       return value;
     };
 
-    Element.prototype.getAnchor = function() {
+    Element.prototype.calculateAnchor = function() {
       if (this.options.anchorInPixels) {
-        return {
+        this._anchor = {
           x: this.options.anchorX,
           y: this.options.anchorY
         };
       } else {
-        return {
+        this._anchor = {
           x: this.options.anchorX * this.options.width,
           y: this.options.anchorY * this.options.height
         };
       }
+      if (this.options.snap) {
+        this._anchor.x = Math.round(this._anchor.x);
+        return this._anchor.y = Math.round(this._anchor.y);
+      }
+    };
+
+    Element.prototype.getAnchor = function() {
+      return this._anchor;
     };
 
     Element.prototype.hide = function() {
@@ -587,9 +800,6 @@ Rippl may be freely distributed under the MIT license.
 
     Element.prototype.transform = function(options) {
       var option, transform, _ref, _ref1;
-      if (typeof options.to !== 'object') {
-        return;
-      }
             if ((_ref = options.from) != null) {
         _ref;
 
@@ -620,28 +830,59 @@ Rippl may be freely distributed under the MIT license.
       return transform;
     };
 
+    Element.prototype.stop = function() {
+      var transform, _j, _len1, _ref;
+      if (!this.transformStack) {
+        return;
+      }
+      _ref = this.transformStack;
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        transform = _ref[_j];
+        transform.destroy();
+      }
+      this.transformStack = [];
+      return this.transformCount = 0;
+    };
+
     Element.prototype.progress = function(frameTime) {
-      var newStack, transform, _j, _len1, _ref;
+      var newStack, remove, transform, _j, _k, _len1, _len2, _ref, _ref1;
       if (!this.transformCount) {
         return;
       }
-      newStack = [];
+      remove = false;
       _ref = this.transformStack;
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
         transform = _ref[_j];
         transform.progress(this, frameTime);
-        if (!transform.isFinished()) {
-          newStack.push(transform);
+        if (transform.isFinished()) {
+          remove = true;
         }
       }
-      this.transformStack = newStack;
-      return this.transformCount = newStack.length;
+      if (remove) {
+        newStack = [];
+        _ref1 = this.transformStack;
+        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+          transform = _ref1[_k];
+          if (!transform.isFinished()) {
+            newStack.push(transform);
+          }
+        }
+        this.transformStack = newStack;
+        return this.transformCount = newStack.length;
+      }
     };
 
     Element.prototype.prepare = function() {
-      var ctx;
+      var ctx, x, y;
       ctx = this.canvas.ctx;
-      ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, this.options.x, this.options.y);
+      if (this.options.snap) {
+        x = Math.round(this.options.x);
+        y = Math.round(this.options.y);
+      } else {
+        x = this.options.x;
+        y = this.options.y;
+      }
+      ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, x, y);
       if (this.options.alpha !== 1) {
         ctx.globalAlpha = this.options.alpha;
       }
@@ -656,18 +897,14 @@ Rippl may be freely distributed under the MIT license.
     Element.prototype.render = function() {};
 
     Element.prototype.set = function(target, value) {
-      var change, option, _j, _len1;
+      var change, option, options, _j, _len1;
       if (value !== void 0 && typeof target === 'string') {
-        option = target;
-        if (this.options[option] !== void 0 && this.options[option] !== value) {
-          this.options[option] = value;
-          this.validate(this.options);
-          this.trigger("change:" + option);
-          this.trigger("change");
-          return;
-        }
+        options = {};
+        options[target] = value;
+        target = options;
       }
       change = [];
+      this.validate(target);
       for (option in target) {
         value = target[option];
         if (this.options[option] !== void 0 && this.options[option] !== value) {
@@ -676,7 +913,6 @@ Rippl may be freely distributed under the MIT license.
         }
       }
       if (change.length) {
-        this.validate(this.options);
         for (_j = 0, _len1 = change.length; _j < _len1; _j++) {
           option = change[_j];
           this.trigger("change:" + option);
@@ -699,74 +935,162 @@ Rippl may be freely distributed under the MIT license.
 
     Sprite.prototype.buffer = null;
 
-    Sprite.prototype.animated = false;
+    Sprite.prototype._useBuffer = false;
 
-    Sprite.prototype.count = 0;
+    Sprite.prototype._animated = false;
 
-    Sprite.playFrames = [];
+    Sprite.prototype._frameDuration = 0;
 
-    Sprite.prototype.currentFrame = 0;
+    Sprite.prototype._framesModulo = 0;
 
     function Sprite(options, canvas) {
       this.addDefaults({
         src: null,
         cropX: 0,
-        cropY: 0
+        cropY: 0,
+        fps: 0
       });
       Sprite.__super__.constructor.call(this, options, canvas);
-      this.frames = [];
+      if (this.options.fps !== 0) {
+        this._frameDuration = 1000 / options.fps;
+      }
     }
 
     Sprite.prototype.validate = function(options) {
       var asset,
         _this = this;
-      if (options.src === null) {
-        throw "Sprite: src option can't be null";
-      }
       if (typeof options.src === 'string') {
         options.src = asset = rippl.assets.get(options.src);
         if (!asset.__isLoaded) {
-          return asset.on('loaded', function() {
+          asset.on('loaded', function() {
             if (_this.canvas) {
-              return _this.canvas.touch();
+              _this.canvas.touch();
             }
+            _this.calculateFrames();
+            return _this.calculateAnchor();
           });
+        } else {
+          this.calculateFrames();
+        }
+      }
+      if (typeof options.fps === 'number') {
+        if (options.fps === 0) {
+          return this.stop();
+        } else {
+          return this._frameDuration = 1000 / options.fps;
         }
       }
     };
 
-    Sprite.prototype.setFrame = function(index) {
-      var frame;
-      frame = this.frames[index];
-      this.options.cropX = frame[0];
-      this.options.cropY = frame[1];
-      return this.removeFilters();
+    Sprite.prototype.calculateFrames = function() {
+      var src;
+      src = this.options.src;
+      if (this.options.width === 0) {
+        this.options.width = src._width;
+      }
+      if (this.options.height === 0) {
+        this.options.height = src._height;
+      }
+      return this._framesModulo = ~~(src._width / this.options.width);
     };
 
     Sprite.prototype.render = function() {
       var anchor;
-      if (this.animated && this.count % this.animated === 0) {
-        this.setFrame(this.playFrames[this.currentFrame]);
-        this.currentFrame += 1;
-        if (this.currentFrame === this.playFrames.length) {
-          this.currentFrame = 0;
-        }
-      }
       anchor = this.getAnchor();
-      if (this.buffer != null) {
-        return this.canvas.drawSprite(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
+      if (this._useBuffer) {
+        return this.canvas.drawAsset(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height);
       } else {
-        return this.canvas.drawSprite(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+        return this.canvas.drawAsset(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
       }
     };
 
+    Sprite.prototype.addAnimation = function(label, frames, lastFrame) {
+      var animations, _j, _results;
+      if (typeof frames === 'number') {
+        if (typeof lastFrame !== 'number') {
+          lastFrame = frames;
+        }
+        frames = (function() {
+          _results = [];
+          for (var _j = frames; frames <= lastFrame ? _j <= lastFrame : _j >= lastFrame; frames <= lastFrame ? _j++ : _j--){ _results.push(_j); }
+          return _results;
+        }).apply(this);
+      }
+      animations = this._animations || (this._animations = {});
+      animations[label] = frames;
+      return this;
+    };
+
+    Sprite.prototype.animate = function(label) {
+            if (label != null) {
+        label;
+
+      } else {
+        label = 'idle';
+      };
+      this._frames = this._animations[label];
+      if (!this._frames) {
+        return;
+      }
+      this._currentIndex = -1;
+      this._animationStart = Date.now();
+      this._animationEnd = this._animationStart + this._frames.length * this._frameDuration;
+      return this._animated = true;
+    };
+
+    Sprite.prototype.progress = function(frameTime) {
+      var index;
+      if (this._animated && this._framesModulo) {
+        if (frameTime >= this._animationEnd) {
+          return this.animate();
+        }
+        index = ~~((frameTime - this._animationStart) / this._frameDuration);
+        if (index !== this._currentIndex) {
+          this._currentIndex = index;
+          this.setFrame(this._frames[index]);
+        }
+      }
+      return Sprite.__super__.progress.call(this, frameTime);
+    };
+
+    Sprite.prototype.setFrame = function(frame) {
+      var frameX, frameY;
+      this._useBuffer = false;
+      frameX = frame % this._framesModulo;
+      frameY = ~~(frame / this._framesModulo);
+      this.options.cropX = frameX * this.options.width;
+      this.options.cropY = frameY * this.options.height;
+      return this.canvas.touch();
+    };
+
+    Sprite.prototype.freeze = function() {
+      return this._animated = false;
+    };
+
     Sprite.prototype.createBuffer = function() {
-      delete this.buffer;
-      this.buffer = new Canvas({
-        width: this.options.width,
-        height: this.options.height
-      });
-      return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      if (!this.buffer) {
+        this.buffer = new Canvas({
+          width: this.options.width,
+          height: this.options.height,
+          "static": true
+        });
+      } else {
+        this.buffer.clear();
+      }
+      this.buffer.drawAsset(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      return this.buffer;
+    };
+
+    Sprite.prototype.filter = function() {
+      var args, filter, fn;
+      filter = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      fn = rippl.filters[filter];
+      if (typeof fn !== 'function') {
+        return;
+      }
+      this.createBuffer();
+      this._useBuffer = true;
+      return fn.apply(this.buffer, args);
     };
 
     Sprite.prototype.clearFilters = function() {
@@ -774,104 +1098,13 @@ Rippl may be freely distributed under the MIT license.
         return;
       }
       this.buffer.clear();
-      return this.buffer.drawSprite(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
+      return this.buffer.drawAsset(this.options.src, 0, 0, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
     };
 
-    Sprite.prototype.removeFilters = function() {
+    Sprite.prototype.removeFilter = function() {
       delete this.buffer;
       this.buffer = null;
       return this.canvas.touch();
-    };
-
-    Sprite.prototype.invertColorsFilter = function() {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.invertColorsFilter();
-    };
-
-    Sprite.prototype.saturationFilter = function(saturation) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.saturationFilter(saturation);
-    };
-
-    Sprite.prototype.contrastFilter = function(contrast) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.contrastFilter(contrast);
-    };
-
-    Sprite.prototype.brightnessFilter = function(brightness) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.brightnessFilter(brightness);
-    };
-
-    Sprite.prototype.gammaFilter = function(gamma) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.gammaFilter(gamma);
-    };
-
-    Sprite.prototype.hueShiftFilter = function(shift) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.hueShiftFilter(shift);
-    };
-
-    Sprite.prototype.colorizeFilter = function(hue) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.colorizeFilter(hue);
-    };
-
-    Sprite.prototype.ghostFilter = function(alpha) {
-      if (!(this.buffer != null)) {
-        this.createBuffer();
-      }
-      return this.buffer.ghostFilter(alpha);
-    };
-
-    Sprite.prototype.animate = function(interval, from, to) {
-      var _j, _results;
-            if (interval != null) {
-        interval;
-
-      } else {
-        interval = 1;
-      };
-      if (from === void 0) {
-        from = 0;
-      }
-      if (to === void 0) {
-        to = this.frames.length - 1;
-      }
-      this.playFrames = (function() {
-        _results = [];
-        for (var _j = from; from <= to ? _j <= to : _j >= to; from <= to ? _j++ : _j--){ _results.push(_j); }
-        return _results;
-      }).apply(this);
-      this.currentFrame = 0;
-      if (this.playFrames.length) {
-        this.count = 0;
-        return this.animated = interval;
-      }
-    };
-
-    Sprite.prototype.stop = function() {
-      this.playFrames = [];
-      return this.animated = 0;
-    };
-
-    Sprite.prototype.addFrame = function(cropX, cropY) {
-      return this.frames.push([cropX, cropY]);
     };
 
     return Sprite;
@@ -1000,7 +1233,7 @@ Rippl may be freely distributed under the MIT license.
 
     function Rectangle(options, canvas) {
       this.addDefaults({
-        radius: 0
+        cornerRadius: 0
       });
       Rectangle.__super__.constructor.call(this, options, canvas);
     }
@@ -1009,14 +1242,14 @@ Rippl may be freely distributed under the MIT license.
       var anchor, ctx, h, r, w, x, y;
       anchor = this.getAnchor();
       ctx = this.canvas.ctx;
-      if (this.options.radius === 0) {
+      if (this.options.cornerRadius === 0) {
         return ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
       } else {
         x = -anchor.x;
         y = -anchor.y;
         w = this.options.width;
         h = this.options.height;
-        r = this.options.radius;
+        r = this.options.cornerRadius;
         ctx.moveTo(x + w - r, y);
         ctx.quadraticCurveTo(x + w, y, x + w, y + r);
         ctx.lineTo(x + w, y + h - r);
@@ -1158,7 +1391,8 @@ Rippl may be freely distributed under the MIT license.
     Canvas.prototype.options = {
       id: null,
       width: 0,
-      height: 0
+      height: 0,
+      "static": false
     };
 
     Canvas.prototype.__isAsset = true;
@@ -1171,16 +1405,21 @@ Rippl may be freely distributed under the MIT license.
       this.setOptions(options);
       if (this.options.id !== null) {
         this._canvas = document.getElementById(this.options.id);
-        this.options.width = Number(this._canvas.width);
-        this.options.height = Number(this._canvas.height);
+        this._width = this.options.width = Number(this._canvas.width);
+        this._height = this.options.height = Number(this._canvas.height);
       } else {
         this._canvas = document.createElement('canvas');
         this._canvas.setAttribute('width', this.options.width);
         this._canvas.setAttribute('height', this.options.height);
+        this._width = this.options.width;
+        this._height = this.options.height;
       }
       this.ctx = this._canvas.getContext('2d');
       this.ctx.save();
       this.elements = [];
+      if (!this.options["static"]) {
+        rippl.timer.bind(this);
+      }
     }
 
     Canvas.prototype.getDocumentElement = function() {
@@ -1317,10 +1556,10 @@ Rippl may be freely distributed under the MIT license.
       return this.changed = false;
     };
 
-    Canvas.prototype.drawSprite = function(asset, x, y, width, height, cropX, cropY) {
+    Canvas.prototype.drawAsset = function(asset, x, y, width, height, cropX, cropY) {
       var element;
-      if (!asset.__isAsset) {
-        throw "Canvas.drawSprite: invalid asset";
+      if (!asset || !asset.__isAsset) {
+        return;
       }
       element = asset.getDocumentElement();
       if (!element) {
@@ -1338,9 +1577,17 @@ Rippl may be freely distributed under the MIT license.
       } else {
         cropY = 0;
       };
-      x = Math.round(x);
-      y = Math.round(y);
       return this.ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height);
+    };
+
+    Canvas.prototype.filter = function() {
+      var args, filter, fn;
+      filter = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      fn = rippl.filters[filter];
+      if (typeof fn !== 'function') {
+        return;
+      }
+      return fn.apply(this, args);
     };
 
     Canvas.prototype.rgbaFilter = function(filter) {

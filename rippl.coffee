@@ -19,6 +19,10 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
+  _eventSeparator: new RegExp("\\s+")
+
+  # -----------------------------------
+
   _validEventName: (event) ->
     return false if typeof event isnt 'string'
     return true
@@ -31,33 +35,35 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   # -----------------------------------
 
-  on: (event, callback) ->
+  on: (events, callback) ->
     #
     # sets up an event handler for a specific event
     #
-    return if not @_validEventName(event)
-    return if not @_validCallback(callback)
+    return @ if not @_validCallback(callback)
 
-    #
-    # Create a container for event handlers
-    #
-    handlers = @_eventHandlers or (@_eventHandlers = {})
-    #@_eventHandlers = {} if @_eventHandlers is null
+    for event in events.split(@_eventSeparator)
+      #
+      # Create a container for event handlers
+      #
+      handlers = @_eventHandlers or (@_eventHandlers = {})
+      #@_eventHandlers = {} if @_eventHandlers is null
 
-    #
-    # create a new stack for the callbacks if not defined yet
-    #
-    handlers[event] = [] if handlers[event] is undefined
+      #
+      # create a new stack for the callbacks if not defined yet
+      #
+      handlers[event] = [] if handlers[event] is undefined
 
-    #
-    # push the callback onto the stack
-    #
-    handlers[event].push(callback)
+      #
+      # push the callback onto the stack
+      #
+      handlers[event].push(callback)
+
+    @
 
   # -----------------------------------
 
   off: (event, callbackToRemove) ->
-    return if not handlers = @_eventHandlers
+    return @ if not handlers = @_eventHandlers
 
     if not @_validEventName(event)
       #
@@ -69,7 +75,7 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop all listeners for specified event
       #
-      return if handlers[event] is undefined
+      return @ if handlers[event] is undefined
 
       delete handlers[event]
 
@@ -77,7 +83,7 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       # Drop only the specified callback from the stack
       #
-      return if handlers[event] is undefined
+      return @ if handlers[event] is undefined
 
       stack = []
 
@@ -89,18 +95,18 @@ rippl.ObjectAbstract = class ObjectAbstract
   # -----------------------------------
 
   trigger: (event, args...) ->
-    return if not handlers = @_eventHandlers
+    return @ if not handlers = @_eventHandlers
 
     #
     # triggers all listener callbacks of a given event, pass on the data from second argument
     #
-    return if not @_validEventName(event)
+    return @ if not @_validEventName(event)
 
-    return false if handlers[event] is undefined
+    return @ if handlers[event] is undefined
 
     callback.apply(this, args) for callback in handlers[event]
 
-    return true
+    return @
 
   # -----------------------------------
 
@@ -159,17 +165,16 @@ if window.requestAnimationFrame is undefined
       window.requestAnimationFrame = window[vendor+'RequestAnimationFrame']
       window.cancelAnimationFrame = window[vendor+'CancelAnimationFrame'] || window[vendor+'CancelRequestAnimationFrame']
 
-rippl.Timer = class Timer extends ObjectAbstract
+class Timer extends ObjectAbstract
   #
   # Default options
   #
   options:
     fps: 60
-    autoStart: true
 
   # -----------------------------------
 
-  _useAnimatinFrame: false
+  _useAnimationFrame: false
 
   # -----------------------------------
 
@@ -182,11 +187,11 @@ rippl.Timer = class Timer extends ObjectAbstract
 
     @frameDuration = 1000 / @options.fps
 
-    #@_useAnimatinFrame = true if window.requestAnimationFrame and @options.fps is 60
+    #@_useAnimationFrame = true if window.requestAnimationFrame and @options.fps is 60
 
     @canvas = []
 
-    @start() if @options.autoStart
+    @start()
 
   # -----------------------------------
 
@@ -204,7 +209,7 @@ rippl.Timer = class Timer extends ObjectAbstract
   start: ->
     @time = Date.now()
 
-    if @_useAnimatinFrame
+    if @_useAnimationFrame
       @timerid = window.requestAnimationFrame (time) => @tick(time)
     else
       @timerid = setTimeout(
@@ -215,7 +220,7 @@ rippl.Timer = class Timer extends ObjectAbstract
   # -----------------------------------
 
   stop: ->
-    if @_useAnimatinFrame
+    if @_useAnimationFrame
       window.cancelAnimationFrame(@timerid)
     else
       window.clearTimeout(@timerid)
@@ -260,6 +265,10 @@ rippl.Timer = class Timer extends ObjectAbstract
       delay
     )
 
+#
+# Initialize a global timer
+#
+rippl.timer = new Timer
 # =============================================
 #
 # End contents of utils/Timer.coffee
@@ -276,7 +285,7 @@ rippl.Color = class Color
   r: 255
   g: 255
   b: 255
-  a: 255
+  a: 1
 
   # -----------------------------------
 
@@ -284,11 +293,11 @@ rippl.Color = class Color
 
   # -----------------------------------
 
-  string: 'rgba(255,255,255,255)'
+  string: 'rgba(255,255,255,1)'
 
   # -----------------------------------
 
-  rgbaPattern: new RegExp('\\s*rgba\\(\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\\s*\\,\\s*([0-9]{1,3})\s*\\)\\s*', 'i')
+  rgbaPattern: new RegExp('\\s*rgba\\(\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d{1,3})\\s*\\,\\s*(\\d+\.?\\d*|\\d*\.?\\d+)\s*\\)\\s*', 'i')
 
   # -----------------------------------
 
@@ -314,7 +323,7 @@ rippl.Color = class Color
         b = Number matches[3]
         a = Number matches[4]
       else
-        throw "Invalid color string: "+hash
+        throw "Invalid color string: "+r
 
     @set(r, g, b, a)
 
@@ -327,7 +336,7 @@ rippl.Color = class Color
     @r = ~~r
     @g = ~~g
     @b = ~~b
-    @a = ~~a if a isnt undefined
+    @a = a if a isnt undefined
     @cacheString()
 
   # -----------------------------------
@@ -366,6 +375,7 @@ class Transformation extends ObjectAbstract
     delay: 0
     from: null
     to: null
+    custom: null
     transition: 'linear'
 
   # -----------------------------------
@@ -381,14 +391,6 @@ class Transformation extends ObjectAbstract
 
   # -----------------------------------
 
-  parseColors: (value) ->
-    if typeof value is 'string' and value[0] is '#'
-      return new Color(value)
-
-    return value
-
-  # -----------------------------------
-
   constructor: (options) ->
     @setOptions(options)
 
@@ -397,11 +399,6 @@ class Transformation extends ObjectAbstract
 
     @startTime = Date.now() + @options.delay
     @endTime = @startTime + @options.duration
-
-    @
-
-    @options.from[option] = @parseColors(value) for option, value of @options.from
-    @options.to[option] = @parseColors(value) for option, value of @options.to
 
   # -----------------------------------
 
@@ -453,6 +450,8 @@ class Transformation extends ObjectAbstract
     options = {}
     stage = @getStage(time)
 
+    @options.custom.call(element, stage) if typeof @options.custom is 'function'
+
     from = @options.from
     to = @options.to
 
@@ -465,12 +464,18 @@ class Transformation extends ObjectAbstract
     # Finish the transformation
     #
     if time >= @endTime
+      @destroy()
       @finished = true
-      #
-      # Avoid memleaks
-      #
-      delete @options.to
-      delete @options.from
+      @trigger('end')
+
+  # -----------------------------------
+
+  destroy: ->
+    #
+    # Avoid memleaks
+    #
+    delete @options.to
+    delete @options.from
 
 # =============================================
 #
@@ -493,12 +498,48 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
 
   # -----------------------------------
 
+  _width: 0
+
+  # -----------------------------------
+
+  _height: 0
+
+  # -----------------------------------
+
   constructor: (url) ->
     @_image = new Image
     @_image.onload = =>
+      @_width = @_image.naturalWidth
+      @_height = @_image.naturalHeight
       @__isLoaded = true
       @trigger('loaded')
+      @off('loaded') # loaded happens only once
+
     @_image.src = url
+
+  # -----------------------------------
+
+  cache: (label, filter, args...) ->
+    return if not @__isLoaded
+
+    cache = @_cache or (@_cache = {})
+
+    buffer = cache[label] = new Canvas
+      width: @_width
+      height: @_height
+      static: true
+
+    buffer.drawAsset(@, 0, 0, @_width, @_height)
+
+    args.unshift(filter)
+    buffer.filter.apply(buffer, args)
+
+  # -----------------------------------
+
+  cached: (label) ->
+    return @ if not @_cache
+    return @_cache[label] if @_cache[label]
+    return @
 
   # -----------------------------------
 
@@ -559,6 +600,195 @@ rippl.assets =
 
 # =============================================
 #
+# Begin contents of utils/filters.coffee
+#
+# =============================================
+((rippl) ->
+
+  rgbToLuma = (r, g, b) ->
+    0.30 * r + 0.59 * g + 0.11 * b
+
+  # -----------------------------------
+
+  rgbToChroma = (r, g, b) ->
+    Math.max(r, g, b) - Math.min(r, g, b)
+
+  # -----------------------------------
+
+  rgbToLumaChromaHue = (r, g, b) ->
+    luma = rgbToLuma(r, g, b)
+    chroma = rgbToChroma(r, g, b)
+
+    if chroma is 0
+      hprime = 0
+    else if r is max
+      hprime = ((g - b) / chroma) % 6
+    else if g is max
+      hprime = ((b - r) / chroma) + 2
+    else if b is max
+      hprime = ((r - g) / chroma) + 4
+
+    hue = hprime * (Math.PI / 3)
+    [luma, chroma, hue]
+
+  # -----------------------------------
+
+  lumaChromaHueToRgb = (luma, chroma, hue) ->
+    hprime = hue / (Math.PI / 3)
+    x = chroma * (1 - Math.abs(hprime % 2 - 1))
+    sextant = ~~hprime
+
+    switch sextant
+      when 0
+        r = chroma
+        g = x
+        b = 0
+      when 1
+        r = x
+        g = chroma
+        b = 0
+      when 2
+        r = 0
+        g = chroma
+        b = x
+      when 3
+        r = 0
+        g = x
+        b = chroma
+      when 4
+        r = x
+        g = 0
+        b = chroma
+      when 5
+        r = chroma
+        g = 0
+        b = x
+
+    component = luma - rgbToLuma(r, g, b)
+
+    r += component
+    g += component
+    b += component
+    [r,g,b]
+
+  #######################
+
+  rippl.filters =
+    colorOverlay: (color) ->
+      color = new Color(color) if not color.__isColor
+
+      ctx = @ctx
+      ctx.save()
+      ctx.globalCompositeOperation = 'source-atop'
+      ctx.fillStyle = color.toString()
+      ctx.fillRect(0, 0, @_width, @_height)
+      ctx.restore()
+
+    # -----------------------------------
+
+    invertColors: ->
+      @rgbaFilter (r, g, b, a) ->
+        r = 255 - r
+        g = 255 - g
+        b = 255 - b
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    saturation: (saturation) ->
+      saturation += 1
+      grayscale = 1 - saturation
+
+      @rgbaFilter (r, g, b, a) ->
+        luma = rgbToLuma(r, g, b)
+
+        r = r * saturation + luma * grayscale
+        g = g * saturation + luma * grayscale
+        b = b * saturation + luma * grayscale
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    contrast: (contrast) ->
+      gray = -contrast
+      original = 1 + contrast
+
+      @rgbaFilter (r, g, b, a) ->
+        r = r * original + 127 * gray
+        g = g * original + 127 * gray
+        b = b * original + 127 * gray
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    brightness: (brightness) ->
+      change = 255 * brightness
+
+      @rgbaFilter (r, g, b, a) ->
+        r += change
+        g += change
+        b += change
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    gamma: (gamma) ->
+      gamma += 1
+
+      @rgbaFilter (r, g, b, a) ->
+        r *= gamma
+        g *= gamma
+        b *= gamma
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    hueShift: (shift) ->
+      fullAngle = Math.PI * 2
+      shift = shift % fullAngle
+
+      @rgbaFilter (r, g, b, a) =>
+        [luma, chroma, hue] = rgbToLumaChromaHue(r, g, b)
+
+        hue = (hue + shift) % fullAngle
+        hue += fullAngle if hue < 0
+
+        [r, g, b] = lumaChromaHueToRgb(luma, chroma, hue)
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    colorize: (hue) ->
+      hue = hue % (Math.PI * 2)
+
+      @rgbaFilter (r, g, b, a) ->
+        luma = rgbToLuma(r, g, b)
+        chroma = rgbToChroma(r, g, b)
+        [r, g, b] = lumaChromaHueToRgb(luma, chroma, hue)
+        [r, g, b, a]
+
+    # -----------------------------------
+
+    ghost: (alpha, hue) ->
+      opacity = 1 - alpha
+
+      @rgbaFilter (r, g, b, a) ->
+        luma = rgbToLuma(r, g, b)
+        if typeof hue is 'number'
+          chroma = rgbToChroma(r, g, b)
+          [r, g, b] = lumaChromaHueToRgb(luma, chroma, hue)
+        a = (a / 255) * (luma * alpha + 255 * opacity)
+        [r, g, b, a]
+
+)(rippl)
+# =============================================
+#
+# End contents of utils/filters.coffee
+#
+# =============================================
+
+# =============================================
+#
 # Begin contents of elements/Element.coffee
 #
 # =============================================
@@ -571,6 +801,7 @@ class Element extends ObjectAbstract
     x: 0
     y: 0
     z: 0
+    snap: false
     anchorX: 0.5
     anchorY: 0.5
     anchorInPixels: false
@@ -609,6 +840,12 @@ class Element extends ObjectAbstract
     @transformStack = []
     @transformCount = 0
 
+    #
+    # cache anchor position
+    #
+    @on('change:anchorX change:anchorY change:anchorInPixels', => @calculateAnchor())
+    @calculateAnchor()
+
   # -----------------------------------
   #
   # Override to validate specific options, such as colors or images
@@ -623,13 +860,24 @@ class Element extends ObjectAbstract
 
   # -----------------------------------
 
-  getAnchor: ->
+  calculateAnchor: ->
     if @options.anchorInPixels
-      x: @options.anchorX
-      y: @options.anchorY
+      @_anchor =
+        x: @options.anchorX
+        y: @options.anchorY
     else
-      x: @options.anchorX * @options.width
-      y: @options.anchorY * @options.height
+      @_anchor =
+        x: @options.anchorX * @options.width
+        y: @options.anchorY * @options.height
+
+    if @options.snap
+      @_anchor.x = Math.round(@_anchor.x)
+      @_anchor.y = Math.round(@_anchor.y)
+
+  # -----------------------------------
+
+  getAnchor: ->
+    @_anchor
 
   # -----------------------------------
 
@@ -653,8 +901,6 @@ class Element extends ObjectAbstract
   # -----------------------------------
 
   transform: (options) ->
-    return if typeof options.to isnt 'object'
-
     #
     # Set starting values if not defined
     #
@@ -678,19 +924,38 @@ class Element extends ObjectAbstract
     transform
 
   # -----------------------------------
+
+  stop: ->
+    return if not @transformStack
+    for transform in @transformStack
+      transform.destroy()
+
+    @transformStack = []
+    @transformCount = 0
+
+  # -----------------------------------
   #
   # Used to progress current tranformation stack
   #
   progress: (frameTime) ->
     return if not @transformCount
 
-    newStack = []
+    remove = false
+
     for transform in @transformStack
       transform.progress(@, frameTime)
-      newStack.push(transform) if not transform.isFinished()
+      remove = true if transform.isFinished()
 
-    @transformStack = newStack
-    @transformCount = newStack.length
+    #
+    # Second pass to avoid conflicts with anything happening on transformation events
+    #
+    if remove
+      newStack = []
+      for transform in @transformStack
+        newStack.push(transform) if not transform.isFinished()
+
+      @transformStack = newStack
+      @transformCount = newStack.length
 
   # -----------------------------------
   #
@@ -698,7 +963,15 @@ class Element extends ObjectAbstract
   #
   prepare: ->
     ctx = @canvas.ctx
-    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
+
+    if @options.snap
+      x = Math.round(@options.x)
+      y = Math.round(@options.y)
+    else
+      x = @options.x
+      y = @options.y
+
+    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, x, y)
     ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
     ctx.rotate(@options.rotation) if @options.rotation isnt 0
     ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
@@ -713,17 +986,13 @@ class Element extends ObjectAbstract
 
   set: (target, value) ->
     if value isnt undefined and typeof target is 'string'
-      option = target
-
-      if @options[option] isnt undefined and @options[option] isnt value
-        @options[option] = value
-        @validate(@options)
-
-        @trigger("change:#{option}")
-        @trigger("change")
-        return
+      options = {}
+      options[target] = value
+      target = options
 
     change = []
+
+    @validate(target)
 
     for option, value of target
       if @options[option] isnt undefined and @options[option] isnt value
@@ -731,7 +1000,6 @@ class Element extends ObjectAbstract
         change.push(option)
 
     if change.length
-      @validate(@options)
       @trigger("change:#{option}") for option in change
       @trigger("change")
 
@@ -759,33 +1027,20 @@ rippl.Sprite = class Sprite extends Element
   buffer: null
 
   # -----------------------------------
-  #
-  # If set to true, the sprite will perform frame animations
-  #
-  animated: false
+
+  _useBuffer: false
 
   # -----------------------------------
 
-  #
-  # Internal counter for animation purposes
-  #
-  count: 0
+  _animated: false
 
   # -----------------------------------
 
-  #
-  # List of frames to play in animation
-  #
-  @playFrames = []
+  _frameDuration: 0
 
   # -----------------------------------
 
-  #
-  # Current frame the animation is on.
-  #
-  # IMPORTANT: This is an index of @playFrames array, NOT @frames!
-  #
-  currentFrame: 0
+  _framesModulo: 0
 
   # -----------------------------------
 
@@ -794,186 +1049,146 @@ rippl.Sprite = class Sprite extends Element
       src: null
       cropX: 0
       cropY: 0
+      fps: 0
 
     super(options, canvas)
 
-    #
-    # Set of animation frames the sprite supports, can be empty
-    #
-    @frames = []
+    if @options.fps isnt 0
+      @_frameDuration = 1000 / options.fps
 
   # -----------------------------------
 
   validate: (options) ->
-    throw "Sprite: src option can't be null" if options.src is null
     if typeof options.src is 'string'
       options.src = asset = rippl.assets.get(options.src)
       if not asset.__isLoaded
-        asset.on('loaded', => @canvas.touch() if @canvas)
+        asset.on 'loaded', =>
+          @canvas.touch() if @canvas
+          @calculateFrames()
+          @calculateAnchor()
+      else
+        @calculateFrames()
+
+    if typeof options.fps is 'number'
+      if options.fps is 0
+        @stop()
+      else
+        @_frameDuration = 1000 / options.fps
 
   # -----------------------------------
 
-  setFrame: (index) ->
-    #
-    # Get the properties of the frame
-    #
-    frame = @frames[index]
-
-    #
-    # Change cropping properties to the given frame
-    #
-    @options.cropX = frame[0]
-    @options.cropY = frame[1]
-    @removeFilters() # this will also call @canvas.touch()
+  calculateFrames: ->
+    src = @options.src
+    @options.width = src._width if @options.width is 0
+    @options.height = src._height if @options.height is 0
+    @_framesModulo = ~~(src._width / @options.width)
 
   # -----------------------------------
 
   render: ->
-    #
-    # If sprite is animated we check if current frame matches the animation interval
-    #
-    if @animated and @count % @animated is 0
-      #
-      # Switch frame
-      #
-      @setFrame(@playFrames[@currentFrame])
-
-      #
-      # Iterate to the next frame
-      #
-      @currentFrame += 1
-      @currentFrame = 0 if @currentFrame is @playFrames.length
-
     anchor = @getAnchor()
 
-    if @buffer?
-      @canvas.drawSprite(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
+    if @_useBuffer
+      @canvas.drawAsset(@buffer, -anchor.x, -anchor.y, @options.width, @options.height)
     else
-      @canvas.drawSprite(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+      @canvas.drawAsset(@options.src, -anchor.x, -anchor.y, @options.width, @options.height, @options.cropX, @options.cropY)
+
+  # -----------------------------------
+
+  addAnimation: (label, frames, lastFrame) ->
+    #
+    # Handle frame ranges
+    #
+    if typeof frames is 'number'
+      lastFrame = frames if typeof lastFrame isnt 'number'
+      frames = [frames..lastFrame]
+
+    animations = @_animations or (@_animations = {})
+    animations[label] = frames
+    @
+
+  # -----------------------------------
+
+  animate: (label) ->
+    label ? label = 'idle'
+    @_frames = @_animations[label]
+    return if not @_frames
+    @_currentIndex = -1
+    @_animationStart = Date.now()
+    @_animationEnd = @_animationStart + @_frames.length * @_frameDuration
+    @_animated = true
+
+  # -----------------------------------
+
+  progress: (frameTime) ->
+    if @_animated and @_framesModulo
+      return @animate() if frameTime >= @_animationEnd
+
+      index = ~~((frameTime - @_animationStart) / @_frameDuration)
+      if index isnt @_currentIndex
+        @_currentIndex = index
+        @setFrame(@_frames[index])
+
+    #
+    # Progress transformations *AFTER* frame has been set
+    #
+    super(frameTime)
+
+  # -----------------------------------
+
+  setFrame: (frame) ->
+    @_useBuffer = false
+
+    frameX = frame % @_framesModulo
+    frameY = ~~(frame / @_framesModulo)
+
+    @options.cropX = frameX * @options.width
+    @options.cropY = frameY * @options.height
+    @canvas.touch()
+
+  # -----------------------------------
+
+  freeze: ->
+    @_animated = false
 
   # -----------------------------------
 
   createBuffer: ->
-    delete @buffer
-    @buffer = new Canvas
-      width: @options.width
-      height: @options.height
+    if not @buffer
+      @buffer = new Canvas
+        width: @options.width
+        height: @options.height
+        static: true
+    else
+      @buffer.clear()
 
-    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawAsset(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer
+
+  # -----------------------------------
+
+  filter: (filter, args...) ->
+    fn = rippl.filters[filter]
+    return if typeof fn isnt 'function'
+
+    @createBuffer()
+
+    @_useBuffer = true
+    fn.apply(@buffer, args)
 
   # -----------------------------------
 
   clearFilters: ->
     return if not @buffer?
     @buffer.clear()
-    @buffer.drawSprite(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
+    @buffer.drawAsset(@options.src, 0, 0, @options.width, @options.height, @options.cropX, @options.cropY)
 
   # -----------------------------------
 
-  removeFilters: ->
+  removeFilter: ->
     delete @buffer
     @buffer = null
     @canvas.touch()
-
-  # -----------------------------------
-
-  invertColorsFilter: ->
-    @createBuffer() if not @buffer?
-    @buffer.invertColorsFilter()
-
-  # -----------------------------------
-
-  saturationFilter: (saturation) ->
-    @createBuffer() if not @buffer?
-    @buffer.saturationFilter(saturation)
-
-  # -----------------------------------
-
-  contrastFilter: (contrast) ->
-    @createBuffer() if not @buffer?
-    @buffer.contrastFilter(contrast)
-
-  # -----------------------------------
-
-  brightnessFilter: (brightness) ->
-    @createBuffer() if not @buffer?
-    @buffer.brightnessFilter(brightness)
-
-  # -----------------------------------
-
-  gammaFilter: (gamma) ->
-    @createBuffer() if not @buffer?
-    @buffer.gammaFilter(gamma)
-
-  # -----------------------------------
-
-  hueShiftFilter: (shift) ->
-    @createBuffer() if not @buffer?
-    @buffer.hueShiftFilter(shift)
-
-  # -----------------------------------
-
-  colorizeFilter: (hue) ->
-    @createBuffer() if not @buffer?
-    @buffer.colorizeFilter(hue)
-
-  # -----------------------------------
-
-  ghostFilter: (alpha) ->
-    @createBuffer() if not @buffer?
-    @buffer.ghostFilter(alpha)
-
-  # -----------------------------------
-
-  animate: (interval, from, to) ->
-    #
-    # Starts animating the sprite
-    #
-    #   interval - optional (default 1), number of canvas frame renders between each animation frame of the sprite
-    #   from - optional (default 0), starting frame of the animation
-    #   to - optional (default to last frame), ending frame of the animation
-    #
-
-    #
-    # Handle the defaults
-    #
-    interval ? interval = 1
-    from = 0 if from is undefined
-    to = @frames.length - 1 if to is undefined
-
-    #
-    # Create the list of frame indexes to play
-    #
-    @playFrames = [from..to]
-
-    #
-    # Reset the currentFrame to 0
-    #
-    @currentFrame = 0
-
-    #
-    # Start animating if there actually are any frames declared!
-    #
-    if @playFrames.length
-      @count = 0
-      @animated = interval
-
-  # -----------------------------------
-
-  stop: ->
-    #
-    # Stop animation
-    #
-    @playFrames = []
-    @animated = 0
-
-  # -----------------------------------
-
-  addFrame: (cropX, cropY) ->
-    #
-    # Create animation frame, return the amount of frames already on the sprite
-    #
-    @frames.push [cropX, cropY]
 
 # =============================================
 #
@@ -1119,7 +1334,7 @@ rippl.Text = class Text extends Shape
 rippl.Rectangle = class Rectangle extends Shape
   constructor: (options, canvas) ->
     @addDefaults
-      radius: 0 # radius of rounded corners
+      cornerRadius: 0 # radius of rounded corners
 
     super(options, canvas)
 
@@ -1129,14 +1344,14 @@ rippl.Rectangle = class Rectangle extends Shape
     anchor = @getAnchor()
     ctx = @canvas.ctx
 
-    if @options.radius is 0
+    if @options.cornerRadius is 0
       ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
     else
       x = -anchor.x
       y = -anchor.y
       w = @options.width
       h = @options.height
-      r = @options.radius
+      r = @options.cornerRadius
 
       ctx.moveTo(x + w - r, y)
       ctx.quadraticCurveTo(x + w, y, x + w, y + r)
@@ -1298,6 +1513,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     id: null
     width: 0
     height: 0
+    static: false
 
   # -----------------------------------
 
@@ -1318,17 +1534,21 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     if @options.id isnt null
       @_canvas = document.getElementById(@options.id)
-      @options.width = Number @_canvas.width
-      @options.height = Number @_canvas.height
+      @_width = @options.width = Number @_canvas.width
+      @_height = @options.height = Number @_canvas.height
     else
       @_canvas = document.createElement('canvas')
       @_canvas.setAttribute('width', @options.width)
       @_canvas.setAttribute('height', @options.height)
+      @_width = @options.width
+      @_height = @options.height
 
     @ctx = @_canvas.getContext('2d')
     @ctx.save()
 
     @elements = []
+
+    rippl.timer.bind(@) if not @options.static
 
   # -----------------------------------
 
@@ -1449,8 +1669,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  drawSprite: (asset, x, y, width, height, cropX, cropY) ->
-    throw "Canvas.drawSprite: invalid asset" if not asset.__isAsset
+  drawAsset: (asset, x, y, width, height, cropX, cropY) ->
+    return if not asset or not asset.__isAsset
 
     element = asset.getDocumentElement()
     return if not element
@@ -1458,10 +1678,15 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     cropX ? cropX = 0
     cropY ? cropY = 0
 
-    x = Math.round(x)
-    y = Math.round(y)
-
     @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
+
+  # -----------------------------------
+
+  filter: (filter, args...) ->
+    fn = rippl.filters[filter]
+    return if typeof fn isnt 'function'
+
+    fn.apply(@, args)
 
   # -----------------------------------
 

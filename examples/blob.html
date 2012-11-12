@@ -12,9 +12,6 @@
 
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
-      var timer = new rippl.Timer;
-      timer.bind(canvas);
-
       var text = new rippl.Text({
         label: "Hello Rippl!",
         bold: true,
@@ -28,7 +25,7 @@
 
       canvas.add(text);
 
-      timer.on('frame', function(time) {
+      rippl.timer.on('frame', function(time) {
         var t = time / 1000;
         var sin = Math.sin(t * 4);
 

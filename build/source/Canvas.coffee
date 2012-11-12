@@ -7,6 +7,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     id: null
     width: 0
     height: 0
+    static: false
 
   # -----------------------------------
 
@@ -27,17 +28,21 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     if @options.id isnt null
       @_canvas = document.getElementById(@options.id)
-      @options.width = Number @_canvas.width
-      @options.height = Number @_canvas.height
+      @_width = @options.width = Number @_canvas.width
+      @_height = @options.height = Number @_canvas.height
     else
       @_canvas = document.createElement('canvas')
       @_canvas.setAttribute('width', @options.width)
       @_canvas.setAttribute('height', @options.height)
+      @_width = @options.width
+      @_height = @options.height
 
     @ctx = @_canvas.getContext('2d')
     @ctx.save()
 
     @elements = []
+
+    rippl.timer.bind(@) if not @options.static
 
   # -----------------------------------
 
@@ -158,8 +163,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  drawSprite: (asset, x, y, width, height, cropX, cropY) ->
-    throw "Canvas.drawSprite: invalid asset" if not asset.__isAsset
+  drawAsset: (asset, x, y, width, height, cropX, cropY) ->
+    return if not asset or not asset.__isAsset
 
     element = asset.getDocumentElement()
     return if not element
@@ -167,10 +172,15 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     cropX ? cropX = 0
     cropY ? cropY = 0
 
-    x = Math.round(x)
-    y = Math.round(y)
-
     @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
+
+  # -----------------------------------
+
+  filter: (filter, args...) ->
+    fn = rippl.filters[filter]
+    return if typeof fn isnt 'function'
+
+    fn.apply(@, args)
 
   # -----------------------------------
 

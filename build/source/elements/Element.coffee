@@ -7,6 +7,7 @@ class Element extends ObjectAbstract
     x: 0
     y: 0
     z: 0
+    snap: false
     anchorX: 0.5
     anchorY: 0.5
     anchorInPixels: false
@@ -45,6 +46,12 @@ class Element extends ObjectAbstract
     @transformStack = []
     @transformCount = 0
 
+    #
+    # cache anchor position
+    #
+    @on('change:anchorX change:anchorY change:anchorInPixels', => @calculateAnchor())
+    @calculateAnchor()
+
   # -----------------------------------
   #
   # Override to validate specific options, such as colors or images
@@ -59,13 +66,24 @@ class Element extends ObjectAbstract
 
   # -----------------------------------
 
-  getAnchor: ->
+  calculateAnchor: ->
     if @options.anchorInPixels
-      x: @options.anchorX
-      y: @options.anchorY
+      @_anchor =
+        x: @options.anchorX
+        y: @options.anchorY
     else
-      x: @options.anchorX * @options.width
-      y: @options.anchorY * @options.height
+      @_anchor =
+        x: @options.anchorX * @options.width
+        y: @options.anchorY * @options.height
+
+    if @options.snap
+      @_anchor.x = Math.round(@_anchor.x)
+      @_anchor.y = Math.round(@_anchor.y)
+
+  # -----------------------------------
+
+  getAnchor: ->
+    @_anchor
 
   # -----------------------------------
 
@@ -89,8 +107,6 @@ class Element extends ObjectAbstract
   # -----------------------------------
 
   transform: (options) ->
-    return if typeof options.to isnt 'object'
-
     #
     # Set starting values if not defined
     #
@@ -114,19 +130,38 @@ class Element extends ObjectAbstract
     transform
 
   # -----------------------------------
+
+  stop: ->
+    return if not @transformStack
+    for transform in @transformStack
+      transform.destroy()
+
+    @transformStack = []
+    @transformCount = 0
+
+  # -----------------------------------
   #
   # Used to progress current tranformation stack
   #
   progress: (frameTime) ->
     return if not @transformCount
 
-    newStack = []
+    remove = false
+
     for transform in @transformStack
       transform.progress(@, frameTime)
-      newStack.push(transform) if not transform.isFinished()
+      remove = true if transform.isFinished()
 
-    @transformStack = newStack
-    @transformCount = newStack.length
+    #
+    # Second pass to avoid conflicts with anything happening on transformation events
+    #
+    if remove
+      newStack = []
+      for transform in @transformStack
+        newStack.push(transform) if not transform.isFinished()
+
+      @transformStack = newStack
+      @transformCount = newStack.length
 
   # -----------------------------------
   #
@@ -134,7 +169,15 @@ class Element extends ObjectAbstract
   #
   prepare: ->
     ctx = @canvas.ctx
-    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, @options.x, @options.y)
+
+    if @options.snap
+      x = Math.round(@options.x)
+      y = Math.round(@options.y)
+    else
+      x = @options.x
+      y = @options.y
+
+    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, x, y)
     ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
     ctx.rotate(@options.rotation) if @options.rotation isnt 0
     ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
@@ -149,17 +192,13 @@ class Element extends ObjectAbstract
 
   set: (target, value) ->
     if value isnt undefined and typeof target is 'string'
-      option = target
-
-      if @options[option] isnt undefined and @options[option] isnt value
-        @options[option] = value
-        @validate(@options)
-
-        @trigger("change:#{option}")
-        @trigger("change")
-        return
+      options = {}
+      options[target] = value
+      target = options
 
     change = []
+
+    @validate(target)
 
     for option, value of target
       if @options[option] isnt undefined and @options[option] isnt value
@@ -167,7 +206,6 @@ class Element extends ObjectAbstract
         change.push(option)
 
     if change.length
-      @validate(@options)
       @trigger("change:#{option}") for option in change
       @trigger("change")
 

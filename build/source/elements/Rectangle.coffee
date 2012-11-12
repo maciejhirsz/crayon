@@ -2,7 +2,7 @@
 rippl.Rectangle = class Rectangle extends Shape
   constructor: (options, canvas) ->
     @addDefaults
-      radius: 0 # radius of rounded corners
+      cornerRadius: 0 # radius of rounded corners
 
     super(options, canvas)
 
@@ -12,14 +12,14 @@ rippl.Rectangle = class Rectangle extends Shape
     anchor = @getAnchor()
     ctx = @canvas.ctx
 
-    if @options.radius is 0
+    if @options.cornerRadius is 0
       ctx.rect(-anchor.x, -anchor.y, @options.width, @options.height)
     else
       x = -anchor.x
       y = -anchor.y
       w = @options.width
       h = @options.height
-      r = @options.radius
+      r = @options.cornerRadius
 
       ctx.moveTo(x + w - r, y)
       ctx.quadraticCurveTo(x + w, y, x + w, y + r)
