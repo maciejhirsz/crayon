@@ -959,8 +959,12 @@ Rippl may be freely distributed under the MIT license.
     Sprite.prototype.validate = function(options) {
       var asset,
         _this = this;
-      if (typeof options.src === 'string') {
-        options.src = asset = rippl.assets.get(options.src);
+      if (options.src !== void 0) {
+        if (typeof options.src === 'string') {
+          options.src = asset = rippl.assets.get(options.src);
+        } else {
+          asset = options.src;
+        }
         if (!asset.__isLoaded) {
           asset.on('loaded', function() {
             if (_this.canvas) {
@@ -1396,6 +1400,8 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Canvas.prototype.__isAsset = true;
+
+    Canvas.prototype.__isLoaded = true;
 
     Canvas.prototype.changed = false;
 
