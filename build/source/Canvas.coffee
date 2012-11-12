@@ -15,6 +15,10 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
+  __isLoaded: true
+
+  # -----------------------------------
+
   changed: false
 
   # -----------------------------------
