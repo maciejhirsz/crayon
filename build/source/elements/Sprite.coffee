@@ -38,8 +38,12 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   validate: (options) ->
-    if typeof options.src is 'string'
-      options.src = asset = rippl.assets.get(options.src)
+    if options.src isnt undefined
+      if typeof options.src is 'string'
+        options.src = asset = rippl.assets.get(options.src)
+      else
+        asset = options.src
+
       if not asset.__isLoaded
         asset.on 'loaded', =>
           @canvas.touch() if @canvas
