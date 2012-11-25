@@ -155,25 +155,17 @@ Rippl may be freely distributed under the MIT license.
 
     __extends(Timer, _super);
 
-    Timer.prototype.options = {
-      fps: 60
-    };
-
     Timer.prototype._useAnimationFrame = false;
 
-    Timer.prototype.frameDuration = 0;
+    Timer.prototype._frameDuration = 1000 / 60;
 
-    function Timer(options) {
-      this.setOptions(options);
-      this.frameDuration = 1000 / this.options.fps;
+    function Timer() {
+      if (window.requestAnimationFrame) {
+        this._useAnimationFrame = true;
+      }
       this.canvas = [];
       this.start();
     }
-
-    Timer.prototype.setFps = function(fps) {
-      this.options.fps = fps;
-      return this.frameDuration = 1000 / this.options.fps;
-    };
 
     Timer.prototype.bind = function(canvas) {
       return this.canvas.push(canvas);
@@ -189,7 +181,7 @@ Rippl may be freely distributed under the MIT license.
       } else {
         return this.timerid = setTimeout(function() {
           return _this.tickLegacy();
-        }, this.frameDuration);
+        }, this._frameDuration);
       }
     };
 
@@ -226,7 +218,7 @@ Rippl may be freely distributed under the MIT license.
       var canvas, delay, frameTime, postRenderTime, _j, _len1, _ref,
         _this = this;
       frameTime = Date.now();
-      this.time += this.frameDuration;
+      this.time += this._frameDuration;
       this.trigger('frame', frameTime);
       _ref = this.canvas;
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
