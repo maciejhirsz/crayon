@@ -201,7 +201,7 @@ Rippl may be freely distributed under the MIT license.
       var canvas, _j, _len1, _ref,
         _this = this;
       if (!frameTime) {
-        frameTime = Date.now;
+        frameTime = Date.now();
       }
       this.trigger('frame', frameTime);
       _ref = this.canvas;
