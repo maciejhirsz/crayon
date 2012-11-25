@@ -61,7 +61,7 @@ class Timer extends ObjectAbstract
   # -----------------------------------
 
   tick: (frameTime) ->
-    frameTime = Date.now if not frameTime
+    frameTime = Date.now() if not frameTime
 
     @trigger('frame', frameTime)
 
