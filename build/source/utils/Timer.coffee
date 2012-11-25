@@ -12,38 +12,20 @@ if window.requestAnimationFrame is undefined
       window.cancelAnimationFrame = window[vendor+'CancelAnimationFrame'] || window[vendor+'CancelRequestAnimationFrame']
 
 class Timer extends ObjectAbstract
-  #
-  # Default options
-  #
-  options:
-    fps: 60
-
-  # -----------------------------------
-
   _useAnimationFrame: false
 
   # -----------------------------------
 
-  frameDuration: 0
+  _frameDuration: 1000 / 60
 
   # -----------------------------------
 
-  constructor: (options) ->
-    @setOptions(options)
-
-    @frameDuration = 1000 / @options.fps
-
-    #@_useAnimationFrame = true if window.requestAnimationFrame and @options.fps is 60
+  constructor: ->
+    @_useAnimationFrame = true if window.requestAnimationFrame
 
     @canvas = []
 
     @start()
-
-  # -----------------------------------
-
-  setFps: (fps) ->
-    @options.fps = fps
-    @frameDuration = 1000 / @options.fps
 
   # -----------------------------------
 
@@ -60,7 +42,7 @@ class Timer extends ObjectAbstract
     else
       @timerid = setTimeout(
         => @tickLegacy()
-        @frameDuration
+        @_frameDuration
       )
 
   # -----------------------------------
@@ -92,7 +74,7 @@ class Timer extends ObjectAbstract
   tickLegacy: ->
     frameTime = Date.now()
 
-    @time += @frameDuration
+    @time += @_frameDuration
     @trigger('frame', frameTime)
 
     canvas.render(frameTime) for canvas in @canvas
