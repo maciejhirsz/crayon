@@ -1161,6 +1161,7 @@ rippl.Sprite = class Sprite extends Element
 
     @_useBuffer = true
     fn.apply(@buffer, args)
+    @canvas.touch()
 
   # -----------------------------------
 

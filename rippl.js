@@ -1086,7 +1086,8 @@ Rippl may be freely distributed under the MIT license.
       }
       this.createBuffer();
       this._useBuffer = true;
-      return fn.apply(this.buffer, args);
+      fn.apply(this.buffer, args);
+      return this.canvas.touch();
     };
 
     Sprite.prototype.clearFilters = function() {
