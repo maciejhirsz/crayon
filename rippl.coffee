@@ -1031,12 +1031,8 @@ rippl.Sprite = class Sprite extends Element
       src: null
       cropX: 0
       cropY: 0
-      fps: 0
 
     super(options, canvas)
-
-    if @options.fps isnt 0
-      @_frameDuration = 1000 / options.fps
 
   # -----------------------------------
 
@@ -1054,12 +1050,6 @@ rippl.Sprite = class Sprite extends Element
           @calculateAnchor()
       else
         @calculateFrames()
-
-    if typeof options.fps is 'number'
-      if options.fps is 0
-        @stop()
-      else
-        @_frameDuration = 1000 / options.fps
 
   # -----------------------------------
 
@@ -1081,7 +1071,12 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
-  addAnimation: (label, frames, lastFrame) ->
+  addAnimation: (label, fps, frames, lastFrame) ->
+    #
+    # Handle fps
+    #
+    fps = 1 if fps <= 0
+
     #
     # Handle frame ranges
     #
@@ -1090,15 +1085,22 @@ rippl.Sprite = class Sprite extends Element
       frames = [frames..lastFrame]
 
     animations = @_animations or (@_animations = {})
-    animations[label] = frames
+
+    animations[label] =
+      frames: frames
+      frameDuration: 1000 / fps
+
     @
 
   # -----------------------------------
 
   animate: (label) ->
     label ? label = 'idle'
-    @_frames = @_animations[label]
-    return if not @_frames
+    animation = @_animations[label]
+    return if not animation
+
+    @_frames = animation.frames
+    @_frameDuration = animation.frameDuration
     @_currentIndex = -1
     @_animationStart = Date.now()
     @_animationEnd = @_animationStart + @_frames.length * @_frameDuration

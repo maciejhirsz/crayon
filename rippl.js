@@ -939,13 +939,9 @@ Rippl may be freely distributed under the MIT license.
       this.addDefaults({
         src: null,
         cropX: 0,
-        cropY: 0,
-        fps: 0
+        cropY: 0
       });
       Sprite.__super__.constructor.call(this, options, canvas);
-      if (this.options.fps !== 0) {
-        this._frameDuration = 1000 / options.fps;
-      }
     }
 
     Sprite.prototype.validate = function(options) {
@@ -958,7 +954,7 @@ Rippl may be freely distributed under the MIT license.
           asset = options.src;
         }
         if (!asset.__isLoaded) {
-          asset.on('loaded', function() {
+          return asset.on('loaded', function() {
             if (_this.canvas) {
               _this.canvas.touch();
             }
@@ -966,14 +962,7 @@ Rippl may be freely distributed under the MIT license.
             return _this.calculateAnchor();
           });
         } else {
-          this.calculateFrames();
-        }
-      }
-      if (typeof options.fps === 'number') {
-        if (options.fps === 0) {
-          return this.stop();
-        } else {
-          return this._frameDuration = 1000 / options.fps;
+          return this.calculateFrames();
         }
       }
     };
@@ -1000,8 +989,11 @@ Rippl may be freely distributed under the MIT license.
       }
     };
 
-    Sprite.prototype.addAnimation = function(label, frames, lastFrame) {
+    Sprite.prototype.addAnimation = function(label, fps, frames, lastFrame) {
       var animations, _j, _results;
+      if (fps <= 0) {
+        fps = 1;
+      }
       if (typeof frames === 'number') {
         if (typeof lastFrame !== 'number') {
           lastFrame = frames;
@@ -1013,21 +1005,27 @@ Rippl may be freely distributed under the MIT license.
         }).apply(this);
       }
       animations = this._animations || (this._animations = {});
-      animations[label] = frames;
+      animations[label] = {
+        frames: frames,
+        frameDuration: 1000 / fps
+      };
       return this;
     };
 
     Sprite.prototype.animate = function(label) {
+      var animation;
             if (label != null) {
         label;
 
       } else {
         label = 'idle';
       };
-      this._frames = this._animations[label];
-      if (!this._frames) {
+      animation = this._animations[label];
+      if (!animation) {
         return;
       }
+      this._frames = animation.frames;
+      this._frameDuration = animation.frameDuration;
       this._currentIndex = -1;
       this._animationStart = Date.now();
       this._animationEnd = this._animationStart + this._frames.length * this._frameDuration;
