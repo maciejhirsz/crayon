@@ -81,7 +81,6 @@ rippl.Sprite = class Sprite extends Element
       lastFrame = frames if typeof lastFrame isnt 'number'
       frames = [frames..lastFrame]
 
-    animations = @_animationFrames or (@_animations = {})
     animations = @_animations or (@_animations = {})
 
     animations[label] =
