@@ -98,7 +98,7 @@ rippl.Sprite = class Sprite extends Element
     return if not animation
 
     @_frames = animation.frames
-    @__frameDuration = animation.frameDuration
+    @_frameDuration = animation.frameDuration
     @_currentIndex = -1
     @_animationStart = Date.now()
     @_animationEnd = @_animationStart + @_frames.length * @_frameDuration
