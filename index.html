@@ -498,24 +498,20 @@ canvas.add(logo);</pre>
           <span class="label label-important">Warning</span>
           <small>Using sprite sheet animation or <strong>setFrame</strong> will ignore and override any <strong>CropX</strong> and <strong>CropY</strong> settings.</small>
         </p>
-        <h5>fps <small>(Number) default: <code>0</code></small></h5>
-        <p>
-          Frames per second of frame sprite sheet animation, if <code>0</code> animations will be disabled.
-        </p>
         <p>
           <span class="label label-info">Heads up!</span>
           <small>This only affects the frame animation of the sprite, not transformations or general canvas rendering queue.</small>
         </p>
       </div>
 
-      <h4 id="sprite-addanimation">addAnimation <code>sprite.addAnimation(label, frames)</code> <small>or</small> <code>sprite.addAnimation(label, first, last)</code></h4>
+      <h4 id="sprite-addanimation">addAnimation <code>sprite.addAnimation(label, fps, frames)</code> <small>or</small> <code>sprite.addAnimation(label, fps, first, last)</code></h4>
       <p class="indented">
         Defines a new animation label and attaches a list of frames to it. Can take either a complete list of frames as an array, or starting and ending index as integers - in which case an array is formed with all frames in between, including the ones given.
       </p>
       <pre class="prettyprint lang-js">
-sprite.addAnimation("idle", [0,1,2,3,4,5]);
+sprite.addAnimation("idle", 10, [0,1,2,3,4,5]);
 // the line above does the same thing as the line below
-sprite.addAnimation("idle", 0, 5);</pre>
+sprite.addAnimation("idle", 10, 0, 5);</pre>
 
       <h4 id="sprite-animate">animate <code>sprite.animate([label])</code></h4>
       <p class="indented">
