@@ -59,7 +59,8 @@
 }
 
 h4 {
-  padding-top: 15px;
+  padding: 15px 0 0 20px;
+  text-indent: -20px;
   border-top: 1px solid #ddd;
   margin-top: 20px;
 }
@@ -68,6 +69,7 @@ h4 code, h3 code {
   font-weight: normal;
   position: relative;
   top: -2px;
+  white-space: nowrap;
 }
 
 h5 {
