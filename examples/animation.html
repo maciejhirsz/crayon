@@ -33,12 +33,11 @@
           height: 166,
           anchorX: 76,
           anchorY: 125,
-          anchorInPixels: true,
-          fps: 12
+          anchorInPixels: true
         });
 
-        sprite.addAnimation('idle', 0, 16); // define default idle animation on frames 0 to 16
-        sprite.addAnimation('attack', 17, 29); // define attack animation on frames 17 to 29
+        sprite.addAnimation('idle', 12, 0, 16); // define default idle animation on frames 0 to 16
+        sprite.addAnimation('attack', 12, 17, 29); // define attack animation on frames 17 to 29
 
         sprite.animate(); // no argument triggers 'idle' by default
 
