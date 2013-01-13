@@ -61,7 +61,7 @@ class Timer extends ObjectAbstract
   # -----------------------------------
 
   tick: (frameTime) ->
-    frameTime = Date.now() if not frameTime
+    frameTime = Date.now() # Chrome 24 and IE 10 band aid, need to find a better solution
 
     @trigger('frame', frameTime)
 
