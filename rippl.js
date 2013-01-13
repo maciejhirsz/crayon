@@ -200,9 +200,7 @@ Rippl may be freely distributed under the MIT license.
     Timer.prototype.tick = function(frameTime) {
       var canvas, _j, _len1, _ref,
         _this = this;
-      if (!frameTime) {
-        frameTime = Date.now();
-      }
+      frameTime = Date.now();
       this.trigger('frame', frameTime);
       _ref = this.canvas;
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
