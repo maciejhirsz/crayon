@@ -1413,7 +1413,7 @@ Rippl may be freely distributed under the MIT license.
       _results = [];
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
         fragment = _ref[_j];
-        if (framgent !== null) {
+        if (fragment !== null) {
           _results.push(fragment[1].bind(canvas));
         } else {
           _results.push(void 0);
