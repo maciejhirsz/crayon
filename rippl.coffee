@@ -339,6 +339,46 @@ rippl.Color = class Color
 
 # =============================================
 #
+# Begin contents of utils/Point.coffee
+#
+# =============================================
+
+rippl.Point = class Point
+  x: 0
+  y: 0
+
+  # -----------------------------------
+
+  __isPoint: true
+
+  # -----------------------------------
+
+  constructor: (x, y) ->
+    @x = x
+    @y = y
+
+  # -----------------------------------
+
+  bind: (canvas) ->
+    @canvas = canvas
+    @
+
+  # -----------------------------------
+
+  move: (x, y) ->
+    @x = x
+    @y = y
+    @canvas.touch() if @canvas isnt undefined
+    @
+
+# =============================================
+#
+# End contents of utils/Point.coffee
+#
+# =============================================
+
+# =============================================
+#
 # Begin contents of utils/Transformation.coffee
 #
 # =============================================
@@ -1447,7 +1487,7 @@ rippl.CustomShape = class CustomShape extends Shape
 
     super(options, canvas)
 
-    @points = []
+    @path = []
     @options.anchorInPixels = true
 
   # -----------------------------------
@@ -1458,30 +1498,41 @@ rippl.CustomShape = class CustomShape extends Shape
     ctx = @canvas.ctx
 
     ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
-    for point in @points
-      if point is null
+    for fragment in @path
+      if fragment is null
         ctx.closePath()
       else
-        [x, y, line] = point
-        if line
-          ctx.lineTo(x - anchor.x, y - anchor.y)
-        else
-          ctx.moveTo(x - anchor.x, y - anchor.y)
+        [method, point] = fragment
+        ctx[method](point.x - anchor.x, point.y - anchor.y)
 
   # -----------------------------------
 
   lineTo: (x, y) ->
-    @points.push([x, y, true])
+    if x.__isPoint and y is undefined
+      point = x
+    else
+      point = new Point(x, y)
+
+    @path.push(['lineTo', point.bind(@canvas)])
+
+    point
 
   # -----------------------------------
 
   moveTo: (x, y) ->
-    @points.push([x, y, false])
+    if x.__isPoint and y is undefined
+      point = x
+    else
+      point = new Point(x, y)
+
+    @path.push(['moveTo', point.bind(@canvas)])
+
+    point
 
   # -----------------------------------
 
   close: ->
-    @points.push(null)
+    @path.push(null)
 # =============================================
 #
 # End contents of elements/CustomShape.coffee

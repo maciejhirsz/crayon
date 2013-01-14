@@ -7,7 +7,7 @@ Rippl may be freely distributed under the MIT license.
 
 
 (function() {
-  var Canvas, Circle, Color, CustomShape, Element, Ellipse, ImageAsset, ObjectAbstract, Rectangle, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len,
+  var Canvas, Circle, Color, CustomShape, Element, Ellipse, ImageAsset, ObjectAbstract, Point, Rectangle, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -304,6 +304,37 @@ Rippl may be freely distributed under the MIT license.
     };
 
     return Color;
+
+  })();
+
+  rippl.Point = Point = (function() {
+
+    Point.prototype.x = 0;
+
+    Point.prototype.y = 0;
+
+    Point.prototype.__isPoint = true;
+
+    function Point(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    Point.prototype.bind = function(canvas) {
+      this.canvas = canvas;
+      return this;
+    };
+
+    Point.prototype.move = function(x, y) {
+      this.x = x;
+      this.y = y;
+      if (this.canvas !== void 0) {
+        this.canvas.touch();
+      }
+      return this;
+    };
+
+    return Point;
 
   })();
 
@@ -1334,43 +1365,53 @@ Rippl may be freely distributed under the MIT license.
         anchorY: 0
       });
       CustomShape.__super__.constructor.call(this, options, canvas);
-      this.points = [];
+      this.path = [];
       this.options.anchorInPixels = true;
     }
 
     CustomShape.prototype.drawPath = function() {
-      var anchor, ctx, line, point, x, y, _j, _len1, _ref, _results;
+      var anchor, ctx, fragment, method, point, _j, _len1, _ref, _results;
       anchor = this.getAnchor();
       ctx = this.canvas.ctx;
       ctx.moveTo(this.options.rootX - anchor.x, this.options.rootY - anchor.y);
-      _ref = this.points;
+      _ref = this.path;
       _results = [];
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-        point = _ref[_j];
-        if (point === null) {
+        fragment = _ref[_j];
+        if (fragment === null) {
           _results.push(ctx.closePath());
         } else {
-          x = point[0], y = point[1], line = point[2];
-          if (line) {
-            _results.push(ctx.lineTo(x - anchor.x, y - anchor.y));
-          } else {
-            _results.push(ctx.moveTo(x - anchor.x, y - anchor.y));
-          }
+          method = fragment[0], point = fragment[1];
+          _results.push(ctx[method](point.x - anchor.x, point.y - anchor.y));
         }
       }
       return _results;
     };
 
     CustomShape.prototype.lineTo = function(x, y) {
-      return this.points.push([x, y, true]);
+      var point;
+      if (x.__isPoint && y === void 0) {
+        point = x;
+      } else {
+        point = new Point(x, y);
+      }
+      this.path.push(['lineTo', point.bind(this.canvas)]);
+      return point;
     };
 
     CustomShape.prototype.moveTo = function(x, y) {
-      return this.points.push([x, y, false]);
+      var point;
+      if (x.__isPoint && y === void 0) {
+        point = x;
+      } else {
+        point = new Point(x, y);
+      }
+      this.path.push(['moveTo', point.bind(this.canvas)]);
+      return point;
     };
 
     CustomShape.prototype.close = function() {
-      return this.points.push(null);
+      return this.path.push(null);
     };
 
     return CustomShape;
