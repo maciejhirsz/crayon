@@ -94,3 +94,7 @@ hr {
 .indented {
   margin-left: 10px;
 }
+
+p.tight {
+  margin-bottom: 1px;
+}

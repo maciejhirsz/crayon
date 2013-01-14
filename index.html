@@ -342,8 +342,12 @@ rippl.timer.on("frame", function(time){
           Set to <code>true</code> to skip this element in rendering queue.
         </p>
         <h5>position <small>(<a href="#point">Point</a>) default: <code>Point(0, 0)</code></small></h5>
+        <p class="tight">
+          Position of the element on the canvas, left to right top to bottom.
+        </p>
         <p>
-          Position of the element on the canvas, left to right top to bottom. Changing this poprerty will update <strong>x</strong> and <strong>y</strong>.
+          <span class="label label-info">Heads up!</span>
+          <small>This property is intended for more demanding use cases, most of the time using <strong>x</strong> and <strong>y</strong> is all you need.</small>
         </p>
         <h5>x <small>and</small> y <small>(Number) default: <code>0</code></small></h5>
         <p>
@@ -390,7 +394,7 @@ rippl.timer.on("frame", function(time){
           Setting this option to <code>true</code> will turn the <strong>anchorX</strong> and <strong>anchorY</strong> options from being a percentage of elements width and height to being absolute pixel positions.
         </p>
         <h5>composition <small>(string) default: <code>"source-over"</code></small></h5>
-        <p>
+        <p class="tight">
           Defines how the element should be rendered on the canvas in relation the scene, useful for creating masks, values are analogous to <a href="https://developer.mozilla.org/en-US/docs/Canvas_tutorial/Compositing">globalCompositeOperation</a> in native canvas specification.
         </p>
         <p>
@@ -498,10 +502,10 @@ canvas.add(logo);</pre>
           Same as <a href="#element-options"><strong>Element</strong></a>, will default to asset's height if set to <code>0</code>.
         </p>
         <h5>cropX <small>and</small> cropY <small>(Number) default: <code>0</code></small></h5>
-        <p>
+        <p class="tight">
           Offsets the original image to a specific point on the source image.
         </p>
-        <p>
+        <p class="tight">
           <span class="label label-important">Warning</span>
           <small>Using sprite sheet animation or <strong>setFrame</strong> will ignore and override any <strong>CropX</strong> and <strong>CropY</strong> settings.</small>
         </p>
@@ -752,7 +756,7 @@ canvas.add(triangle);</pre>
       <h4 id="customshape-options">Options</h4>
       <div class="indented">
         <h5>rootX <small>and</small> rootY <small>(Number) default: <code>0</code></small></h5>
-        <p>
+        <p class="tight">
           Starting point of the shape relative to the anchor.
         </p>
         <p>
