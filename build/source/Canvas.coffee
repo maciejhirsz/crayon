@@ -83,7 +83,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   add: (element) ->
     throw "Tried to add a non-Element to Canvas" if not element.__isElement
-    element.canvas = @
+    element.bind(@)
     @elements.push(element)
     @touch()
     @unordered = true
