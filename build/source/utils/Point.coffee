@@ -9,6 +9,10 @@ rippl.Point = class Point
 
   # -----------------------------------
 
+  canvas: null
+
+  # -----------------------------------
+
   constructor: (x, y) ->
     @x = x
     @y = y
@@ -22,7 +26,7 @@ rippl.Point = class Point
   # -----------------------------------
 
   move: (x, y) ->
-    @x = x
-    @y = y
-    @canvas.touch() if @canvas isnt undefined
+    @x = x if x isnt null
+    @y = y if y isnt null
+    @canvas.touch() if @canvas isnt null
     @
