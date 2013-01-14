@@ -188,12 +188,12 @@ class Element extends ObjectAbstract
     ctx = @canvas.ctx
     options = @options
 
+    x = options.position.x
+    y = options.position.y
+
     if options.snap
-      x = Math.round(options.x)
-      y = Math.round(options.y)
-    else
-      x = options.x
-      y = options.y
+      x = Math.round(x)
+      y = Math.round(y)
 
     ctx.setTransform(options.scaleX, options.skewX, options.skewY, options.scaleY, x, y)
     ctx.globalAlpha = options.alpha if options.alpha isnt 1
