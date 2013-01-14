@@ -58,12 +58,12 @@ class Element extends ObjectAbstract
   # Override to validate specific options, such as colors or images
   #
   validate: (options) ->
-    if options.position isnt undefined
+    if options.position?
       options.x = options.position.x
       options.y = options.position.y
       options.position.bind(@canvas) if @canvas isnt null
     else
-      if @options.position is undefined
+      if @options.position is null
         @options.position = new Point(@options.x, @options.y)
         @options.position.bind(@canvas) if @canvas isnt null
       @options.position.move(options.x, null) if options.x isnt undefined
