@@ -4,6 +4,7 @@ class Element extends ObjectAbstract
   # Default options
   #
   options:
+    position: null
     x: 0
     y: 0
     z: 0
@@ -57,6 +58,22 @@ class Element extends ObjectAbstract
   # Override to validate specific options, such as colors or images
   #
   validate: (options) ->
+    if options.position isnt undefined
+      options.x = options.position.x
+      options.y = options.position.y
+      options.position.bind(@canvas) if @canvas isnt null
+    else
+      if @options.position is undefined
+        @options.position = new Point(@options.x, @options.y)
+        @options.position.bind(@canvas) if @canvas isnt null
+      @options.position.move(options.x, null) if options.x isnt undefined
+      @options.position.move(null, options.y) if options.y isnt undefined
+
+  # -----------------------------------
+
+  bind: (canvas) ->
+    @canvas = canvas
+    @options.position.bind(canvas) if @options.position isnt null
 
   # -----------------------------------
 
@@ -169,18 +186,19 @@ class Element extends ObjectAbstract
   #
   prepare: ->
     ctx = @canvas.ctx
+    options = @options
 
-    if @options.snap
-      x = Math.round(@options.x)
-      y = Math.round(@options.y)
+    if options.snap
+      x = Math.round(options.x)
+      y = Math.round(options.y)
     else
-      x = @options.x
-      y = @options.y
+      x = options.x
+      y = options.y
 
-    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, x, y)
-    ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
-    ctx.rotate(@options.rotation) if @options.rotation isnt 0
-    ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
+    ctx.setTransform(options.scaleX, options.skewX, options.skewY, options.scaleY, x, y)
+    ctx.globalAlpha = options.alpha if options.alpha isnt 1
+    ctx.rotate(options.rotation) if options.rotation isnt 0
+    ctx.globalCompositeOperation = options.composition if options.composition isnt 'source-over'
 
   # -----------------------------------
   #
