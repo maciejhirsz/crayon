@@ -23,10 +23,11 @@
         var side = 1;
         var incorporeal = false;
 
+        var point = new rippl.Point(200, 200);
+
         var sprite = new rippl.Sprite({
           src: 'img/animation.png',
-          x: 200,
-          y: 200,
+          position: point,
           snap: true,
           z: 1,
           width: 198,
@@ -144,9 +145,7 @@
           var sin = Math.sin(t * 2);
 
           if(hover){
-            sprite.set({
-              y: 175 + sin * 10
-            })
+            point.move(null, 175 + sin * 10);
           }
         });
 
