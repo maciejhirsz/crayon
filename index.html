@@ -341,13 +341,13 @@ rippl.timer.on("frame", function(time){
         <p>
           Set to <code>true</code> to skip this element in rendering queue.
         </p>
-        <h5>x <small>(Number) default: <code>0</code></small></h5>
+        <h5>position <small>(<a href="#point">Point</a>) default: <code>Point(0, 0)</code></small></h5>
         <p>
-          Horizontal position of the element, left to right.
+          Position of the element on the canvas, left to right top to bottom.
         </p>
-        <h5>y <small>(Number) default: <code>0</code></small></h5>
+        <h5>x <small>and</small> y <small>(Number) default: <code>0</code></small></h5>
         <p>
-          Vertical position of the element, top to bottom.
+          Alternative way of setting element's position. Setting these options will effectively change the properties of <strong>position</strong>.
         </p>
         <h5>z <small>(Number) default: <code>0</code></small></h5>
         <p>
@@ -843,7 +843,7 @@ alert(orange);</pre>
 
       <h3 id="point">Point <code>new rippl.Point(x, y)</code></h3>
       <p>
-        Creates a point object, as of now unly utilized by <a href="#customshape"><strong>CustomShape</strong></a>.
+        Creates a point object.
       </p>
 
       <h4 id="point-xy">x <code>point.x</code>, y <code>point.y</code></h4>
