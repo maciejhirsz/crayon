@@ -34,6 +34,7 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   validate: (options) ->
+    super(options)
     if options.src isnt undefined
       if typeof options.src is 'string'
         options.src = asset = rippl.assets.get(options.src)

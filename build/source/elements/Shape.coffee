@@ -20,6 +20,7 @@ class Shape extends Element
   # -----------------------------------
 
   validate: (options) ->
+    super(options)
     options.color = @validateColor(options.color) if options.color isnt undefined
     options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
     options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
