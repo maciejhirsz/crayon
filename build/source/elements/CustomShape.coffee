@@ -23,7 +23,7 @@ rippl.CustomShape = class CustomShape extends Shape
   bind: (canvas) ->
     super(canvas)
     for fragment in @path
-      fragment[1].bind(canvas) if framgent isnt null
+      fragment[1].bind(canvas) if fragment isnt null
 
   # -----------------------------------
 
