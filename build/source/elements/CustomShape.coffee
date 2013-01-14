@@ -30,11 +30,8 @@ rippl.CustomShape = class CustomShape extends Shape
       if fragment is null
         ctx.closePath()
       else
-        [point, line] = fragment
-        if line
-          ctx.lineTo(point.x - anchor.x, point.y - anchor.y)
-        else
-          ctx.moveTo(point.x - anchor.x, point.y - anchor.y)
+        [method, point] = fragment
+        ctx[method](point.x - anchor.x, point.y - anchor.y)
 
   # -----------------------------------
 
@@ -44,7 +41,7 @@ rippl.CustomShape = class CustomShape extends Shape
     else
       point = new Point(x, y)
 
-    @path.push([point.bind(@canvas), true])
+    @path.push(['lineTo', point.bind(@canvas)])
 
     point
 
@@ -56,7 +53,7 @@ rippl.CustomShape = class CustomShape extends Shape
     else
       point = new Point(x, y)
 
-    @path.push([point.bind(@canvas), false])
+    @path.push(['moveTo', point.bind(@canvas)])
 
     point
 
