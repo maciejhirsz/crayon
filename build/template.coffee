@@ -8,6 +8,7 @@ window.rippl = rippl = {}
 #!include ObjectAbstract.coffee
 #!include utils/Timer.coffee
 #!include utils/Color.coffee
+#!include utils/Point.coffee
 #!include utils/Transformation.coffee
 #!include utils/ImageAsset.coffee
 #!include utils/assets.coffee
