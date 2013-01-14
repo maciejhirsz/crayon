@@ -111,6 +111,13 @@
             <li><a href="#color-tostring">toString</a></li>
           </ul>
         </li>
+        <li>
+          <a href="#point">Point</a>
+          <ul>
+            <li><a href="#point-xy">x, y</a></li>
+            <li><a href="#point-set">move</a></li>
+          </ul>
+        </li>
       </ul>
     </div>
     <div class="container">
@@ -833,6 +840,31 @@ var orange = new rippl.Color("#ff7f00");
 
 // pops an alert displaying "rgba(255,127,0,1)"
 alert(orange);</pre>
+
+      <h3 id="point">Point <code>new rippl.Point(x, y)</code></h3>
+      <p>
+        Creates a point object, as of now unly utilized by <a href="#customshape"><strong>CustomShape</strong></a>.
+      </p>
+
+      <h4 id="point-xy">x <code>point.x</code>, y <code>point.y</code></h4>
+      <p class="indented">
+        <span class="label label-important">Read only</span> Current position of the point. Use the <strong>move</strong> method if you need to change them.
+      </p>
+
+      <h4 id="point-move">move <code>point.move(x, y)</code></h4>
+      <p class="indented">
+        Sets new position.
+      </p>
+
+      <pre class="prettyprint lang-js indented">
+var point = new rippl.Point(10, 20);
+
+// points can be re-used
+shapeA.lineTo(point);
+shapeB.lineTo(point);
+
+// move the line for both shapes
+point.move(20, 40);</pre>
 
       <p><br><br><br><br></p>
     </div>
