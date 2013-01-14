@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rippl - points example</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <canvas id="my-canvas" width="400" height="100"></canvas>
+
+    <script src="../rippl.min.js"></script>
+    <script>
+
+      var canvas = new rippl.Canvas({ id: "my-canvas" });
+
+      var i, point, points = [];
+
+      var line, shape = new rippl.CustomShape({
+        fill: false,
+        stroke: 3,
+        strokeColor: '#f00',
+        z: 1
+      });
+
+      canvas.add(shape);
+
+      for(i=0; i<38; i++){
+        point = new rippl.Point(10.5 + i * 10, 50);
+        points.push(point);
+        if(i === 0){
+          shape.moveTo(point);
+        }else{
+          shape.lineTo(point);
+        }
+
+        line = new rippl.CustomShape({
+          fill: false,
+          stroke: 1,
+          strokeColor: '#000'
+        })
+        canvas.add(line);
+        line.moveTo(10.5 + i * 10, 50);
+        line.lineTo(point);
+      }
+
+      rippl.timer.on('frame', function(time) {
+        var t = time / 1000;
+        var sin, point;
+
+        for(i=0; i<38; i++){
+          point = points[i];
+
+          sin = Math.sin(t * 2 + i / 4);
+
+          point.move(point.x, 50 + sin * 40);
+        }
+      });
+
+    </script>
+  </body>
+</html>
