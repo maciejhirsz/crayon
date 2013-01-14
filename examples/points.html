@@ -21,8 +21,6 @@
         z: 1
       });
 
-      canvas.add(shape);
-
       for(i=0; i<38; i++){
         point = new rippl.Point(10.5 + i * 10, 50);
         points.push(point);
@@ -37,10 +35,13 @@
           stroke: 1,
           strokeColor: '#000'
         })
-        canvas.add(line);
         line.moveTo(10.5 + i * 10, 50);
         line.lineTo(point);
+
+        canvas.add(line);
       }
+
+      canvas.add(shape);
 
       rippl.timer.on('frame', function(time) {
         var t = time / 1000;
