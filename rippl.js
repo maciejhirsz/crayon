@@ -776,14 +776,14 @@ Rippl may be freely distributed under the MIT license.
     }
 
     Element.prototype.validate = function(options) {
-      if (options.position !== void 0) {
+      if (options.position != null) {
         options.x = options.position.x;
         options.y = options.position.y;
         if (this.canvas !== null) {
           return options.position.bind(this.canvas);
         }
       } else {
-        if (this.options.position === void 0) {
+        if (this.options.position === null) {
           this.options.position = new Point(this.options.x, this.options.y);
           if (this.canvas !== null) {
             this.options.position.bind(this.canvas);
