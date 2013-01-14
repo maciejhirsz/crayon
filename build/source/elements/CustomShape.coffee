@@ -15,7 +15,7 @@ rippl.CustomShape = class CustomShape extends Shape
 
     super(options, canvas)
 
-    @points = []
+    @path = []
     @options.anchorInPixels = true
 
   # -----------------------------------
@@ -26,27 +26,41 @@ rippl.CustomShape = class CustomShape extends Shape
     ctx = @canvas.ctx
 
     ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
-    for point in @points
-      if point is null
+    for fragment in @path
+      if fragment is null
         ctx.closePath()
       else
-        [x, y, line] = point
+        [point, line] = fragment
         if line
-          ctx.lineTo(x - anchor.x, y - anchor.y)
+          ctx.lineTo(point.x - anchor.x, point.y - anchor.y)
         else
-          ctx.moveTo(x - anchor.x, y - anchor.y)
+          ctx.moveTo(point.x - anchor.x, point.y - anchor.y)
 
   # -----------------------------------
 
   lineTo: (x, y) ->
-    @points.push([x, y, true])
+    if x.__isPoint and y is undefined
+      point = x
+    else
+      point = new Point(x, y)
+
+    @path.push([point.bind(@canvas), true])
+
+    point
 
   # -----------------------------------
 
   moveTo: (x, y) ->
-    @points.push([x, y, false])
+    if x.__isPoint and y is undefined
+      point = x
+    else
+      point = new Point(x, y)
+
+    @path.push([point.bind(@canvas), false])
+
+    point
 
   # -----------------------------------
 
   close: ->
-    @points.push(null)
+    @path.push(null)
