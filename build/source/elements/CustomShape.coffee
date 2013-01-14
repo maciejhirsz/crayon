@@ -20,6 +20,24 @@ rippl.CustomShape = class CustomShape extends Shape
 
   # -----------------------------------
 
+  bind: (canvas) ->
+    super(canvas)
+    for fragment in @path
+      fragment[1].bind(canvas) if framgent isnt null
+
+  # -----------------------------------
+
+  _point: (x, y) ->
+    if x.__isPoint and y is undefined
+      point = x
+    else
+      point = new Point(x, y)
+
+    point.bind(@canvas) if @canvas isnt null
+    point
+
+  # -----------------------------------
+
   drawPath: ->
     anchor = @getAnchor()
 
@@ -36,24 +54,18 @@ rippl.CustomShape = class CustomShape extends Shape
   # -----------------------------------
 
   lineTo: (x, y) ->
-    if x.__isPoint and y is undefined
-      point = x
-    else
-      point = new Point(x, y)
+    point = @_point(x, y)
 
-    @path.push(['lineTo', point.bind(@canvas)])
+    @path.push(['lineTo', point])
 
     point
 
   # -----------------------------------
 
   moveTo: (x, y) ->
-    if x.__isPoint and y is undefined
-      point = x
-    else
-      point = new Point(x, y)
+    point = @_point(x, y)
 
-    @path.push(['moveTo', point.bind(@canvas)])
+    @path.push(['moveTo', point])
 
     point
 
