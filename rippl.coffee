@@ -353,6 +353,10 @@ rippl.Point = class Point
 
   # -----------------------------------
 
+  canvas: null
+
+  # -----------------------------------
+
   constructor: (x, y) ->
     @x = x
     @y = y
@@ -366,9 +370,9 @@ rippl.Point = class Point
   # -----------------------------------
 
   move: (x, y) ->
-    @x = x
-    @y = y
-    @canvas.touch() if @canvas isnt undefined
+    @x = x if x isnt null
+    @y = y if y isnt null
+    @canvas.touch() if @canvas isnt null
     @
 
 # =============================================
@@ -820,6 +824,7 @@ class Element extends ObjectAbstract
   # Default options
   #
   options:
+    position: null
     x: 0
     y: 0
     z: 0
@@ -873,6 +878,22 @@ class Element extends ObjectAbstract
   # Override to validate specific options, such as colors or images
   #
   validate: (options) ->
+    if options.position isnt undefined
+      options.x = options.position.x
+      options.y = options.position.y
+      options.position.bind(@canvas) if @canvas isnt null
+    else
+      if @options.position is undefined
+        @options.position = new Point(@options.x, @options.y)
+        @options.position.bind(@canvas) if @canvas isnt null
+      @options.position.move(options.x, null) if options.x isnt undefined
+      @options.position.move(null, options.y) if options.y isnt undefined
+
+  # -----------------------------------
+
+  bind: (canvas) ->
+    @canvas = canvas
+    @options.position.bind(canvas) if @options.position isnt null
 
   # -----------------------------------
 
@@ -985,18 +1006,19 @@ class Element extends ObjectAbstract
   #
   prepare: ->
     ctx = @canvas.ctx
+    options = @options
 
-    if @options.snap
-      x = Math.round(@options.x)
-      y = Math.round(@options.y)
-    else
-      x = @options.x
-      y = @options.y
+    x = options.position.x
+    y = options.position.y
 
-    ctx.setTransform(@options.scaleX, @options.skewX, @options.skewY, @options.scaleY, x, y)
-    ctx.globalAlpha = @options.alpha if @options.alpha isnt 1
-    ctx.rotate(@options.rotation) if @options.rotation isnt 0
-    ctx.globalCompositeOperation = @options.composition if @options.composition isnt 'source-over'
+    if options.snap
+      x = Math.round(x)
+      y = Math.round(y)
+
+    ctx.setTransform(options.scaleX, options.skewX, options.skewY, options.scaleY, x, y)
+    ctx.globalAlpha = options.alpha if options.alpha isnt 1
+    ctx.rotate(options.rotation) if options.rotation isnt 0
+    ctx.globalCompositeOperation = options.composition if options.composition isnt 'source-over'
 
   # -----------------------------------
   #
@@ -1077,6 +1099,7 @@ rippl.Sprite = class Sprite extends Element
   # -----------------------------------
 
   validate: (options) ->
+    super(options)
     if options.src isnt undefined
       if typeof options.src is 'string'
         options.src = asset = rippl.assets.get(options.src)
@@ -1252,6 +1275,7 @@ class Shape extends Element
   # -----------------------------------
 
   validate: (options) ->
+    super(options)
     options.color = @validateColor(options.color) if options.color isnt undefined
     options.strokeColor = @validateColor(options.strokeColor) if options.strokeColor isnt undefined
     options.shadowColor = @validateColor(options.shadowColor) if options.shadowColor isnt undefined
@@ -1492,6 +1516,24 @@ rippl.CustomShape = class CustomShape extends Shape
 
   # -----------------------------------
 
+  bind: (canvas) ->
+    super(canvas)
+    for fragment in @path
+      fragment[1].bind(canvas) if framgent isnt null
+
+  # -----------------------------------
+
+  _point: (x, y) ->
+    if x.__isPoint and y is undefined
+      point = x
+    else
+      point = new Point(x, y)
+
+    point.bind(@canvas) if @canvas isnt null
+    point
+
+  # -----------------------------------
+
   drawPath: ->
     anchor = @getAnchor()
 
@@ -1508,24 +1550,18 @@ rippl.CustomShape = class CustomShape extends Shape
   # -----------------------------------
 
   lineTo: (x, y) ->
-    if x.__isPoint and y is undefined
-      point = x
-    else
-      point = new Point(x, y)
+    point = @_point(x, y)
 
-    @path.push(['lineTo', point.bind(@canvas)])
+    @path.push(['lineTo', point])
 
     point
 
   # -----------------------------------
 
   moveTo: (x, y) ->
-    if x.__isPoint and y is undefined
-      point = x
-    else
-      point = new Point(x, y)
+    point = @_point(x, y)
 
-    @path.push(['moveTo', point.bind(@canvas)])
+    @path.push(['moveTo', point])
 
     point
 
@@ -1629,7 +1665,7 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   add: (element) ->
     throw "Tried to add a non-Element to Canvas" if not element.__isElement
-    element.canvas = @
+    element.bind(@)
     @elements.push(element)
     @touch()
     @unordered = true

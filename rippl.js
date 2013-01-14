@@ -315,6 +315,8 @@ Rippl may be freely distributed under the MIT license.
 
     Point.prototype.__isPoint = true;
 
+    Point.prototype.canvas = null;
+
     function Point(x, y) {
       this.x = x;
       this.y = y;
@@ -326,9 +328,13 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Point.prototype.move = function(x, y) {
-      this.x = x;
-      this.y = y;
-      if (this.canvas !== void 0) {
+      if (x !== null) {
+        this.x = x;
+      }
+      if (y !== null) {
+        this.y = y;
+      }
+      if (this.canvas !== null) {
         this.canvas.touch();
       }
       return this;
@@ -731,6 +737,7 @@ Rippl may be freely distributed under the MIT license.
     __extends(Element, _super);
 
     Element.prototype.options = {
+      position: null,
       x: 0,
       y: 0,
       z: 0,
@@ -768,7 +775,35 @@ Rippl may be freely distributed under the MIT license.
       this.calculateAnchor();
     }
 
-    Element.prototype.validate = function(options) {};
+    Element.prototype.validate = function(options) {
+      if (options.position !== void 0) {
+        options.x = options.position.x;
+        options.y = options.position.y;
+        if (this.canvas !== null) {
+          return options.position.bind(this.canvas);
+        }
+      } else {
+        if (this.options.position === void 0) {
+          this.options.position = new Point(this.options.x, this.options.y);
+          if (this.canvas !== null) {
+            this.options.position.bind(this.canvas);
+          }
+        }
+        if (options.x !== void 0) {
+          this.options.position.move(options.x, null);
+        }
+        if (options.y !== void 0) {
+          return this.options.position.move(null, options.y);
+        }
+      }
+    };
+
+    Element.prototype.bind = function(canvas) {
+      this.canvas = canvas;
+      if (this.options.position !== null) {
+        return this.options.position.bind(canvas);
+      }
+    };
 
     Element.prototype.validateColor = function(value) {
       if (!value.__isColor) {
@@ -894,24 +929,24 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Element.prototype.prepare = function() {
-      var ctx, x, y;
+      var ctx, options, x, y;
       ctx = this.canvas.ctx;
-      if (this.options.snap) {
-        x = Math.round(this.options.x);
-        y = Math.round(this.options.y);
-      } else {
-        x = this.options.x;
-        y = this.options.y;
+      options = this.options;
+      x = options.position.x;
+      y = options.position.y;
+      if (options.snap) {
+        x = Math.round(x);
+        y = Math.round(y);
       }
-      ctx.setTransform(this.options.scaleX, this.options.skewX, this.options.skewY, this.options.scaleY, x, y);
-      if (this.options.alpha !== 1) {
-        ctx.globalAlpha = this.options.alpha;
+      ctx.setTransform(options.scaleX, options.skewX, options.skewY, options.scaleY, x, y);
+      if (options.alpha !== 1) {
+        ctx.globalAlpha = options.alpha;
       }
-      if (this.options.rotation !== 0) {
-        ctx.rotate(this.options.rotation);
+      if (options.rotation !== 0) {
+        ctx.rotate(options.rotation);
       }
-      if (this.options.composition !== 'source-over') {
-        return ctx.globalCompositeOperation = this.options.composition;
+      if (options.composition !== 'source-over') {
+        return ctx.globalCompositeOperation = options.composition;
       }
     };
 
@@ -976,6 +1011,7 @@ Rippl may be freely distributed under the MIT license.
     Sprite.prototype.validate = function(options) {
       var asset,
         _this = this;
+      Sprite.__super__.validate.call(this, options);
       if (options.src !== void 0) {
         if (typeof options.src === 'string') {
           options.src = asset = rippl.assets.get(options.src);
@@ -1158,6 +1194,7 @@ Rippl may be freely distributed under the MIT license.
     }
 
     Shape.prototype.validate = function(options) {
+      Shape.__super__.validate.call(this, options);
       if (options.color !== void 0) {
         options.color = this.validateColor(options.color);
       }
@@ -1369,6 +1406,35 @@ Rippl may be freely distributed under the MIT license.
       this.options.anchorInPixels = true;
     }
 
+    CustomShape.prototype.bind = function(canvas) {
+      var fragment, _j, _len1, _ref, _results;
+      CustomShape.__super__.bind.call(this, canvas);
+      _ref = this.path;
+      _results = [];
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        fragment = _ref[_j];
+        if (framgent !== null) {
+          _results.push(fragment[1].bind(canvas));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    CustomShape.prototype._point = function(x, y) {
+      var point;
+      if (x.__isPoint && y === void 0) {
+        point = x;
+      } else {
+        point = new Point(x, y);
+      }
+      if (this.canvas !== null) {
+        point.bind(this.canvas);
+      }
+      return point;
+    };
+
     CustomShape.prototype.drawPath = function() {
       var anchor, ctx, fragment, method, point, _j, _len1, _ref, _results;
       anchor = this.getAnchor();
@@ -1390,23 +1456,15 @@ Rippl may be freely distributed under the MIT license.
 
     CustomShape.prototype.lineTo = function(x, y) {
       var point;
-      if (x.__isPoint && y === void 0) {
-        point = x;
-      } else {
-        point = new Point(x, y);
-      }
-      this.path.push(['lineTo', point.bind(this.canvas)]);
+      point = this._point(x, y);
+      this.path.push(['lineTo', point]);
       return point;
     };
 
     CustomShape.prototype.moveTo = function(x, y) {
       var point;
-      if (x.__isPoint && y === void 0) {
-        point = x;
-      } else {
-        point = new Point(x, y);
-      }
-      this.path.push(['moveTo', point.bind(this.canvas)]);
+      point = this._point(x, y);
+      this.path.push(['moveTo', point]);
       return point;
     };
 
@@ -1509,7 +1567,7 @@ Rippl may be freely distributed under the MIT license.
       if (!element.__isElement) {
         throw "Tried to add a non-Element to Canvas";
       }
-      element.canvas = this;
+      element.bind(this);
       this.elements.push(element);
       this.touch();
       this.unordered = true;
