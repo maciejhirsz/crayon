@@ -1,5 +1,5 @@
 ###
-(c) 2012 Maciej Hirsz
+(c) 2012-2013 Maciej Hirsz
 Rippl may be freely distributed under the MIT license.
 ###
 
