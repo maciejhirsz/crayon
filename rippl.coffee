@@ -64,7 +64,7 @@ rippl.ObjectAbstract = class ObjectAbstract
 
   once: (event, callback) ->
     padding = (args...) =>
-      @off(event, callback)
+      @off(event, padding)
       callback.apply(@, args)
 
     @on(event, padding)

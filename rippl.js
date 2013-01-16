@@ -59,7 +59,7 @@ Rippl may be freely distributed under the MIT license.
       padding = function() {
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        _this.off(event, callback);
+        _this.off(event, padding);
         return callback.apply(_this, args);
       };
       return this.on(event, padding);
