@@ -53,32 +53,58 @@ Rippl may be freely distributed under the MIT license.
       return this;
     };
 
+    ObjectAbstract.prototype.once = function(event, callback) {
+      var padding,
+        _this = this;
+      padding = function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        _this.off(event, callback);
+        return callback.apply(_this, args);
+      };
+      return this.on(event, padding);
+    };
+
     ObjectAbstract.prototype.off = function(event, callbackToRemove) {
-      var callback, handlers, stack, _i, _len, _ref;
+      var args, callback, handlers, stack, _i, _j, _len, _len1, _ref, _ref1;
       if (!(handlers = this._eventHandlers)) {
         return this;
       }
-      if (!this._validEventName(event)) {
-        return this._eventHandlers = {};
-      } else if (!this._validCallback(callbackToRemove)) {
+      args = arguments.length;
+      if (args === 0) {
+        this._eventHandlers = {};
+      } else if (args === 1) {
         if (handlers[event] === void 0) {
           return this;
         }
-        return delete handlers[event];
+        delete handlers[event];
+      } else if (event === null) {
+        for (event in handlers) {
+          stack = [];
+          _ref = handlers[event];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            callback = _ref[_i];
+            if (callback !== callbackToRemove) {
+              stack.push(callback);
+            }
+          }
+          handlers[event] = stack;
+        }
       } else {
         if (handlers[event] === void 0) {
           return this;
         }
         stack = [];
-        _ref = handlers[event];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          callback = _ref[_i];
+        _ref1 = handlers[event];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          callback = _ref1[_j];
           if (callback !== callbackToRemove) {
             stack.push(callback);
           }
         }
-        return handlers[event] = stack;
+        handlers[event] = stack;
       }
+      return this;
     };
 
     ObjectAbstract.prototype.trigger = function() {
@@ -1019,7 +1045,7 @@ Rippl may be freely distributed under the MIT license.
           asset = options.src;
         }
         if (!asset.__isLoaded) {
-          return asset.on('loaded', function() {
+          return asset.once('loaded', function() {
             if (_this.canvas) {
               _this.canvas.touch();
             }

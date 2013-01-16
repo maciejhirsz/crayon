@@ -58,26 +58,49 @@ rippl.ObjectAbstract = class ObjectAbstract
       #
       handlers[event].push(callback)
 
-    @
+    return @
+
+  # -----------------------------------
+
+  once: (event, callback) ->
+    padding = (args...) =>
+      @off(event, callback)
+      callback.apply(@, args)
+
+    @on(event, padding)
 
   # -----------------------------------
 
   off: (event, callbackToRemove) ->
     return @ if not handlers = @_eventHandlers
 
-    if not @_validEventName(event)
+    args = arguments.length
+
+    if args is 0
       #
       # Drop all listeners
       #
       @_eventHandlers = {}
 
-    else if not @_validCallback(callbackToRemove)
+    else if args is 1
       #
       # Drop all listeners for specified event
       #
       return @ if handlers[event] is undefined
 
       delete handlers[event]
+
+    else if event is null
+      #
+      # Drop callback from all handlers
+      #
+      for event of handlers
+        stack = []
+
+        for callback in handlers[event]
+          stack.push(callback) if callback isnt callbackToRemove
+
+        handlers[event] = stack
 
     else
       #
@@ -92,6 +115,8 @@ rippl.ObjectAbstract = class ObjectAbstract
 
       handlers[event] = stack
 
+    return @
+
   # -----------------------------------
 
   trigger: (event, args...) ->
@@ -104,7 +129,7 @@ rippl.ObjectAbstract = class ObjectAbstract
 
     return @ if handlers[event] is undefined
 
-    callback.apply(this, args) for callback in handlers[event]
+    callback.apply(@, args) for callback in handlers[event]
 
     return @
 
@@ -1107,7 +1132,7 @@ rippl.Sprite = class Sprite extends Element
         asset = options.src
 
       if not asset.__isLoaded
-        asset.on 'loaded', =>
+        asset.once 'loaded', =>
           @canvas.touch() if @canvas
           @calculateFrames()
           @calculateAnchor()
