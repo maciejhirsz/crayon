@@ -42,7 +42,7 @@ rippl.Sprite = class Sprite extends Element
         asset = options.src
 
       if not asset.__isLoaded
-        asset.on 'loaded', =>
+        asset.once 'loaded', =>
           @canvas.touch() if @canvas
           @calculateFrames()
           @calculateAnchor()
