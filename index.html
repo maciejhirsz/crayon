@@ -739,14 +739,16 @@ canvas.add(ellipse);</pre>
 var triangle = new rippl.CustomShape({
   color: "#f0f",
   x: 200,
-  y: 50,
-  rootX: -60,
-  rootY: -30
+  y: 50
 });
+
+// move to starting point
+triabgle.moveTo(-60, 30);
 
 // set two lines forming arms of the triangle
 triangle.lineTo(60, -30);
 triangle.lineTo(0, 30);
+
 // close the path creating the third line
 triangle.close();
 

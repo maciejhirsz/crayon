@@ -3,11 +3,6 @@ rippl.CustomShape = class CustomShape extends Shape
   constructor: (options, canvas) ->
     @addDefaults
       #
-      # position of the first point relative to the anchor
-      #
-      rootX: 0
-      rootY: 0
-      #
       # Set the anchor defaults to 0
       #
       anchorX: 0
@@ -43,7 +38,7 @@ rippl.CustomShape = class CustomShape extends Shape
 
     ctx = @canvas.ctx
 
-    ctx.moveTo(@options.rootX - anchor.x, @options.rootY - anchor.y)
+    ctx.moveTo(-anchor.x, -anchor.y)
     for fragment in @path
       if fragment is null
         ctx.closePath()

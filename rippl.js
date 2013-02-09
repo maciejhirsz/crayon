@@ -1422,8 +1422,6 @@ Rippl may be freely distributed under the MIT license.
 
     function CustomShape(options, canvas) {
       this.addDefaults({
-        rootX: 0,
-        rootY: 0,
         anchorX: 0,
         anchorY: 0
       });
@@ -1465,7 +1463,7 @@ Rippl may be freely distributed under the MIT license.
       var anchor, ctx, fragment, method, point, _j, _len1, _ref, _results;
       anchor = this.getAnchor();
       ctx = this.canvas.ctx;
-      ctx.moveTo(this.options.rootX - anchor.x, this.options.rootY - anchor.y);
+      ctx.moveTo(-anchor.x, -anchor.y);
       _ref = this.path;
       _results = [];
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
