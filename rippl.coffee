@@ -1810,4 +1810,4 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 # =============================================
 
 
-define(window.rippl) if typeof define is 'function'
+define('rippl', window.rippl) if typeof define is 'function'
