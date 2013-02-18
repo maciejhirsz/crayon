@@ -23,4 +23,4 @@ window.rippl = rippl = {}
 #!include elements/CustomShape.coffee
 #!include Canvas.coffee
 
-define(window.rippl) if typeof define is 'function'
+define('rippl', window.rippl) if typeof define is 'function'
