@@ -7,7 +7,7 @@ Rippl may be freely distributed under the MIT license.
 
 
 (function() {
-  var Canvas, Circle, Color, CustomShape, Element, Ellipse, ImageAsset, ObjectAbstract, Point, Rectangle, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len,
+  var Canvas, Circle, Color, CustomShape, Element, Ellipse, ImageAsset, ObjectAbstract, Point, Rectangle, RelativePoint, Shape, Sprite, Text, Timer, Transformation, rippl, vendor, vendors, _i, _len,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -333,7 +333,9 @@ Rippl may be freely distributed under the MIT license.
 
   })();
 
-  rippl.Point = Point = (function() {
+  rippl.Point = Point = (function(_super) {
+
+    __extends(Point, _super);
 
     Point.prototype.x = 0;
 
@@ -363,12 +365,73 @@ Rippl may be freely distributed under the MIT license.
       if (this.canvas !== null) {
         this.canvas.touch();
       }
+      this.trigger('move', this);
       return this;
     };
 
     return Point;
 
-  })();
+  })(ObjectAbstract);
+
+  rippl.RelativePoint = RelativePoint = (function(_super) {
+
+    __extends(RelativePoint, _super);
+
+    RelativePoint.prototype.x = 0;
+
+    RelativePoint.prototype.y = 0;
+
+    RelativePoint.prototype.vectorX = 0;
+
+    RelativePoint.prototype.vectorY = 0;
+
+    RelativePoint.prototype.root = null;
+
+    RelativePoint.prototype.__isPoint = true;
+
+    RelativePoint.prototype.canvas = null;
+
+    function RelativePoint(x, y, root) {
+      var _this = this;
+      if (!root.__isPoint) {
+        throw "Tried to create a RelativePoint with invalid root Point";
+      }
+      this.x = x + root.x;
+      this.y = y + root.y;
+      this.vectorX = x;
+      this.vectorY = y;
+      this.root = root;
+      root.on('move', function(root) {
+        _this.x = root.x + _this.vectorX;
+        _this.y = root.y + _this.vectorY;
+        return _this.trigger('move', _this);
+      });
+    }
+
+    RelativePoint.prototype.bind = function(canvas) {
+      this.canvas = canvas;
+      return this;
+    };
+
+    RelativePoint.prototype.move = function(x, y) {
+      if (x !== null) {
+        this.x = this.root.x + x;
+        this.vectorX = x;
+      }
+      if (y !== null) {
+        this.y = this.root.y + y;
+        this.vectorY = y;
+      }
+      if (this.canvas !== null) {
+        this.canvas.touch();
+      }
+      this.trigger('move', this);
+      return this;
+    };
+
+    return RelativePoint;
+
+  })(ObjectAbstract);
 
   Transformation = (function(_super) {
 

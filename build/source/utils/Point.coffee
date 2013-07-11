@@ -1,5 +1,5 @@
 
-rippl.Point = class Point
+rippl.Point = class Point extends ObjectAbstract
   x: 0
   y: 0
 
@@ -29,4 +29,5 @@ rippl.Point = class Point
     @x = x if x isnt null
     @y = y if y isnt null
     @canvas.touch() if @canvas isnt null
+    @trigger('move', @)
     @
