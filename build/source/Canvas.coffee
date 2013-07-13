@@ -77,6 +77,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
           element.trigger('mouseenter')
         return
 
+    @trigger(type)
+
     @handleMouseLeave() if hover
 
   # -----------------------------------

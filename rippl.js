@@ -1692,6 +1692,7 @@ Rippl may be freely distributed under the MIT license.
           return;
         }
       }
+      this.trigger(type);
       if (hover) {
         return this.handleMouseLeave();
       }
