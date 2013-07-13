@@ -937,6 +937,7 @@ class Element extends ObjectAbstract
     skewX: 0
     skewY: 0
     hidden: false
+    input: false
     composition: 'source-over'
 
   # -----------------------------------
@@ -1121,6 +1122,45 @@ class Element extends ObjectAbstract
   # Abstract method that actually draws the element on the canvas, only triggered if the element is not hidden
   #
   render: ->
+
+  # -----------------------------------
+
+  pointOnElement: (x, y) ->
+    anchor = @getAnchor()
+    options = @options
+
+    x = x - options.position.x
+    y = y - options.position.y
+
+    return false if options.scaleX is 0 or options.scaleY is 0
+
+    x = x / options.scaleX if options.scaleX isnt 1
+    y = y / options.scaleY if options.scaleY isnt 1
+
+    if options.rotation isnt 0
+      cos = Math.cos(-options.rotation)
+      sin = Math.sin(-options.rotation)
+
+      xrot = cos * x - sin * y
+      yrot = sin * x + cos * y
+
+      x = xrot
+      y = yrot
+
+    return false if x < -anchor.x or x > options.width - anchor.x
+    return false if y < -anchor.y or y > options.height - anchor.y
+
+    return true
+
+  # -----------------------------------
+
+  delegateInputEvent: (type, x, y) ->
+    return false if @options.input is false
+    return false if @pointOnElement(x, y) is false
+
+    @trigger(type)
+
+    return true
 
   # -----------------------------------
 
@@ -1719,7 +1759,41 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     @elements = []
 
+    @_hoverElement = null
+    @_canvas.onclick = (e) => @delegateInputEvent('click', e)
+    @_canvas.onmousemove = (e) => @delegateInputEvent('mousemove', e, true)
+    @_canvas.onmouseleave = (e) => @handleMouseLeave()
+
     rippl.timer.bind(@) if not @options.static
+
+  # -----------------------------------
+
+  delegateInputEvent: (type, e, hover) ->
+    x = e.layerX
+    y = e.layerY
+
+    elements = @elements
+    index = elements.length
+
+    while index--
+      element = elements[index]
+      if element.delegateInputEvent(type, x, y)
+        if hover
+          return if element is @_hoverElement
+
+          @_hoverElement.trigger('mouseleave') if @_hoverElement isnt null
+          @_hoverElement = element
+          element.trigger('mouseenter')
+        return
+
+    @handleMouseLeave() if hover
+
+  # -----------------------------------
+
+  handleMouseLeave: ->
+    if @_hoverElement isnt null
+      @_hoverElement.trigger('mouseleave')
+      @_hoverElement = null
 
   # -----------------------------------
 
@@ -1754,17 +1828,18 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  add: (element) ->
-    throw "Tried to add a non-Element to Canvas" if not element.__isElement
-    element.bind(@)
-    @elements.push(element)
-    @touch()
-    @unordered = true
+  add: (elements...) ->
+    for element in elements
+      throw "Tried to add a non-Element to Canvas" if not element.__isElement
+      element.bind(@)
+      @elements.push(element)
+      @touch()
+      @unordered = true
 
-    element.on('change', => @touch())
-    element.on('change:z', => @unordered = true)
+      element.on('change', => @touch())
+      element.on('change:z', => @unordered = true)
 
-    element
+      element
 
   # -----------------------------------
 

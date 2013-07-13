@@ -46,7 +46,41 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     @elements = []
 
+    @_hoverElement = null
+    @_canvas.onclick = (e) => @delegateInputEvent('click', e)
+    @_canvas.onmousemove = (e) => @delegateInputEvent('mousemove', e, true)
+    @_canvas.onmouseleave = (e) => @handleMouseLeave()
+
     rippl.timer.bind(@) if not @options.static
+
+  # -----------------------------------
+
+  delegateInputEvent: (type, e, hover) ->
+    x = e.layerX
+    y = e.layerY
+
+    elements = @elements
+    index = elements.length
+
+    while index--
+      element = elements[index]
+      if element.delegateInputEvent(type, x, y)
+        if hover
+          return if element is @_hoverElement
+
+          @_hoverElement.trigger('mouseleave') if @_hoverElement isnt null
+          @_hoverElement = element
+          element.trigger('mouseenter')
+        return
+
+    @handleMouseLeave() if hover
+
+  # -----------------------------------
+
+  handleMouseLeave: ->
+    if @_hoverElement isnt null
+      @_hoverElement.trigger('mouseleave')
+      @_hoverElement = null
 
   # -----------------------------------
 
@@ -81,17 +115,18 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
-  add: (element) ->
-    throw "Tried to add a non-Element to Canvas" if not element.__isElement
-    element.bind(@)
-    @elements.push(element)
-    @touch()
-    @unordered = true
+  add: (elements...) ->
+    for element in elements
+      throw "Tried to add a non-Element to Canvas" if not element.__isElement
+      element.bind(@)
+      @elements.push(element)
+      @touch()
+      @unordered = true
 
-    element.on('change', => @touch())
-    element.on('change:z', => @unordered = true)
+      element.on('change', => @touch())
+      element.on('change:z', => @unordered = true)
 
-    element
+      element
 
   # -----------------------------------
 

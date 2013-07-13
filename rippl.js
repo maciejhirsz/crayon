@@ -843,6 +843,7 @@ Rippl may be freely distributed under the MIT license.
       skewX: 0,
       skewY: 0,
       hidden: false,
+      input: false,
       composition: 'source-over'
     };
 
@@ -1040,6 +1041,49 @@ Rippl may be freely distributed under the MIT license.
     };
 
     Element.prototype.render = function() {};
+
+    Element.prototype.pointOnElement = function(x, y) {
+      var anchor, cos, options, sin, xrot, yrot;
+      anchor = this.getAnchor();
+      options = this.options;
+      x = x - options.position.x;
+      y = y - options.position.y;
+      if (options.scaleX === 0 || options.scaleY === 0) {
+        return false;
+      }
+      if (options.scaleX !== 1) {
+        x = x / options.scaleX;
+      }
+      if (options.scaleY !== 1) {
+        y = y / options.scaleY;
+      }
+      if (options.rotation !== 0) {
+        cos = Math.cos(-options.rotation);
+        sin = Math.sin(-options.rotation);
+        xrot = cos * x - sin * y;
+        yrot = sin * x + cos * y;
+        x = xrot;
+        y = yrot;
+      }
+      if (x < -anchor.x || x > options.width - anchor.x) {
+        return false;
+      }
+      if (y < -anchor.y || y > options.height - anchor.y) {
+        return false;
+      }
+      return true;
+    };
+
+    Element.prototype.delegateInputEvent = function(type, x, y) {
+      if (this.options.input === false) {
+        return false;
+      }
+      if (this.pointOnElement(x, y) === false) {
+        return false;
+      }
+      this.trigger(type);
+      return true;
+    };
 
     Element.prototype.set = function(target, value) {
       var change, option, options, _j, _len1;
@@ -1583,6 +1627,7 @@ Rippl may be freely distributed under the MIT license.
     Canvas.prototype.unordered = false;
 
     function Canvas(options) {
+      var _this = this;
       this.setOptions(options);
       if (this.options.id !== null) {
         this._canvas = document.getElementById(this.options.id);
@@ -1598,10 +1643,54 @@ Rippl may be freely distributed under the MIT license.
       this.ctx = this._canvas.getContext('2d');
       this.ctx.save();
       this.elements = [];
+      this._hoverElement = null;
+      this._canvas.onclick = function(e) {
+        return _this.delegateInputEvent('click', e);
+      };
+      this._canvas.onmousemove = function(e) {
+        return _this.delegateInputEvent('mousemove', e, true);
+      };
+      this._canvas.onmouseleave = function(e) {
+        return _this.handleMouseLeave();
+      };
       if (!this.options["static"]) {
         rippl.timer.bind(this);
       }
     }
+
+    Canvas.prototype.delegateInputEvent = function(type, e, hover) {
+      var element, elements, index, x, y;
+      x = e.layerX;
+      y = e.layerY;
+      elements = this.elements;
+      index = elements.length;
+      while (index--) {
+        element = elements[index];
+        if (element.delegateInputEvent(type, x, y)) {
+          if (hover) {
+            if (element === this._hoverElement) {
+              return;
+            }
+            if (this._hoverElement !== null) {
+              this._hoverElement.trigger('mouseleave');
+            }
+            this._hoverElement = element;
+            element.trigger('mouseenter');
+          }
+          return;
+        }
+      }
+      if (hover) {
+        return this.handleMouseLeave();
+      }
+    };
+
+    Canvas.prototype.handleMouseLeave = function() {
+      if (this._hoverElement !== null) {
+        this._hoverElement.trigger('mouseleave');
+        return this._hoverElement = null;
+      }
+    };
 
     Canvas.prototype.getDocumentElement = function() {
       return this._canvas;
@@ -1649,22 +1738,29 @@ Rippl may be freely distributed under the MIT license.
       return this.ctx.shadowColor = color.toString();
     };
 
-    Canvas.prototype.add = function(element) {
-      var _this = this;
-      if (!element.__isElement) {
-        throw "Tried to add a non-Element to Canvas";
+    Canvas.prototype.add = function() {
+      var element, elements, _j, _len1, _results,
+        _this = this;
+      elements = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      _results = [];
+      for (_j = 0, _len1 = elements.length; _j < _len1; _j++) {
+        element = elements[_j];
+        if (!element.__isElement) {
+          throw "Tried to add a non-Element to Canvas";
+        }
+        element.bind(this);
+        this.elements.push(element);
+        this.touch();
+        this.unordered = true;
+        element.on('change', function() {
+          return _this.touch();
+        });
+        element.on('change:z', function() {
+          return _this.unordered = true;
+        });
+        _results.push(element);
       }
-      element.bind(this);
-      this.elements.push(element);
-      this.touch();
-      this.unordered = true;
-      element.on('change', function() {
-        return _this.touch();
-      });
-      element.on('change:z', function() {
-        return _this.unordered = true;
-      });
-      return element;
+      return _results;
     };
 
     Canvas.prototype.remove = function(elementToDelete) {
