@@ -47,21 +47,28 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     @elements = []
 
     @_hoverElement = null
-    @_canvas.onmousedown = (e) => @delegateInputEvent('mousedown', e)
-    @_canvas.onmouseup = (e) => @delegateInputEvent('mouseup', e)
-    @_canvas.ontouchstart = (e) => @delegateInputEvent('touchstart', e)
-    @_canvas.ontouchend = (e) => @delegateInputEvent('touchend', e)
-    @_canvas.onclick = (e) => @delegateInputEvent('click', e)
-    @_canvas.onmousemove = (e) => @delegateInputEvent('mousemove', e, true)
+    @_canvas.addEventListener('touchstart', ((e) => @delegateInputEvent('touchstart', e, false, true)), true)
+    @_canvas.addEventListener('touchend', ((e) => @delegateInputEvent('touchend', e, false, true)), true)
+    @_canvas.addEventListener('mousedown', ((e) => @delegateInputEvent('mousedown', e)), true)
+    @_canvas.addEventListener('mouseup', ((e) => @delegateInputEvent('mouseup', e)), true)
+    @_canvas.addEventListener('click', ((e) => @delegateInputEvent('click', e)), true)
+    @_canvas.addEventListener('mousemove', ((e) => @delegateInputEvent('mousemove', e, true)), true)
     @_canvas.onmouseleave = (e) => @handleMouseLeave()
 
     rippl.timer.bind(@) if not @options.static
 
   # -----------------------------------
 
-  delegateInputEvent: (type, e, hover) ->
-    x = e.layerX
-    y = e.layerY
+  delegateInputEvent: (type, e, hover, touch) ->
+    if touch
+      te = e.touches[0] or e.changedTouches[0]
+      x = te.pageX + e.layerX
+      y = te.pageY + e.layerY
+    else
+      x = e.layerX
+      y = e.layerY
+
+    e.preventDefault()
 
     elements = @elements
     index = elements.length

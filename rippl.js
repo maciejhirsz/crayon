@@ -1081,6 +1081,7 @@ Rippl may be freely distributed under the MIT license.
       if (this.pointOnElement(x, y) === false) {
         return false;
       }
+      console.log([type]);
       this.trigger(type);
       return true;
     };
@@ -1644,24 +1645,24 @@ Rippl may be freely distributed under the MIT license.
       this.ctx.save();
       this.elements = [];
       this._hoverElement = null;
-      this._canvas.onmousedown = function(e) {
+      this._canvas.addEventListener('touchstart', (function(e) {
+        return _this.delegateInputEvent('touchstart', e, false, true);
+      }), true);
+      this._canvas.addEventListener('touchend', (function(e) {
+        return _this.delegateInputEvent('touchend', e, false, true);
+      }), true);
+      this._canvas.addEventListener('mousedown', (function(e) {
         return _this.delegateInputEvent('mousedown', e);
-      };
-      this._canvas.onmouseup = function(e) {
+      }), true);
+      this._canvas.addEventListener('mouseup', (function(e) {
         return _this.delegateInputEvent('mouseup', e);
-      };
-      this._canvas.ontouchstart = function(e) {
-        return _this.delegateInputEvent('touchstart', e);
-      };
-      this._canvas.ontouchend = function(e) {
-        return _this.delegateInputEvent('touchend', e);
-      };
-      this._canvas.onclick = function(e) {
+      }), true);
+      this._canvas.addEventListener('click', (function(e) {
         return _this.delegateInputEvent('click', e);
-      };
-      this._canvas.onmousemove = function(e) {
+      }), true);
+      this._canvas.addEventListener('mousemove', (function(e) {
         return _this.delegateInputEvent('mousemove', e, true);
-      };
+      }), true);
       this._canvas.onmouseleave = function(e) {
         return _this.handleMouseLeave();
       };
@@ -1670,10 +1671,17 @@ Rippl may be freely distributed under the MIT license.
       }
     }
 
-    Canvas.prototype.delegateInputEvent = function(type, e, hover) {
-      var element, elements, index, x, y;
-      x = e.layerX;
-      y = e.layerY;
+    Canvas.prototype.delegateInputEvent = function(type, e, hover, touch) {
+      var element, elements, index, te, x, y;
+      if (touch) {
+        te = e.touches[0] || e.changedTouches[0];
+        x = te.pageX + e.layerX;
+        y = te.pageY + e.layerY;
+      } else {
+        x = e.layerX;
+        y = e.layerY;
+      }
+      e.preventDefault();
       elements = this.elements;
       index = elements.length;
       while (index--) {
