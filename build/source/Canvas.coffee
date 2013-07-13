@@ -46,14 +46,15 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     @elements = []
 
-    @_hoverElement = null
-    @_canvas.addEventListener('touchstart', ((e) => @delegateInputEvent('touchstart', e, false, true)), true)
-    @_canvas.addEventListener('touchend', ((e) => @delegateInputEvent('touchend', e, false, true)), true)
-    @_canvas.addEventListener('mousedown', ((e) => @delegateInputEvent('mousedown', e)), true)
-    @_canvas.addEventListener('mouseup', ((e) => @delegateInputEvent('mouseup', e)), true)
-    @_canvas.addEventListener('click', ((e) => @delegateInputEvent('click', e)), true)
-    @_canvas.addEventListener('mousemove', ((e) => @delegateInputEvent('mousemove', e, true)), true)
-    @_canvas.onmouseleave = (e) => @handleMouseLeave()
+    if not @options.static
+      @_hoverElement = null
+      @_canvas.addEventListener('touchstart', ((e) => @delegateInputEvent('touchstart', e, false, true)), true)
+      @_canvas.addEventListener('touchend', ((e) => @delegateInputEvent('touchend', e, false, true)), true)
+      @_canvas.addEventListener('mousedown', ((e) => @delegateInputEvent('mousedown', e)), true)
+      @_canvas.addEventListener('mouseup', ((e) => @delegateInputEvent('mouseup', e)), true)
+      @_canvas.addEventListener('click', ((e) => @delegateInputEvent('click', e)), true)
+      @_canvas.addEventListener('mousemove', ((e) => @delegateInputEvent('mousemove', e, true)), true)
+      @_canvas.onmouseleave = (e) => @handleMouseLeave()
 
     rippl.timer.bind(@) if not @options.static
 
@@ -215,6 +216,14 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
+  drawRaw: (element, x, y, width, height, cropX, cropY) ->
+    cropX ? cropX = 0
+    cropY ? cropY = 0
+
+    @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
+
+  # -----------------------------------
+
   drawAsset: (asset, x, y, width, height, cropX, cropY) ->
     return if not asset or not asset.__isAsset
 
@@ -233,6 +242,17 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     return if typeof fn isnt 'function'
 
     fn.apply(@, args)
+
+  # -----------------------------------
+
+  getPixel: (x, y) ->
+    imageData = @ctx.getImageData(x, y, 1, 1)
+    imageData.data
+
+  # -----------------------------------
+
+  getPixelAlpha: (x, y) ->
+    @getPixel(x, y)[3]
 
   # -----------------------------------
 
