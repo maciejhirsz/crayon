@@ -17,39 +17,29 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
   # -----------------------------------
 
   constructor: (url) ->
-    @_image = new Image
-    @_image.onload = =>
-      @_width = @_image.naturalWidth
-      @_height = @_image.naturalHeight
+    image = new Image
+    image.src = url
+    image.onload = =>
+      @_width = width = image.naturalWidth
+      @_height = height = image.naturalHeight
+
+      @_cache = new Canvas
+        width: width
+        height: height
+        static: true
+
+      @_cache.drawRaw(image, 0, 0, width, height)
+      @_image = @_cache.getDocumentElement()
+
       @__isLoaded = true
       @trigger('loaded')
       @off('loaded') # loaded happens only once
 
-    @_image.src = url
-
   # -----------------------------------
 
-  cache: (label, filter, args...) ->
-    return if not @__isLoaded
-
-    cache = @_cache or (@_cache = {})
-
-    buffer = cache[label] = new Canvas
-      width: @_width
-      height: @_height
-      static: true
-
-    buffer.drawAsset(@, 0, 0, @_width, @_height)
-
-    args.unshift(filter)
-    buffer.filter.apply(buffer, args)
-
-  # -----------------------------------
-
-  cached: (label) ->
-    return @ if not @_cache
-    return @_cache[label] if @_cache[label]
-    return @
+  getPixelAlpha: (x, y) ->
+    return 0 if not @__isLoaded
+    @_cache.getPixelAlpha(x, y)
 
   # -----------------------------------
 
