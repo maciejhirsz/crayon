@@ -1158,7 +1158,6 @@ class Element extends ObjectAbstract
     return false if @options.input is false
     return false if @pointOnElement(x, y) is false
 
-    console.log [type]
     @trigger(type)
 
     return true
@@ -1776,8 +1775,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
   delegateInputEvent: (type, e, hover, touch) ->
     if touch
       te = e.touches[0] or e.changedTouches[0]
-      x = te.pageX + e.layerX
-      y = te.pageY + e.layerY
+      x = te.pageX - @_canvas.offsetTop
+      y = te.pageY - @_canvas.offsetLeft
     else
       x = e.layerX
       y = e.layerY

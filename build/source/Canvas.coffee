@@ -62,8 +62,8 @@ rippl.Canvas = class Canvas extends ObjectAbstract
   delegateInputEvent: (type, e, hover, touch) ->
     if touch
       te = e.touches[0] or e.changedTouches[0]
-      x = te.pageX + e.layerX
-      y = te.pageY + e.layerY
+      x = te.pageX - @_canvas.offsetTop
+      y = te.pageY - @_canvas.offsetLeft
     else
       x = e.layerX
       y = e.layerY

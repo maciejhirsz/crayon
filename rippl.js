@@ -1081,7 +1081,6 @@ Rippl may be freely distributed under the MIT license.
       if (this.pointOnElement(x, y) === false) {
         return false;
       }
-      console.log([type]);
       this.trigger(type);
       return true;
     };
@@ -1675,8 +1674,8 @@ Rippl may be freely distributed under the MIT license.
       var element, elements, index, te, x, y;
       if (touch) {
         te = e.touches[0] || e.changedTouches[0];
-        x = te.pageX + e.layerX;
-        y = te.pageY + e.layerY;
+        x = te.pageX - this._canvas.offsetTop;
+        y = te.pageY - this._canvas.offsetLeft;
       } else {
         x = e.layerX;
         y = e.layerY;
