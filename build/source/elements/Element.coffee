@@ -216,8 +216,6 @@ class Element extends ObjectAbstract
     x = x - options.position.x
     y = y - options.position.y
 
-    return false if options.scaleX is 0 or options.scaleY is 0
-
     x = x / options.scaleX if options.scaleX isnt 1
     y = y / options.scaleY if options.scaleY isnt 1
 
@@ -231,8 +229,8 @@ class Element extends ObjectAbstract
       x = xrot
       y = yrot
 
-    return false if x < -anchor.x or x > options.width - anchor.x
-    return false if y < -anchor.y or y > options.height - anchor.y
+    return false if x <= -anchor.x or x > options.width - anchor.x
+    return false if y <= -anchor.y or y > options.height - anchor.y
 
     return true
 
@@ -240,6 +238,9 @@ class Element extends ObjectAbstract
 
   delegateInputEvent: (type, x, y) ->
     return false if @options.input is false
+    return false if @options.hidden is true
+    return false if @options.alpha is 0
+    return false if @options.scaleX is 0 or @options.scaleY is 0
     return false if @pointOnElement(x, y) is false
 
     @trigger(type)
