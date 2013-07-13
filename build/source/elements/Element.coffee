@@ -237,10 +237,12 @@ class Element extends ObjectAbstract
   # -----------------------------------
 
   delegateInputEvent: (type, x, y) ->
-    return false if @options.input is false
-    return false if @options.hidden is true
-    return false if @options.alpha is 0
-    return false if @options.scaleX is 0 or @options.scaleY is 0
+    options = @options
+
+    return false if options.input is false
+    return false if options.hidden is true
+    return false if options.alpha is 0
+    return false if options.scaleX is 0 or options.scaleY is 0
     return false if @pointOnElement(x, y) is false
 
     @trigger(type)
