@@ -557,43 +557,32 @@ Rippl may be freely distributed under the MIT license.
     ImageAsset.prototype._height = 0;
 
     function ImageAsset(url) {
-      var _this = this;
-      this._image = new Image;
-      this._image.onload = function() {
-        _this._width = _this._image.naturalWidth;
-        _this._height = _this._image.naturalHeight;
+      var image,
+        _this = this;
+      image = new Image;
+      image.src = url;
+      image.onload = function() {
+        var height, width;
+        _this._width = width = image.naturalWidth;
+        _this._height = height = image.naturalHeight;
+        _this._cache = new Canvas({
+          width: width,
+          height: height,
+          "static": true
+        });
+        _this._cache.drawRaw(image, 0, 0, width, height);
+        _this._image = _this._cache.getDocumentElement();
         _this.__isLoaded = true;
         _this.trigger('loaded');
         return _this.off('loaded');
       };
-      this._image.src = url;
     }
 
-    ImageAsset.prototype.cache = function() {
-      var args, buffer, cache, filter, label;
-      label = arguments[0], filter = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+    ImageAsset.prototype.getPixelAlpha = function(x, y) {
       if (!this.__isLoaded) {
-        return;
+        return 0;
       }
-      cache = this._cache || (this._cache = {});
-      buffer = cache[label] = new Canvas({
-        width: this._width,
-        height: this._height,
-        "static": true
-      });
-      buffer.drawAsset(this, 0, 0, this._width, this._height);
-      args.unshift(filter);
-      return buffer.filter.apply(buffer, args);
-    };
-
-    ImageAsset.prototype.cached = function(label) {
-      if (!this._cache) {
-        return this;
-      }
-      if (this._cache[label]) {
-        return this._cache[label];
-      }
-      return this;
+      return this._cache.getPixelAlpha(x, y);
     };
 
     ImageAsset.prototype.getDocumentElement = function() {
@@ -1048,9 +1037,6 @@ Rippl may be freely distributed under the MIT license.
       options = this.options;
       x = x - options.position.x;
       y = y - options.position.y;
-      if (options.scaleX === 0 || options.scaleY === 0) {
-        return false;
-      }
       if (options.scaleX !== 1) {
         x = x / options.scaleX;
       }
@@ -1065,17 +1051,28 @@ Rippl may be freely distributed under the MIT license.
         x = xrot;
         y = yrot;
       }
-      if (x < -anchor.x || x > options.width - anchor.x) {
+      if (x <= -anchor.x || x > options.width - anchor.x) {
         return false;
       }
-      if (y < -anchor.y || y > options.height - anchor.y) {
+      if (y <= -anchor.y || y > options.height - anchor.y) {
         return false;
       }
       return true;
     };
 
     Element.prototype.delegateInputEvent = function(type, x, y) {
-      if (this.options.input === false) {
+      var options;
+      options = this.options;
+      if (options.input === false) {
+        return false;
+      }
+      if (options.hidden === true) {
+        return false;
+      }
+      if (options.alpha === 0) {
+        return false;
+      }
+      if (options.scaleX === 0 || options.scaleY === 0) {
         return false;
       }
       if (this.pointOnElement(x, y) === false) {
@@ -1185,6 +1182,42 @@ Rippl may be freely distributed under the MIT license.
       } else {
         return this.canvas.drawAsset(this.options.src, -anchor.x, -anchor.y, this.options.width, this.options.height, this.options.cropX, this.options.cropY);
       }
+    };
+
+    Sprite.prototype.pointOnElement = function(x, y) {
+      var anchor, cos, options, sin, xrot, yrot;
+      anchor = this.getAnchor();
+      options = this.options;
+      x = x - options.position.x;
+      y = y - options.position.y;
+      if (options.scaleX !== 1) {
+        x = x / options.scaleX;
+      }
+      if (options.scaleY !== 1) {
+        y = y / options.scaleY;
+      }
+      if (options.rotation !== 0) {
+        cos = Math.cos(-options.rotation);
+        sin = Math.sin(-options.rotation);
+        xrot = cos * x - sin * y;
+        yrot = sin * x + cos * y;
+        x = xrot;
+        y = yrot;
+      }
+      x += anchor.x;
+      y += anchor.y;
+      if (x <= 0 || x > options.width) {
+        return false;
+      }
+      if (y <= 0 || y > options.height) {
+        return false;
+      }
+      x = Math.round(x + options.cropX);
+      y = Math.round(y + options.cropY);
+      if (options.src.getPixelAlpha(x, y) === 0) {
+        return false;
+      }
+      return true;
     };
 
     Sprite.prototype.addAnimation = function(label, fps, frames, lastFrame) {
@@ -1297,6 +1330,7 @@ Rippl may be freely distributed under the MIT license.
     Sprite.prototype.removeFilter = function() {
       delete this.buffer;
       this.buffer = null;
+      this._useBuffer = false;
       return this.canvas.touch();
     };
 
@@ -1484,6 +1518,38 @@ Rippl may be freely distributed under the MIT license.
       return ctx.closePath();
     };
 
+    Circle.prototype.pointOnElement = function(x, y) {
+      var anchor, cos, options, sin, xrot, yrot;
+      anchor = this.getAnchor();
+      options = this.options;
+      if (options.angle === 0) {
+        return false;
+      }
+      x = x - options.position.x;
+      y = y - options.position.y;
+      if (options.scaleX !== 1) {
+        x = x / options.scaleX;
+      }
+      if (options.scaleY !== 1) {
+        y = y / options.scaleY;
+      }
+      if (options.rotation !== 0) {
+        cos = Math.cos(-options.rotation);
+        sin = Math.sin(-options.rotation);
+        xrot = cos * x - sin * y;
+        yrot = sin * x + cos * y;
+        x = xrot;
+        y = yrot;
+      }
+      if (Math.sqrt(x * x + y * y) > options.radius) {
+        return false;
+      }
+      if (Math.atan2(x, y) + Math.PI > options.angle) {
+        return false;
+      }
+      return true;
+    };
+
     return Circle;
 
   })(Shape);
@@ -1643,28 +1709,30 @@ Rippl may be freely distributed under the MIT license.
       this.ctx = this._canvas.getContext('2d');
       this.ctx.save();
       this.elements = [];
-      this._hoverElement = null;
-      this._canvas.addEventListener('touchstart', (function(e) {
-        return _this.delegateInputEvent('touchstart', e, false, true);
-      }), true);
-      this._canvas.addEventListener('touchend', (function(e) {
-        return _this.delegateInputEvent('touchend', e, false, true);
-      }), true);
-      this._canvas.addEventListener('mousedown', (function(e) {
-        return _this.delegateInputEvent('mousedown', e);
-      }), true);
-      this._canvas.addEventListener('mouseup', (function(e) {
-        return _this.delegateInputEvent('mouseup', e);
-      }), true);
-      this._canvas.addEventListener('click', (function(e) {
-        return _this.delegateInputEvent('click', e);
-      }), true);
-      this._canvas.addEventListener('mousemove', (function(e) {
-        return _this.delegateInputEvent('mousemove', e, true);
-      }), true);
-      this._canvas.onmouseleave = function(e) {
-        return _this.handleMouseLeave();
-      };
+      if (!this.options["static"]) {
+        this._hoverElement = null;
+        this._canvas.addEventListener('touchstart', (function(e) {
+          return _this.delegateInputEvent('touchstart', e, false, true);
+        }), true);
+        this._canvas.addEventListener('touchend', (function(e) {
+          return _this.delegateInputEvent('touchend', e, false, true);
+        }), true);
+        this._canvas.addEventListener('mousedown', (function(e) {
+          return _this.delegateInputEvent('mousedown', e);
+        }), true);
+        this._canvas.addEventListener('mouseup', (function(e) {
+          return _this.delegateInputEvent('mouseup', e);
+        }), true);
+        this._canvas.addEventListener('click', (function(e) {
+          return _this.delegateInputEvent('click', e);
+        }), true);
+        this._canvas.addEventListener('mousemove', (function(e) {
+          return _this.delegateInputEvent('mousemove', e, true);
+        }), true);
+        this._canvas.onmouseleave = function(e) {
+          return _this.handleMouseLeave();
+        };
+      }
       if (!this.options["static"]) {
         rippl.timer.bind(this);
       }
@@ -1853,6 +1921,22 @@ Rippl may be freely distributed under the MIT license.
       return this.changed = false;
     };
 
+    Canvas.prototype.drawRaw = function(element, x, y, width, height, cropX, cropY) {
+            if (cropX != null) {
+        cropX;
+
+      } else {
+        cropX = 0;
+      };
+            if (cropY != null) {
+        cropY;
+
+      } else {
+        cropY = 0;
+      };
+      return this.ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height);
+    };
+
     Canvas.prototype.drawAsset = function(asset, x, y, width, height, cropX, cropY) {
       var element;
       if (!asset || !asset.__isAsset) {
@@ -1885,6 +1969,16 @@ Rippl may be freely distributed under the MIT license.
         return;
       }
       return fn.apply(this, args);
+    };
+
+    Canvas.prototype.getPixel = function(x, y) {
+      var imageData;
+      imageData = this.ctx.getImageData(x, y, 1, 1);
+      return imageData.data;
+    };
+
+    Canvas.prototype.getPixelAlpha = function(x, y) {
+      return this.getPixel(x, y)[3];
     };
 
     Canvas.prototype.rgbaFilter = function(filter) {

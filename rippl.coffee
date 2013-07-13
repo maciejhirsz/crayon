@@ -629,45 +629,36 @@ rippl.ImageAsset = class ImageAsset extends ObjectAbstract
   # -----------------------------------
 
   constructor: (url) ->
-    @_image = new Image
-    @_image.onload = =>
-      @_width = @_image.naturalWidth
-      @_height = @_image.naturalHeight
+    image = new Image
+    image.src = url
+    image.onload = =>
+      @_width = width = image.naturalWidth
+      @_height = height = image.naturalHeight
+
+      @_cache = new Canvas
+        width: width
+        height: height
+        static: true
+
+      @_cache.drawRaw(image, 0, 0, width, height)
+      @_image = @_cache.getDocumentElement()
+
       @__isLoaded = true
       @trigger('loaded')
       @off('loaded') # loaded happens only once
 
-    @_image.src = url
-
   # -----------------------------------
 
-  cache: (label, filter, args...) ->
-    return if not @__isLoaded
-
-    cache = @_cache or (@_cache = {})
-
-    buffer = cache[label] = new Canvas
-      width: @_width
-      height: @_height
-      static: true
-
-    buffer.drawAsset(@, 0, 0, @_width, @_height)
-
-    args.unshift(filter)
-    buffer.filter.apply(buffer, args)
-
-  # -----------------------------------
-
-  cached: (label) ->
-    return @ if not @_cache
-    return @_cache[label] if @_cache[label]
-    return @
+  getPixelAlpha: (x, y) ->
+    return 0 if not @__isLoaded
+    @_cache.getPixelAlpha(x, y)
 
   # -----------------------------------
 
   getDocumentElement: ->
     return @_image if @__isLoaded
     return null
+
 # =============================================
 #
 # End contents of utils/ImageAsset.coffee
@@ -696,7 +687,6 @@ rippl.assets =
     @_assets[url] = new ImageAsset(dataurl)
 
   # -----------------------------------
-
 
   preload: (urls, callback) ->
     urls = [urls] if typeof urls is 'string'
@@ -1132,8 +1122,6 @@ class Element extends ObjectAbstract
     x = x - options.position.x
     y = y - options.position.y
 
-    return false if options.scaleX is 0 or options.scaleY is 0
-
     x = x / options.scaleX if options.scaleX isnt 1
     y = y / options.scaleY if options.scaleY isnt 1
 
@@ -1147,15 +1135,20 @@ class Element extends ObjectAbstract
       x = xrot
       y = yrot
 
-    return false if x < -anchor.x or x > options.width - anchor.x
-    return false if y < -anchor.y or y > options.height - anchor.y
+    return false if x <= -anchor.x or x > options.width - anchor.x
+    return false if y <= -anchor.y or y > options.height - anchor.y
 
     return true
 
   # -----------------------------------
 
   delegateInputEvent: (type, x, y) ->
-    return false if @options.input is false
+    options = @options
+
+    return false if options.input is false
+    return false if options.hidden is true
+    return false if options.alpha is 0
+    return false if options.scaleX is 0 or options.scaleY is 0
     return false if @pointOnElement(x, y) is false
 
     @trigger(type)
@@ -1270,6 +1263,41 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
+  pointOnElement: (x, y) ->
+    anchor = @getAnchor()
+    options = @options
+
+    x = x - options.position.x
+    y = y - options.position.y
+
+    x = x / options.scaleX if options.scaleX isnt 1
+    y = y / options.scaleY if options.scaleY isnt 1
+
+    if options.rotation isnt 0
+      cos = Math.cos(-options.rotation)
+      sin = Math.sin(-options.rotation)
+
+      xrot = cos * x - sin * y
+      yrot = sin * x + cos * y
+
+      x = xrot
+      y = yrot
+
+    x += anchor.x
+    y += anchor.y
+
+    return false if x <= 0 or x > options.width
+    return false if y <= 0 or y > options.height
+
+    x = Math.round(x + options.cropX)
+    y = Math.round(y + options.cropY)
+
+    return false if options.src.getPixelAlpha(x, y) is 0
+
+    return true
+
+  # -----------------------------------
+
   addAnimation: (label, fps, frames, lastFrame) ->
     #
     # Handle fps
@@ -1376,6 +1404,7 @@ rippl.Sprite = class Sprite extends Element
   removeFilter: ->
     delete @buffer
     @buffer = null
+    @_useBuffer = false
     @canvas.touch()
 
 # =============================================
@@ -1582,6 +1611,35 @@ rippl.Circle = class Circle extends Shape
     ctx.arc(0, 0, @options.radius, 0, @options.angle, false)
     ctx.lineTo(0, 0) if @options.angle isnt Math.PI * 2
     ctx.closePath()
+
+  # -----------------------------------
+
+  pointOnElement: (x, y) ->
+    anchor = @getAnchor()
+    options = @options
+
+    return false if options.angle is 0
+
+    x = x - options.position.x
+    y = y - options.position.y
+
+    x = x / options.scaleX if options.scaleX isnt 1
+    y = y / options.scaleY if options.scaleY isnt 1
+
+    if options.rotation isnt 0
+      cos = Math.cos(-options.rotation)
+      sin = Math.sin(-options.rotation)
+
+      xrot = cos * x - sin * y
+      yrot = sin * x + cos * y
+
+      x = xrot
+      y = yrot
+
+    return false if Math.sqrt(x*x + y*y) > options.radius
+    return false if Math.atan2(x, y) + Math.PI > options.angle
+
+    return true
 # =============================================
 #
 # End contents of elements/Circle.coffee
@@ -1759,14 +1817,15 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
     @elements = []
 
-    @_hoverElement = null
-    @_canvas.addEventListener('touchstart', ((e) => @delegateInputEvent('touchstart', e, false, true)), true)
-    @_canvas.addEventListener('touchend', ((e) => @delegateInputEvent('touchend', e, false, true)), true)
-    @_canvas.addEventListener('mousedown', ((e) => @delegateInputEvent('mousedown', e)), true)
-    @_canvas.addEventListener('mouseup', ((e) => @delegateInputEvent('mouseup', e)), true)
-    @_canvas.addEventListener('click', ((e) => @delegateInputEvent('click', e)), true)
-    @_canvas.addEventListener('mousemove', ((e) => @delegateInputEvent('mousemove', e, true)), true)
-    @_canvas.onmouseleave = (e) => @handleMouseLeave()
+    if not @options.static
+      @_hoverElement = null
+      @_canvas.addEventListener('touchstart', ((e) => @delegateInputEvent('touchstart', e, false, true)), true)
+      @_canvas.addEventListener('touchend', ((e) => @delegateInputEvent('touchend', e, false, true)), true)
+      @_canvas.addEventListener('mousedown', ((e) => @delegateInputEvent('mousedown', e)), true)
+      @_canvas.addEventListener('mouseup', ((e) => @delegateInputEvent('mouseup', e)), true)
+      @_canvas.addEventListener('click', ((e) => @delegateInputEvent('click', e)), true)
+      @_canvas.addEventListener('mousemove', ((e) => @delegateInputEvent('mousemove', e, true)), true)
+      @_canvas.onmouseleave = (e) => @handleMouseLeave()
 
     rippl.timer.bind(@) if not @options.static
 
@@ -1928,6 +1987,14 @@ rippl.Canvas = class Canvas extends ObjectAbstract
 
   # -----------------------------------
 
+  drawRaw: (element, x, y, width, height, cropX, cropY) ->
+    cropX ? cropX = 0
+    cropY ? cropY = 0
+
+    @ctx.drawImage(element, cropX, cropY, width, height, x, y, width, height)
+
+  # -----------------------------------
+
   drawAsset: (asset, x, y, width, height, cropX, cropY) ->
     return if not asset or not asset.__isAsset
 
@@ -1946,6 +2013,17 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     return if typeof fn isnt 'function'
 
     fn.apply(@, args)
+
+  # -----------------------------------
+
+  getPixel: (x, y) ->
+    imageData = @ctx.getImageData(x, y, 1, 1)
+    imageData.data
+
+  # -----------------------------------
+
+  getPixelAlpha: (x, y) ->
+    @getPixel(x, y)[3]
 
   # -----------------------------------
 
