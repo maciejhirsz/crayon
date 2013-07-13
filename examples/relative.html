@@ -12,19 +12,50 @@
 
       var canvas = new rippl.Canvas({ id: "my-canvas" });
 
-      // last but not least, we draw a circle on each point
+      var crossH = new rippl.CustomShape({
+        fill: false,
+        stroke: 2,
+        strokeColor: '#000',
+        z: 3,
+        alpha: 0.3
+      });
+      crossH.moveTo(190, 200);
+      crossH.lineTo(210, 200);
+
+      var crossV = new rippl.CustomShape({
+        fill: false,
+        stroke: 2,
+        strokeColor: '#000',
+        z: 3,
+        alpha: 0.3
+      });
+      crossH.moveTo(200, 190);
+      crossH.lineTo(200, 210);
+
+      canvas.add(crossH);
+      canvas.add(crossV);
+
+      var sunPoint = new rippl.Point(200, 200);
       var sun = new rippl.Circle({
-        x: 200,
-        y: 200,
+        position: sunPoint,
         color: '#fff',
         stroke: 2,
         strokeColor: '#f00',
         radius: 20,
         z: 2
       });
-      var sunPoint = sun.get('position');
+      var sunOrbit = new rippl.Circle({
+        position: sunPoint,
+        fill: false,
+        stroke: 1,
+        strokeColor: '#000',
+        radius: 130,
+        z: 1,
+        alpha: 0.3
+      });
 
       canvas.add(sun);
+      canvas.add(sunOrbit);
 
       var planetPoint = new rippl.RelativePoint(130, 0, sunPoint);
       var planet = new rippl.Circle({
@@ -35,8 +66,18 @@
         radius: 10,
         z: 2
       });
+      var planetOrbit = new rippl.Circle({
+        position: planetPoint,
+        fill: false,
+        stroke: 1,
+        strokeColor: '#000',
+        radius: 30,
+        z: 1,
+        alpha: 0.3
+      });
 
       canvas.add(planet);
+      canvas.add(planetOrbit);
 
       var moonPoint = new rippl.RelativePoint(30, 0, planetPoint);
       var moon = new rippl.Circle({
@@ -74,7 +115,7 @@
       rippl.timer.on('frame', function(time) {
         var sunAngle = time / 500;
         var planetAngle = time / 1500;
-        var moonAngle = time / -650;
+        var moonAngle = time / -300;
 
         sunPoint.move(
           200 + 20 * Math.cos(sunAngle),
