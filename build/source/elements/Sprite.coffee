@@ -69,6 +69,41 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
+  pointOnElement: (x, y) ->
+    anchor = @getAnchor()
+    options = @options
+
+    x = x - options.position.x
+    y = y - options.position.y
+
+    x = x / options.scaleX if options.scaleX isnt 1
+    y = y / options.scaleY if options.scaleY isnt 1
+
+    if options.rotation isnt 0
+      cos = Math.cos(-options.rotation)
+      sin = Math.sin(-options.rotation)
+
+      xrot = cos * x - sin * y
+      yrot = sin * x + cos * y
+
+      x = xrot
+      y = yrot
+
+    x += anchor.x
+    y += anchor.y
+
+    return false if x <= 0 or x > options.width
+    return false if y <= 0 or y > options.height
+
+    x = Math.round(x + options.cropX)
+    y = Math.round(y + options.cropY)
+
+    return false if options.src.getPixelAlpha(x, y) is 0
+
+    return true
+
+  # -----------------------------------
+
   addAnimation: (label, fps, frames, lastFrame) ->
     #
     # Handle fps
@@ -175,4 +210,5 @@ rippl.Sprite = class Sprite extends Element
   removeFilter: ->
     delete @buffer
     @buffer = null
+    @_useBuffer = false
     @canvas.touch()
