@@ -1760,6 +1760,10 @@ rippl.Canvas = class Canvas extends ObjectAbstract
     @elements = []
 
     @_hoverElement = null
+    @_canvas.onmousedown = (e) => @delegateInputEvent('mousedown', e)
+    @_canvas.onmouseup = (e) => @delegateInputEvent('mouseup', e)
+    @_canvas.ontouchstart = (e) => @delegateInputEvent('touchstart', e)
+    @_canvas.ontouchend = (e) => @delegateInputEvent('touchend', e)
     @_canvas.onclick = (e) => @delegateInputEvent('click', e)
     @_canvas.onmousemove = (e) => @delegateInputEvent('mousemove', e, true)
     @_canvas.onmouseleave = (e) => @handleMouseLeave()

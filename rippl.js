@@ -1644,6 +1644,18 @@ Rippl may be freely distributed under the MIT license.
       this.ctx.save();
       this.elements = [];
       this._hoverElement = null;
+      this._canvas.onmousedown = function(e) {
+        return _this.delegateInputEvent('mousedown', e);
+      };
+      this._canvas.onmouseup = function(e) {
+        return _this.delegateInputEvent('mouseup', e);
+      };
+      this._canvas.ontouchstart = function(e) {
+        return _this.delegateInputEvent('touchstart', e);
+      };
+      this._canvas.ontouchend = function(e) {
+        return _this.delegateInputEvent('touchend', e);
+      };
       this._canvas.onclick = function(e) {
         return _this.delegateInputEvent('click', e);
       };

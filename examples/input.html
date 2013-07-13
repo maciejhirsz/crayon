@@ -23,11 +23,11 @@
         input: true
       });
 
-      red.on('mouseenter touchstart', function(){
+      red.on('mousedown touchstart', function(){
         this.set({color: '#400'});
       });
 
-      red.on('mouseleave touchend', function(){
+      red.on('mouseup touchend', function(){
         this.set({color: '#f00'});
       });
 
@@ -44,11 +44,11 @@
         scaleY: 0.75
       });
 
-      green.on('mouseenter touchstart', function(){
+      green.on('mousedown touchstart', function(){
         this.set({color: '#040'});
       });
 
-      green.on('mouseleave touchend', function(){
+      green.on('mouseup touchend', function(){
         this.set({color: '#0f0'});
       });
 
