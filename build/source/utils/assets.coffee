@@ -16,7 +16,6 @@ rippl.assets =
 
   # -----------------------------------
 
-
   preload: (urls, callback) ->
     urls = [urls] if typeof urls is 'string'
 
