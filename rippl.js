@@ -1669,6 +1669,62 @@ Rippl may be freely distributed under the MIT license.
       return this.path.push(null);
     };
 
+    CustomShape.prototype._castRay = function(a, b, rayY) {
+      var _ref;
+      if ((a.y === (_ref = b.y) && _ref === rayY)) {
+        return Math.min(a.x, b.x);
+      }
+      if (a.y > rayY && b.y > rayY) {
+        return null;
+      }
+      if (a.y < rayY && b.y < rayY) {
+        return null;
+      }
+      return ((rayY - a.y) / (b.y - a.y)) * (b.x - a.x) + a.x;
+    };
+
+    CustomShape.prototype.pointOnElement = function(x, y) {
+      var anchor, cos, count, options, path, pointA, pointB, rayX, sin, startPoint, xrot, yrot, _j, _len1, _ref;
+      anchor = this.getAnchor();
+      options = this.options;
+      x = x - options.position.x;
+      y = y - options.position.y;
+      if (options.scaleX !== 1) {
+        x = x / options.scaleX;
+      }
+      if (options.scaleY !== 1) {
+        y = y / options.scaleY;
+      }
+      if (options.rotation !== 0) {
+        cos = Math.cos(-options.rotation);
+        sin = Math.sin(-options.rotation);
+        xrot = cos * x - sin * y;
+        yrot = sin * x + cos * y;
+        x = xrot;
+        y = yrot;
+      }
+      pointA = startPoint = new Point(0, 0);
+      count = 0;
+      _ref = this.path;
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        path = _ref[_j];
+        if (path === null) {
+          pointB = startPoint;
+        } else if (path[0] === 'moveTo' && pointA === startPoint) {
+          pointA = startPoint = path[1];
+          continue;
+        } else {
+          pointB = path[1];
+        }
+        rayX = this._castRay(pointA, pointB, y);
+        if (rayX !== null && rayX <= x) {
+          count += 1;
+        }
+        pointA = pointB;
+      }
+      return !!(count % 2);
+    };
+
     return CustomShape;
 
   })(Shape);
