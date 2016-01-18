@@ -1125,6 +1125,8 @@ Rippl may be freely distributed under the MIT license.
 
     Sprite.prototype._animated = false;
 
+    Sprite.prototype._fallbackAnimation = 'idle';
+
     Sprite.prototype._frameDuration = 0;
 
     Sprite.prototype._framesModulo = 0;
@@ -1243,17 +1245,20 @@ Rippl may be freely distributed under the MIT license.
       return this;
     };
 
-    Sprite.prototype.animate = function(label) {
+    Sprite.prototype.animate = function(label, looping) {
       var animation;
-            if (label != null) {
-        label;
-
-      } else {
-        label = 'idle';
-      };
+      if (label == null) {
+        label = this._fallbackAnimation;
+      }
+      if (looping == null) {
+        looping = false;
+      }
       animation = this._animations[label];
       if (!animation) {
         return;
+      }
+      if (looping) {
+        this._fallbackAnimation = label;
       }
       this._frames = animation.frames;
       this._frameDuration = animation.frameDuration;

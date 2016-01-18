@@ -1209,6 +1209,10 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
+  _fallbackAnimation: 'idle'
+
+  # -----------------------------------
+
   _frameDuration: 0
 
   # -----------------------------------
@@ -1321,11 +1325,11 @@ rippl.Sprite = class Sprite extends Element
 
   # -----------------------------------
 
-  animate: (label) ->
-    label ? label = 'idle'
+  animate: (label = @_fallbackAnimation, looping = false) ->
     animation = @_animations[label]
     return if not animation
 
+    @_fallbackAnimation = label if looping
     @_frames = animation.frames
     @_frameDuration = animation.frameDuration
     @_currentIndex = -1
