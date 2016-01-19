@@ -13,7 +13,8 @@ var Rectangle = crayon.Rectangle = (function() {
                 ctx    = this.canvas.ctx;
 
             if (this.options.cornerRadius === 0) {
-                return ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
+                ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);
+                return;
             }
 
             var x = -anchor.x,
@@ -30,7 +31,7 @@ var Rectangle = crayon.Rectangle = (function() {
             ctx.quadraticCurveTo(x, y + h, x, y + h - r);
             ctx.lineTo(x, y + r);
             ctx.quadraticCurveTo(x, y, x + r, y);
-            return ctx.closePath();
+            ctx.closePath();
         }
     );
 
