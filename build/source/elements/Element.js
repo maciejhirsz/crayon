@@ -5,7 +5,7 @@ var Element = (function() {
         this.transformStack = [];
         this.transformCount = 0;
 
-        EventEnabled.apply(this, arguments);
+        EventEnabled.apply(this);
 
         // Set the options using the defaults
         this.options = Object.assign({}, this.defaults, options);
