@@ -1,5 +1,5 @@
 var Color = crayon.Color = (function() {
-    var rgbaPattern = /\s*rgba\(\s*(\d{1,3})\s*\,\s*(\d{1,3})\s*\,\s*(\d{1,3})\s*\,\s*(\d+.?\d*|\d*.?\d+)s*\)\s*/i;
+    var rgbaPattern = /\s*rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d+.?\d*|\d*.?\d+)s*\)\s*/i;
 
     function Color(r, g, b, a) {
         if (typeof r === 'string') {
@@ -23,6 +23,7 @@ var Color = crayon.Color = (function() {
                 g = Number(matches[2]);
                 b = Number(matches[3]);
                 a = parseFloat(matches[4]);
+                if (Number.isNaN(a)) a = 1;
             } else {
                 throw new Error('Invalid color string: ' + r);
             }
@@ -36,7 +37,7 @@ var Color = crayon.Color = (function() {
             this.r = ~~r;
             this.g = ~~g;
             this.b = ~~b;
-            this.a = (a != null && !Number.isNaN(a)) ? a : 1;
+            this.a = (a != null) ? a : 1;
             this.cacheString();
         },
 

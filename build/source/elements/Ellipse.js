@@ -1,13 +1,13 @@
 var Ellipse = crayon.Rectangle = (function() {
-    function Ellipse() {
-        Shape.apply(this, arguments);
+    function Ellipse(options) {
+        Shape.call(this, options);
     }
 
     extend(Ellipse, Shape);
     methods(Ellipse,
-        function drawPath() {
+        function drawPath(canvas) {
             var anchor = this.getAnchor(),
-                ctx    = this.canvas.ctx,
+                ctx    = canvas.ctx,
                 x      = -anchor.x,
                 y      = -anchor.y,
                 w      = this.options.width,

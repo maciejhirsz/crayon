@@ -1,6 +1,6 @@
 var Shape = crayon.Shape = (function() {
-    function Shape() {
-        Element.apply(this, arguments);
+    function Shape(options) {
+        Element.call(this, options);
     }
 
     extend(Shape, Element);
@@ -26,12 +26,12 @@ var Shape = crayon.Shape = (function() {
             if (options.shadowColor !== undefined) options.shadowColor = this.validateColor(options.shadowColor);
         },
 
-        function drawPath() {
+        function drawPath(canvas) {
         },
 
-        function render() {
+        function render(canvas) {
             if (this.options.shadow) {
-                this.canvas.setShadow(
+                canvas.setShadow(
                     this.options.shadowX,
                     this.options.shadowY,
                     this.options.shadowBlur,
@@ -39,7 +39,7 @@ var Shape = crayon.Shape = (function() {
                 );
             }
 
-            ctx = this.canvas.ctx;
+            var ctx = canvas.ctx;
             ctx.beginPath();
 
             // Set line properties
@@ -47,20 +47,20 @@ var Shape = crayon.Shape = (function() {
             ctx.lineJoin = this.options.lineJoin;
 
             // Draw path
-            this.drawPath();
+            this.drawPath(canvas);
 
             // Erase background before drawing?
             if (this.options.erase) {
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.globalAlpha = 1.0;
-                this.canvas.fill('//000000');
+                canvas.fill('//000000');
                 ctx.restore();
             }
 
             // Fill and stroke if applicable
-            if (this.options.fill) this.canvas.fill(this.options.color);
-            if (this.options.stroke > 0) this.canvas.stroke(this.options.stroke, this.options.strokeColor);
+            if (this.options.fill) canvas.fill(this.options.color);
+            if (this.options.stroke > 0) canvas.stroke(this.options.stroke, this.options.strokeColor);
 
             // ctx.closePath()
         }

@@ -15,14 +15,26 @@ if (typeof Object.assign !== 'function') Object.assign = function assign(target)
 };
 
 /**
- * @param {function} Class
- * @param {function} Super
+ * Extends the prototype of `SubClass` by the prototype of the `SuperClass`
+ *
+ * @param {function} SubClass
+ * @param {function} SuperClass
  */
-function extend(Class, Super) {
-    Object.assign(Class.prototype, Super.prototype);
+function extend(SubClass, SuperClass) {
+    SubClass.prototype = Object.create(SuperClass.prototype, {
+        constructor: {
+            value: SubClass,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        }
+    });
 }
 
 /**
+ * Creates a frozen `defaults` member on the prototype of the `Class`
+ * constructor function, extending defaults imported from any superclass.
+ *
  * @param {function} Class
  * @param {object} defaults
  */
@@ -34,8 +46,10 @@ function defaults(Class, defaults) {
 }
 
 /**
+ * Assigns named functions passed to this function as extra arguments
+ * as methods on the prototype of the constructor function `Class`
+ *
  * @param {function} Class
- * @param {...function} methods
  */
 function methods(Class) {
     var len = arguments.length, i, method;

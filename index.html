@@ -115,7 +115,7 @@
           <a href="#point">Point</a>
           <ul>
             <li><a href="#point-xy">x, y</a></li>
-            <li><a href="#point-set">move</a></li>
+            <li><a href="#point-move">move</a></li>
           </ul>
         </li>
       </ul>
@@ -263,7 +263,7 @@ var canvas = new rippl.Canvas({ id: "my-canvas" });</pre>
 
       <h4 id="canvas-add">add <code>canvas.add(element)</code></h4>
       <p class="indented">
-        Adds a new <strong>Element</strong>, such as <a href="#rippl-text"><strong>Text</strong></a> or <a href="#rippl-sprite"><strong>Sprite</strong></a> to the canvas. Returns added element for chaining purposes.
+        Adds a new <strong>Element</strong>, such as <a href="#text"><strong>Text</strong></a> or <a href="#sprite"><strong>Sprite</strong></a> to the canvas. Returns added element for chaining purposes.
       </p>
 
       <h4 id="canvas-remove">remove <code>canvas.remove(element)</code></h4>
@@ -271,7 +271,7 @@ var canvas = new rippl.Canvas({ id: "my-canvas" });</pre>
         Removes specific <strong>Element</strong> from the <strong>Canvas</strong>.
       </p>
 
-      <h4 id="canvas-remove">wipe <code>canvas.wipe()</code></h4>
+      <h4 id="canvas-wipe">wipe <code>canvas.wipe()</code></h4>
       <p class="indented">
         Removes everything from the <strong>Canvas</strong>.
       </p>
@@ -784,7 +784,7 @@ canvas.add(triangle);</pre>
 
       <hr>
 
-      <h3 id="assets">assets</small></h3>
+      <h3 id="assets">assets</h3>
       <p>
         <em>Rippl</em> comes with its own assets manager module to take away the burden of preloading images off your shoulders, as well as to make it easy to host images on external domains in the <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">Data URI</a> format.
       </p>
@@ -812,7 +812,7 @@ canvas.add(triangle);</pre>
 
       <hr>
 
-      <h3 id="color">Color <code>new rippl.Color(r, g, b, [a])</code> <small>or</small> <code>new rippl.Color(string)</code></small></h3>
+      <h3 id="color">Color <code>new rippl.Color(r, g, b, [a])</code> <small>or</small> <code>new rippl.Color(string)</code></h3>
       <p>
         Creates a color object, most of the time <em>Rippl</em> will create one for you when you use string values for colors on elements. All color values are integers ranging from <code>0</code> to <code>255</code>, while alpha value is a float ranging from <code>0</code> to <code>1</code>. Accepted string formats are six-digit and three-digit hex tripplets (<code>"#ffffff"</code> and <code>"#fff"</code> respectively) as well as rgba string (<code>"rgba(255, 255, 255, 1.0)"</code>). Alpha (<strong>a</strong>) can be omitted, in which case it defaults to <code>1</code>.
       </p>

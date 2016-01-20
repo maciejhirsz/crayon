@@ -1,9 +1,25 @@
-# Rippl
+```
+
+     ▄████████    ▄████████    ▄████████ ▄██   ▄    ▄██████▄  ███▄▄▄▄
+    ███    ███   ███    ███   ███    ███ ███   ██▄ ███    ███ ███▀▀▀██▄
+    ███    █▀    ███    ███   ███    ███ ███▄▄▄███ ███    ███ ███   ███
+    ███         ▄███▄▄▄▄██▀   ███    ███ ▀▀▀▀▀▀███ ███    ███ ███   ███
+    ███        ▀▀███▀▀▀▀▀   ▀███████████ ▄██   ███ ███    ███ ███   ███
+    ███    █▄  ▀███████████   ███    ███ ███   ███ ███    ███ ███   ███
+    ███    ███   ███    ███   ███    ███ ███   ███ ███    ███ ███   ███
+    ████████▀    ███    ███   ███    █▀   ▀█████▀   ▀██████▀   ▀█   █▀
+                 ███    ███
+
+```
 
 * * *
 
-Rippl is a <canvas> library that's focused on performance and ease of use. Written completely in CoffeeScript, it can be used in both CoffeeScript or pure JavaScript projects alike. Rippl is built with AMD support if you want to use it with RequireJS. Rippl is entirely agnostic regarding how you structure your application — it will stay out of your way and be there for you when you need it.
+Crayon is a `<canvas>` library that's focused on the balance between performance and ease of use.
+The main goal of the lib is to serve as an easy ground for making kick ass 2d games, although other use cases
+surely can be found.
+
+There is AMD and CommonJS support, so you can use it with your favorite bundler.
 
 * * *
 
-Documentation at http://rippljs.org/
+Documentation online soon™

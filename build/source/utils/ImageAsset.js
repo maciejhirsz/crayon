@@ -1,7 +1,5 @@
 var ImageAsset = crayon.ImageAsset = (function () {
     function ImageAsset(url) {
-        EventEnabled.apply(this);
-
         this.__isAsset = true;
         this.__isLoaded = false;
         this._width = 0;
@@ -20,7 +18,7 @@ var ImageAsset = crayon.ImageAsset = (function () {
             });
 
             this._cache.drawRaw(image, 0, 0, width, height);
-            this._image = _this._cache.getDocumentElement();
+            this._image = this._cache.getDocumentElement();
             this.__isLoaded = true;
             this.trigger('loaded');
 
@@ -30,10 +28,10 @@ var ImageAsset = crayon.ImageAsset = (function () {
         }).bind(this);
     }
 
-    extend(ImageAsset, EventEnabled);
+    extend(ImageAsset, EventEmitter);
     methods(ImageAsset,
         function getPixelAlpha(x, y) {
-            this._cache.getPixelAlpha();
+            return this._cache.getPixelAlpha(x, y);
         },
 
         function getDocumentElement() {

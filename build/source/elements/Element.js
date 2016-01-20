@@ -1,24 +1,25 @@
 var Element = (function() {
     function Element(options) {
         this.__isElement = true;
-        this.canvas = null;
         this.transformStack = [];
         this.transformCount = 0;
-
-        EventEnabled.apply(this);
 
         // Set the options using the defaults
         this.options = Object.assign({}, this.defaults, options);
 
         // validate after assigning to make sure position is bound to a point
         this.validate(this.options);
+        this.listenTo(this.options.position, 'move', this.touch);
 
         // cache anchor position
-        this.on('change:anchorX change:anchorY change:anchorInPixels', this.calculateAnchor, this);
+        this.listenTo(this, 'change:anchorX change:anchorY change:anchorInPixels', this.calculateAnchor);
+
+        // reset the `move` listeners when position Point changes
+        this.listenTo(this, 'change:position', this.rebindPosition);
         this.calculateAnchor();
     }
 
-    extend(Element, EventEnabled);
+    extend(Element, EventEmitter);
     defaults(Element, {
         position       : null,
         x              : 0,
@@ -45,19 +46,19 @@ var Element = (function() {
             if (options.position != null) {
                 options.x = options.position.x;
                 options.y = options.position.y;
-                if (this.canvas != null) options.position.bind(this.canvas);
-                return;
+            } else {
+                this.options.position = new Point(this.options.x, this.options.y);
+                if (options.x != null || options.y != null) this.options.position.move(options.x, options.y);
             }
-
-            this.options.position = new Point(this.options.x, this.options.y);
-            if (this.canvas != null) this.options.position.bind(this.canvas);
-            if (options.x != null) this.options.position.move(options.x, null);
-            if (options.y != null) this.options.position.move(null, options.y);
         },
 
-        function bind(canvas) {
-            this.canvas = canvas;
-            if (this.options.position !== null) this.options.position.bind(canvas);
+        function rebindPosition() {
+            this.stopListening(null, 'move');
+            this.listenTo(this.options.position, 'move', this.touch);
+        },
+
+        function touch() {
+            this.trigger('change');
         },
 
         function validateColor(value) {
@@ -88,13 +89,13 @@ var Element = (function() {
         function hide() {
             if (this.options.hidden) return;
             this.options.hidden = true;
-            this.canvas.touch();
+            this.trigger('change');
         },
 
         function show() {
             if (!this.options.hidden) return;
             this.options.hidden = false;
-            this.canvas.touch();
+            this.trigger('change');
         },
 
         function isHidden() {
@@ -138,7 +139,7 @@ var Element = (function() {
          * @param {Number} frameTime
          */
         function progress(frameTime) {
-            if (!this.transformCount === 0) return;
+            if (this.transformCount === 0) return;
 
             var remove = false;
             this.transformStack.forEach(function(transform) {
@@ -158,8 +159,8 @@ var Element = (function() {
         /**
          * Used to set alpha, position, scale and rotation on the canvas prior to rendering.
          */
-        function prepare() {
-            var ctx     = this.canvas.ctx,
+        function prepare(canvas) {
+            var ctx     = canvas.ctx,
                 options = this.options,
                 x       = options.position.x,
                 y       = options.position.y;
@@ -174,7 +175,7 @@ var Element = (function() {
             if (options.composition !== 'source-over') ctx.globalCompositeOperation = options.composition;
         },
 
-        function render() {
+        function render(canvas) {
         },
 
         function pointOnElement(x, y) {
@@ -217,7 +218,7 @@ var Element = (function() {
         function set(options, value) {
             if (value !== undefined && typeof options === 'string') {
                 var o = {};
-                o[target] = value;
+                o[options] = value;
                 options = o;
             }
             this.validate(options);

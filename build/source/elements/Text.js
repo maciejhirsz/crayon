@@ -1,6 +1,6 @@
 var Text = crayon.Text = (function() {
-    function Text() {
-        Shape.apply(this, arguments);
+    function Text(options) {
+        Shape.call(this, options);
     }
 
     extend(Text, Shape);
@@ -14,9 +14,9 @@ var Text = crayon.Text = (function() {
         font     : 'sans-serif'
     });
     methods(Text,
-        function render() {
+        function render(canvas) {
             if (this.options.shadow) {
-                this.canvas.setShadow(
+                canvas.setShadow(
                     this.options.shadowX,
                     this.options.shadowY,
                     this.options.shadowBlur,
@@ -24,9 +24,9 @@ var Text = crayon.Text = (function() {
                 );
             }
 
-            if (this.options.fill) this.canvas.ctx.fillStyle = this.options.color.toString();
-            this.canvas.ctx.textAlign = this.options.align;
-            this.canvas.ctx.textBaseline = this.options.baseline;
+            if (this.options.fill) canvas.ctx.fillStyle = this.options.color.toString();
+            canvas.ctx.textAlign = this.options.align;
+            canvas.ctx.textBaseline = this.options.baseline;
 
             var font = [];
             if (this.options.italic) font.push('italic');
@@ -34,14 +34,14 @@ var Text = crayon.Text = (function() {
             font.push(this.options.size + 'px');
             font.push(this.options.font);
 
-            this.canvas.ctx.font = font.join(' ');
+            canvas.ctx.font = font.join(' ');
 
-            if (this.options.fill) this.canvas.ctx.fillText(this.options.label, 0, 0);
+            if (this.options.fill) canvas.ctx.fillText(this.options.label, 0, 0);
 
             if (this.options.stroke) {
-                this.canvas.ctx.lineWidth = this.options.stroke;
-                this.canvas.ctx.strokeStyle = this.options.strokeColor.toString();
-                this.canvas.ctx.strokeText(this.options.label, 0, 0);
+                canvas.ctx.lineWidth = this.options.stroke;
+                canvas.ctx.strokeStyle = this.options.strokeColor.toString();
+                canvas.ctx.strokeText(this.options.label, 0, 0);
             }
         }
     );

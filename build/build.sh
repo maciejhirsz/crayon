@@ -1,11 +1,8 @@
 #!/bin/bash
 
-coffee bundle.coffee
-
-echo "  > Compile rippl.coffee to rippl.js"
-coffee --compile --output ../ ../rippl.coffee
+node bundle.js
 
 echo "  > Uglify the JavaScript"
-uglifyjs2 ../rippl.js -o ../rippl.min.js
+uglifyjs2 ../crayon.js -o ../crayon.min.js
 
 echo ""

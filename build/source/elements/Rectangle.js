@@ -1,6 +1,6 @@
 var Rectangle = crayon.Rectangle = (function() {
-    function Rectangle() {
-        Shape.apply(this, arguments);
+    function Rectangle(options) {
+        Shape.call(this, options);
     }
 
     extend(Rectangle, Shape);
@@ -8,9 +8,9 @@ var Rectangle = crayon.Rectangle = (function() {
         cornerRadius : 0 // radius of rounded corners
     });
     methods(Rectangle,
-        function drawPath() {
+        function drawPath(canvas) {
             var anchor = this.getAnchor(),
-                ctx    = this.canvas.ctx;
+                ctx    = canvas.ctx;
 
             if (this.options.cornerRadius === 0) {
                 ctx.rect(-anchor.x, -anchor.y, this.options.width, this.options.height);

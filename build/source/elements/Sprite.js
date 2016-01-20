@@ -1,10 +1,11 @@
 var Sprite = crayon.Sprite = (function() {
-    function Sprite() {
-        Element.apply(this, arguments);
+    function Sprite(options) {
+        Element.call(this, options);
 
         this.buffer = null;
         this._useBuffer = false;
         this._animated = false;
+        this._animations = {};
         this._fallbackAnimation = 'idle';
         this._frameDuration = 0;
         this._framesModulo = 0;
@@ -22,14 +23,14 @@ var Sprite = crayon.Sprite = (function() {
             var asset;
             if (options.src !== undefined) {
                 if (typeof options.src === 'string') {
-                    options.src = asset = rippl.assets.get(options.src);
+                    options.src = asset = crayon.assets.get(options.src);
                 } else {
                     asset = options.src;
                 }
 
                 if (!asset.__isLoaded) {
                     asset.once('loaded', function() {
-                        if (this.canvas) this.canvas.touch();
+                        this.trigger('change');
                         this.calculateFrames();
                         this.calculateAnchor();
                     }, this);
@@ -46,13 +47,13 @@ var Sprite = crayon.Sprite = (function() {
             this._framesModulo = ~~(src._width / this.options.width);
         },
 
-        function render() {
+        function render(canvas) {
             var anchor = this.getAnchor();
 
             if (this._useBuffer) {
-                this.canvas.drawAsset(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height)
+                canvas.drawAsset(this.buffer, -anchor.x, -anchor.y, this.options.width, this.options.height)
             } else {
-                this.canvas.drawAsset(
+                canvas.drawAsset(
                     this.options.src,
                     -anchor.x,
                     -anchor.y,
@@ -96,11 +97,9 @@ var Sprite = crayon.Sprite = (function() {
         },
 
         function addAnimation(label, fps, frames) {
-            // handle fps
             if (fps <= 0) fps = 1;
-            var animations = this._animations || (this._animations = {});
 
-            animations[label] = {
+            this._animations[label] = {
                 frames        : frames,
                 frameDuration : 1000 / fps
             };
@@ -120,7 +119,7 @@ var Sprite = crayon.Sprite = (function() {
             this._frames = animation.frames;
             this._frameDuration = animation.frameDuration;
             this._currentIndex = -1;
-            this._animationStart = Date.now();
+            this._animationStart = crayon.timer.now();
             this._animationEnd = this._animationStart + this._frames.length * this._frameDuration;
             this._animated = true;
         },
@@ -148,7 +147,8 @@ var Sprite = crayon.Sprite = (function() {
 
             this.options.cropX = frameX * this.options.width;
             this.options.cropY = frameY * this.options.height;
-            this.canvas.touch();
+
+            this.trigger('change');
         },
 
         function freeze() {
@@ -181,7 +181,7 @@ var Sprite = crayon.Sprite = (function() {
         },
 
         function filter(filter) {
-            var fn = rippl.filters[filter];
+            var fn = crayon.filters[filter];
             if (typeof fn !== 'function') return;
 
             this.createBuffer();
@@ -193,7 +193,7 @@ var Sprite = crayon.Sprite = (function() {
             }
 
             fn.apply(this.buffer, args);
-            this.canvas.touch()
+            this.trigger('change');
         },
 
         function clearFilters() {
@@ -205,7 +205,7 @@ var Sprite = crayon.Sprite = (function() {
         function removeFilter() {
             this.buffer = null;
             this._useBuffer = false;
-            this.canvas.touch();
+            this.trigger('change');
         }
     );
 
