@@ -1,5 +1,19 @@
 var Sprite = crayon.Sprite = (function() {
     function Sprite(options) {
+        if (typeof options.src === 'string') {
+            var asset = options.src = crayon.assets.get(options.src);
+
+            if (!asset.__isLoaded) {
+                asset.once('loaded', function() {
+                    this.change();
+                    this.calculateFrames();
+                    this.calculateAnchor();
+                }, this);
+            } else {
+                this.calculateFrames();
+            }
+        }
+
         Element.call(this, options);
 
         this.buffer = null;
@@ -18,28 +32,6 @@ var Sprite = crayon.Sprite = (function() {
         cropY : 0
     });
     methods(Sprite,
-        function validate(options) {
-            Element.prototype.validate.call(this, options);
-            var asset;
-            if (options.src !== undefined) {
-                if (typeof options.src === 'string') {
-                    options.src = asset = crayon.assets.get(options.src);
-                } else {
-                    asset = options.src;
-                }
-
-                if (!asset.__isLoaded) {
-                    asset.once('loaded', function() {
-                        this.trigger('change');
-                        this.calculateFrames();
-                        this.calculateAnchor();
-                    }, this);
-                } else {
-                    this.calculateFrames();
-                }
-            }
-        },
-
         function calculateFrames() {
             var src = this.options.src;
             if (this.options.width === 0) this.options.width = src._width;
@@ -93,7 +85,7 @@ var Sprite = crayon.Sprite = (function() {
             x = Math.round(x + options.cropX);
             y = Math.round(y + options.cropY);
 
-            return options.src.getPixelAlpha(x, y) === 0;
+            return options.src.getPixelAlpha(x, y) !== 0;
         },
 
         function addAnimation(label, fps, frames) {
@@ -148,7 +140,7 @@ var Sprite = crayon.Sprite = (function() {
             this.options.cropX = frameX * this.options.width;
             this.options.cropY = frameY * this.options.height;
 
-            this.trigger('change');
+            this.change();
         },
 
         function freeze() {
@@ -193,7 +185,7 @@ var Sprite = crayon.Sprite = (function() {
             }
 
             fn.apply(this.buffer, args);
-            this.trigger('change');
+            this.change();
         },
 
         function clearFilters() {
@@ -205,7 +197,7 @@ var Sprite = crayon.Sprite = (function() {
         function removeFilter() {
             this.buffer = null;
             this._useBuffer = false;
-            this.trigger('change');
+            this.change();
         }
     );
 

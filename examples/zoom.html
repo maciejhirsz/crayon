@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - zoom example</title>
+    <title>crayon - zoom example</title>
     <meta charset="utf-8">
   </head>
   <body>
     <canvas id="my-canvas" width="400" height="100"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../crayon.min.js"></script>
     <script>
 
-      var canvas = new rippl.Canvas({ id: "my-canvas" });
+      var canvas = new crayon.Canvas({ id: "my-canvas" });
 
-      var text = new rippl.Text({
+      var text = new crayon.Text({
         label: "WHZOOOM!",
         bold: true,
         x: 200,
@@ -25,7 +25,8 @@
         strokeColor: '#000'
       });
 
-      canvas.add(text).transform({
+      canvas.add(text);
+      text.transform({
         transition: 'easeOut',
         duration: 1500,
         to: {

@@ -1,5 +1,9 @@
 var Shape = crayon.Shape = (function() {
     function Shape(options) {
+        if (options.color != null) options.color = this.validateColor(options.color);
+        if (options.strokeColor != null) options.strokeColor = this.validateColor(options.strokeColor);
+        if (options.shadowColor != null) options.shadowColor = this.validateColor(options.shadowColor);
+
         Element.call(this, options);
     }
 
@@ -19,13 +23,6 @@ var Shape = crayon.Shape = (function() {
         shadowColor : '#000'
     });
     methods(Shape,
-        function validate(options) {
-            Element.prototype.validate.call(this, options);
-            if (options.color !== undefined) options.color = this.validateColor(options.color);
-            if (options.strokeColor !== undefined) options.strokeColor = this.validateColor(options.strokeColor);
-            if (options.shadowColor !== undefined) options.shadowColor = this.validateColor(options.shadowColor);
-        },
-
         function drawPath(canvas) {
         },
 

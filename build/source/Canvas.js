@@ -32,6 +32,12 @@ var Canvas = crayon.Canvas = (function() {
     }
 
     extend(Canvas, EventEmitter);
+    defaults(Canvas, {
+        id: null,
+        width: 0,
+        height: 0,
+        'static': false
+    });
     methods(Canvas,
         function _bindInputEvents() {
             // bind touch events
@@ -121,16 +127,10 @@ var Canvas = crayon.Canvas = (function() {
                 element = arguments[i];
                 if (!element.__isElement) throw new Error('Tried to add a non-Element to Canvas');
                 this.elements.push(element);
-                this.changed = true;
-                this.unordered = true;
-
-                this.listenTo(element, 'change', this.touch);
-                this.listenTo(element, 'change:z', this.touchOrder);
             }
         },
 
         function remove(elementToRemove) {
-            elementToRemove.stopListening();
             this.elements = this.elements.filter(function(element) {
                 return element !== elementToRemove;
             });
@@ -148,15 +148,6 @@ var Canvas = crayon.Canvas = (function() {
             this.elements.sort(function(a, b) {
                 return a.get('z') - b.get('z');
             });
-            return this.unordered = false;
-        },
-
-        function touchOrder() {
-            this.unordered = true;
-        },
-
-        function touch() {
-            this.changed = true;
         },
 
         function clear() {
@@ -165,13 +156,17 @@ var Canvas = crayon.Canvas = (function() {
 
         function render(frameTime) {
             var element, i, len = this.elements.length;
+            var changed = this.changed;
+            var changedZ = false;
             for (i = 0; i < len; i++) {
                 element = this.elements[i];
                 element.progress(frameTime);
+                changed = changed || element.changed;
+                changedZ = changed || element.changedZ;
             }
 
-            if (!this.changed) return;
-            if (this.unordered) this.reorder();
+            if (!changed) return;
+            if (changedZ) this.reorder();
 
             this.clear();
             for (i = 0; i < len; i++) {
@@ -181,8 +176,10 @@ var Canvas = crayon.Canvas = (function() {
                 this.ctx.save();
                 element.prepare(this);
                 element.render(this);
+                element.changed = false;
                 this.ctx.restore();
             }
+
             this.changed = false;
         },
 

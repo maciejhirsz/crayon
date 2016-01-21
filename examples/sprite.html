@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - sprite example</title>
+    <title>crayon - sprite example</title>
     <meta charset="utf-8">
   </head>
   <body>
     <canvas id="my-canvas" width="200" height="200"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../crayon.min.js"></script>
     <script>
 
       // grab the canvas
-      var canvas = new rippl.Canvas({ id: "my-canvas" });
+      var canvas = new crayon.Canvas({ id: "my-canvas" });
 
       // create a sprite
-      var sprite = new rippl.Sprite({
-        src: 'img/html5.png', // note we are not doing any resource preloading, rippl handles all that for us
+      var sprite = new crayon.Sprite({
+        src: 'img/html5.png', // note we are not doing any resource preloading, crayon handles all that for us
         x: 100,
         y: 100
       });

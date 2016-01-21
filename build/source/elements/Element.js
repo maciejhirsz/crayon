@@ -3,13 +3,17 @@ var Element = (function() {
         this.__isElement = true;
         this.transformStack = [];
         this.transformCount = 0;
+        this.changed = false;
+        this.changedZ = false;
+        this.changedAttributes = null;
+
+        if (options.position == null) {
+            options.position = new Point(options.x, options.y);
+        }
 
         // Set the options using the defaults
         this.options = Object.assign({}, this.defaults, options);
-
-        // validate after assigning to make sure position is bound to a point
-        this.validate(this.options);
-        this.listenTo(this.options.position, 'move', this.touch);
+        this.listenTo(this.options.position, 'move', this.change);
 
         // cache anchor position
         this.listenTo(this, 'change:anchorX change:anchorY change:anchorInPixels', this.calculateAnchor);
@@ -42,23 +46,13 @@ var Element = (function() {
         composition    : 'source-over'
     });
     methods(Element,
-        function validate(options) {
-            if (options.position != null) {
-                options.x = options.position.x;
-                options.y = options.position.y;
-            } else {
-                this.options.position = new Point(this.options.x, this.options.y);
-                if (options.x != null || options.y != null) this.options.position.move(options.x, options.y);
-            }
-        },
-
         function rebindPosition() {
             this.stopListening(null, 'move');
-            this.listenTo(this.options.position, 'move', this.touch);
+            this.listenTo(this.options.position, 'move', this.change);
         },
 
-        function touch() {
-            this.trigger('change');
+        function change() {
+            this.changed = true;
         },
 
         function validateColor(value) {
@@ -89,13 +83,13 @@ var Element = (function() {
         function hide() {
             if (this.options.hidden) return;
             this.options.hidden = true;
-            this.trigger('change');
+            this.changed = true;
         },
 
         function show() {
             if (!this.options.hidden) return;
             this.options.hidden = false;
-            this.trigger('change');
+            this.changed = true;
         },
 
         function isHidden() {
@@ -125,7 +119,7 @@ var Element = (function() {
         function stop() {
             if (this.transformCount === 0) return;
 
-            this.tranformStack.each(function(transform) {
+            this.tranformStack.forEach(function(transform) {
                 transform.destroy();
             });
 
@@ -216,27 +210,20 @@ var Element = (function() {
         },
 
         function set(options, value) {
-            if (value !== undefined && typeof options === 'string') {
-                var o = {};
-                o[options] = value;
-                options = o;
-            }
-            this.validate(options);
-
-            var change = [], option;
-            for (option in options) {
-                value = options[option];
-                if (this.options[option] !== undefined && this.options[option] !== value) {
-                    this.options[option] = value;
-                    change.push(option);
+            if (typeof options === 'string') {
+                this.options[options] = value;
+                this.changed = true;
+                this.changedZ = this.changedZ || options === 'z';
+            } else {
+                var option;
+                for (option in options) {
+                    this.options[option] = options[option];
                 }
+                this.changed = true;
+                this.changedZ = this.changedZ || options.z != null;
             }
-            if (change.length) {
-                change.forEach(function(option) {
-                    this.trigger('change' + option);
-                }, this);
-                this.trigger('change');
-            }
+
+            return this;
         },
 
         function get(option) {

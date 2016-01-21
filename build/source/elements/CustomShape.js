@@ -18,12 +18,8 @@ var CustomShape = crayon.CustomShape = (function() {
             } else {
                 point = new Point(x, y);
             }
-            this.listenTo(point, 'move', this.touch);
+            this.listenTo(point, 'move', this.change);
             return point;
-        },
-
-        function touch() {
-            this.trigger('change');
         },
 
         function drawPath(canvas) {
@@ -53,7 +49,7 @@ var CustomShape = crayon.CustomShape = (function() {
         },
 
         function moveTo(x, y) {
-            this.path.push(['moveTo'], this._point(x, y));
+            this.path.push(['moveTo', this._point(x, y)]);
 
             return this;
         },

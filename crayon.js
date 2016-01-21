@@ -340,6 +340,7 @@
         var rgbaPattern = /\s*rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d+.?\d*|\d*.?\d+)s*\)\s*/i;
 
         function Color(r, g, b, a) {
+            this.__isColor = true;
             if (typeof r === 'string') {
                 var hash, matches;
                 if (r[0] === '#') {
@@ -355,7 +356,6 @@
                     } else {
                         throw new Error('Invalid color string: ' + hash);
                     }
-                    return;
                 } else if (matches = r.match(rgbaPattern)) {
                     r = Number(matches[1]);
                     g = Number(matches[2]);
@@ -458,7 +458,7 @@
         );
 
         return RelativePoint;
-    });
+    })();
     /**
      * End contents of {utils/RelativePoint.js}
      */
@@ -501,7 +501,7 @@
         );
 
         return MappedPoint;
-    });
+    })();
     /**
      * End contents of {utils/MappedPoint.js}
      */
@@ -902,13 +902,17 @@
             this.__isElement = true;
             this.transformStack = [];
             this.transformCount = 0;
+            this.changed = false;
+            this.changedZ = false;
+            this.changedAttributes = null;
+
+            if (options.position == null) {
+                options.position = new Point(options.x, options.y);
+            }
 
             // Set the options using the defaults
             this.options = Object.assign({}, this.defaults, options);
-
-            // validate after assigning to make sure position is bound to a point
-            this.validate(this.options);
-            this.listenTo(this.options.position, 'move', this.touch);
+            this.listenTo(this.options.position, 'move', this.change);
 
             // cache anchor position
             this.listenTo(this, 'change:anchorX change:anchorY change:anchorInPixels', this.calculateAnchor);
@@ -941,23 +945,13 @@
             composition    : 'source-over'
         });
         methods(Element,
-            function validate(options) {
-                if (options.position != null) {
-                    options.x = options.position.x;
-                    options.y = options.position.y;
-                } else {
-                    this.options.position = new Point(this.options.x, this.options.y);
-                    if (options.x != null || options.y != null) this.options.position.move(options.x, options.y);
-                }
-            },
-
             function rebindPosition() {
                 this.stopListening(null, 'move');
-                this.listenTo(this.options.position, 'move', this.touch);
+                this.listenTo(this.options.position, 'move', this.change);
             },
 
-            function touch() {
-                this.trigger('change');
+            function change() {
+                this.changed = true;
             },
 
             function validateColor(value) {
@@ -988,13 +982,13 @@
             function hide() {
                 if (this.options.hidden) return;
                 this.options.hidden = true;
-                this.trigger('change');
+                this.changed = true;
             },
 
             function show() {
                 if (!this.options.hidden) return;
                 this.options.hidden = false;
-                this.trigger('change');
+                this.changed = true;
             },
 
             function isHidden() {
@@ -1024,7 +1018,7 @@
             function stop() {
                 if (this.transformCount === 0) return;
 
-                this.tranformStack.each(function(transform) {
+                this.tranformStack.forEach(function(transform) {
                     transform.destroy();
                 });
 
@@ -1115,27 +1109,20 @@
             },
 
             function set(options, value) {
-                if (value !== undefined && typeof options === 'string') {
-                    var o = {};
-                    o[options] = value;
-                    options = o;
-                }
-                this.validate(options);
-
-                var change = [], option;
-                for (option in options) {
-                    value = options[option];
-                    if (this.options[option] !== undefined && this.options[option] !== value) {
-                        this.options[option] = value;
-                        change.push(option);
+                if (typeof options === 'string') {
+                    this.options[options] = value;
+                    this.changed = true;
+                    this.changedZ = this.changedZ || options === 'z';
+                } else {
+                    var option;
+                    for (option in options) {
+                        this.options[option] = options[option];
                     }
+                    this.changed = true;
+                    this.changedZ = this.changedZ || options.z != null;
                 }
-                if (change.length) {
-                    change.forEach(function(option) {
-                        this.trigger('change' + option);
-                    }, this);
-                    this.trigger('change');
-                }
+
+                return this;
             },
 
             function get(option) {
@@ -1154,6 +1141,20 @@
      */
     var Sprite = crayon.Sprite = (function() {
         function Sprite(options) {
+            if (typeof options.src === 'string') {
+                var asset = options.src = crayon.assets.get(options.src);
+
+                if (!asset.__isLoaded) {
+                    asset.once('loaded', function() {
+                        this.change();
+                        this.calculateFrames();
+                        this.calculateAnchor();
+                    }, this);
+                } else {
+                    this.calculateFrames();
+                }
+            }
+
             Element.call(this, options);
 
             this.buffer = null;
@@ -1172,28 +1173,6 @@
             cropY : 0
         });
         methods(Sprite,
-            function validate(options) {
-                Element.prototype.validate.call(this, options);
-                var asset;
-                if (options.src !== undefined) {
-                    if (typeof options.src === 'string') {
-                        options.src = asset = crayon.assets.get(options.src);
-                    } else {
-                        asset = options.src;
-                    }
-
-                    if (!asset.__isLoaded) {
-                        asset.once('loaded', function() {
-                            this.trigger('change');
-                            this.calculateFrames();
-                            this.calculateAnchor();
-                        }, this);
-                    } else {
-                        this.calculateFrames();
-                    }
-                }
-            },
-
             function calculateFrames() {
                 var src = this.options.src;
                 if (this.options.width === 0) this.options.width = src._width;
@@ -1247,7 +1226,7 @@
                 x = Math.round(x + options.cropX);
                 y = Math.round(y + options.cropY);
 
-                return options.src.getPixelAlpha(x, y) === 0;
+                return options.src.getPixelAlpha(x, y) !== 0;
             },
 
             function addAnimation(label, fps, frames) {
@@ -1302,7 +1281,7 @@
                 this.options.cropX = frameX * this.options.width;
                 this.options.cropY = frameY * this.options.height;
 
-                this.trigger('change');
+                this.change();
             },
 
             function freeze() {
@@ -1347,7 +1326,7 @@
                 }
 
                 fn.apply(this.buffer, args);
-                this.trigger('change');
+                this.change();
             },
 
             function clearFilters() {
@@ -1359,7 +1338,7 @@
             function removeFilter() {
                 this.buffer = null;
                 this._useBuffer = false;
-                this.trigger('change');
+                this.change();
             }
         );
 
@@ -1669,12 +1648,8 @@
                 } else {
                     point = new Point(x, y);
                 }
-                this.listenTo(point, 'move', this.touch);
+                this.listenTo(point, 'move', this.change);
                 return point;
-            },
-
-            function touch() {
-                this.trigger('change');
             },
 
             function drawPath(canvas) {
@@ -1704,7 +1679,7 @@
             },
 
             function moveTo(x, y) {
-                this.path.push(['moveTo'], this._point(x, y));
+                this.path.push(['moveTo', this._point(x, y)]);
 
                 return this;
             },
@@ -1821,6 +1796,12 @@
         }
 
         extend(Canvas, EventEmitter);
+        defaults(Canvas, {
+            id: null,
+            width: 0,
+            height: 0,
+            'static': false
+        });
         methods(Canvas,
             function _bindInputEvents() {
                 // bind touch events
@@ -1910,16 +1891,10 @@
                     element = arguments[i];
                     if (!element.__isElement) throw new Error('Tried to add a non-Element to Canvas');
                     this.elements.push(element);
-                    this.changed = true;
-                    this.unordered = true;
-
-                    this.listenTo(element, 'change', this.touch);
-                    this.listenTo(element, 'change:z', this.touchOrder);
                 }
             },
 
             function remove(elementToRemove) {
-                elementToRemove.stopListening();
                 this.elements = this.elements.filter(function(element) {
                     return element !== elementToRemove;
                 });
@@ -1937,15 +1912,6 @@
                 this.elements.sort(function(a, b) {
                     return a.get('z') - b.get('z');
                 });
-                return this.unordered = false;
-            },
-
-            function touchOrder() {
-                this.unordered = true;
-            },
-
-            function touch() {
-                this.changed = true;
             },
 
             function clear() {
@@ -1954,13 +1920,17 @@
 
             function render(frameTime) {
                 var element, i, len = this.elements.length;
+                var changed = this.changed;
+                var changedZ = false;
                 for (i = 0; i < len; i++) {
                     element = this.elements[i];
                     element.progress(frameTime);
+                    changed = changed || element.changed;
+                    changedZ = changed || element.changedZ;
                 }
 
-                if (!this.changed) return;
-                if (this.unordered) this.reorder();
+                if (!changed) return;
+                if (changedZ) this.reorder();
 
                 this.clear();
                 for (i = 0; i < len; i++) {
@@ -1970,8 +1940,10 @@
                     this.ctx.save();
                     element.prepare(this);
                     element.render(this);
+                    element.changed = false;
                     this.ctx.restore();
                 }
+
                 this.changed = false;
             },
 

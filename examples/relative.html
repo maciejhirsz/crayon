@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - relative points example</title>
+    <title>crayon - relative points example</title>
     <meta charset="utf-8">
   </head>
   <body>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../crayon.min.js"></script>
     <script>
 
-      var canvas = new rippl.Canvas({ id: "my-canvas" });
+      var canvas = new crayon.Canvas({ id: "my-canvas" });
 
-      var crossH = new rippl.CustomShape({
+      var crossH = new crayon.CustomShape({
         fill: false,
         stroke: 2,
         strokeColor: '#000',
@@ -22,7 +22,7 @@
       crossH.moveTo(190, 200);
       crossH.lineTo(210, 200);
 
-      var crossV = new rippl.CustomShape({
+      var crossV = new crayon.CustomShape({
         fill: false,
         stroke: 2,
         strokeColor: '#000',
@@ -35,8 +35,8 @@
       canvas.add(crossH);
       canvas.add(crossV);
 
-      var sunPoint = new rippl.Point(200, 200);
-      var sun = new rippl.Circle({
+      var sunPoint = new crayon.Point(200, 200);
+      var sun = new crayon.Circle({
         position: sunPoint,
         color: '#fff',
         stroke: 2,
@@ -44,7 +44,7 @@
         radius: 20,
         z: 2
       });
-      var sunOrbit = new rippl.Circle({
+      var sunOrbit = new crayon.Circle({
         position: sunPoint,
         fill: false,
         stroke: 1,
@@ -57,8 +57,8 @@
       canvas.add(sun);
       canvas.add(sunOrbit);
 
-      var planetPoint = new rippl.RelativePoint(130, 0, sunPoint);
-      var planet = new rippl.Circle({
+      var planetPoint = new crayon.RelativePoint(130, 0, sunPoint);
+      var planet = new crayon.Circle({
         position: planetPoint,
         color: '#fff',
         stroke: 2,
@@ -66,7 +66,7 @@
         radius: 10,
         z: 2
       });
-      var planetOrbit = new rippl.Circle({
+      var planetOrbit = new crayon.Circle({
         position: planetPoint,
         fill: false,
         stroke: 1,
@@ -79,8 +79,8 @@
       canvas.add(planet);
       canvas.add(planetOrbit);
 
-      var moonPoint = new rippl.RelativePoint(30, 0, planetPoint);
-      var moon = new rippl.Circle({
+      var moonPoint = new crayon.RelativePoint(30, 0, planetPoint);
+      var moon = new crayon.Circle({
         position: moonPoint,
         color: '#fff',
         stroke: 2,
@@ -91,7 +91,7 @@
 
       canvas.add(moon);
 
-      var sunGravity = new rippl.CustomShape({
+      var sunGravity = new crayon.CustomShape({
         fill: false,
         stroke: 1,
         strokeColor: '#000'
@@ -101,7 +101,7 @@
 
       canvas.add(sunGravity);
 
-      var planetGravity = new rippl.CustomShape({
+      var planetGravity = new crayon.CustomShape({
         fill: false,
         stroke: 1,
         strokeColor: '#000'
@@ -112,7 +112,7 @@
       canvas.add(planetGravity);
 
       // the magic happens here!
-      rippl.timer.on('frame', function(time) {
+      crayon.timer.on('frame', function(time) {
         var sunAngle = time / 500;
         var planetAngle = time / 1500;
         var moonAngle = time / -300;

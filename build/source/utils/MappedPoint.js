@@ -33,4 +33,4 @@ var MappedPoint = crayon.MappedPoint = (function () {
     );
 
     return MappedPoint;
-});
+})();

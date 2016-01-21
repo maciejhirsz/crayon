@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - points example</title>
+    <title>crayon - points example</title>
     <meta charset="utf-8">
   </head>
   <body>
     <canvas id="my-canvas" width="400" height="100"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../crayon.min.js"></script>
     <script>
 
-      var canvas = new rippl.Canvas({ id: "my-canvas" });
+      var canvas = new crayon.Canvas({ id: "my-canvas" });
 
       var i, circle, line, point, points = [];
 
       // Create a custom shape that will be our wave
-      var shape = new rippl.CustomShape({
+      var shape = new crayon.CustomShape({
         fill: false,
         stroke: 2,
         strokeColor: '#f00',
@@ -25,7 +25,7 @@
       // we need 38 points for it (sparing 10 pixels for margins)
       for(i=0; i<38; i++){
         // first we define our point, half a pixel on x axis is to make sure vertical lines are sharp
-        point = new rippl.Point(10.5 + i * 10, 50);
+        point = new crayon.Point(10.5 + i * 10, 50);
         points.push(point);
 
         // if it's first point then move to it, otherwise draw a line
@@ -36,7 +36,7 @@
         }
 
         // this will be a line coming from the center axis to the wave
-        line = new rippl.CustomShape({
+        line = new crayon.CustomShape({
           fill: false,
           stroke: 1,
           strokeColor: '#000'
@@ -47,7 +47,7 @@
         canvas.add(line);
 
         // last but not least, we draw a circle on each point
-        circle = new rippl.Circle({
+        circle = new crayon.Circle({
           position: point, // yes, same point again!
           color: '#fff',
           stroke: 2,
@@ -62,7 +62,7 @@
       canvas.add(shape);
 
       // the magic happens here!
-      rippl.timer.on('frame', function(time) {
+      crayon.timer.on('frame', function(time) {
         var t = time / 1000;
         var sin, point;
 

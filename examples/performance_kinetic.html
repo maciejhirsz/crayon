@@ -8,7 +8,7 @@
     <div id="container" width="400" height="400"></div>
     This demo is using KineticJS 4.5.4 in order to compare performance to Rippl, the whole logic aside from the api is identical.
 
-    <script src="kinetic/kinetic.4.5.4.js"></script>
+    <script src="./kinetic/kinetic.4.5.4.js"></script>
     <script>
 
       var stage = new Kinetic.Stage({
@@ -24,7 +24,7 @@
       var imageObj = new Image();
       imageObj.onload = function() {
 
-        var i, limit = 500;
+        var i, limit = 2000;
         var sprites = [];
 
         for(i=0; i<limit; i+=1){

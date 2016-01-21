@@ -2,6 +2,7 @@ var Color = crayon.Color = (function() {
     var rgbaPattern = /\s*rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d+.?\d*|\d*.?\d+)s*\)\s*/i;
 
     function Color(r, g, b, a) {
+        this.__isColor = true;
         if (typeof r === 'string') {
             var hash, matches;
             if (r[0] === '#') {
@@ -17,7 +18,6 @@ var Color = crayon.Color = (function() {
                 } else {
                     throw new Error('Invalid color string: ' + hash);
                 }
-                return;
             } else if (matches = r.match(rgbaPattern)) {
                 r = Number(matches[1]);
                 g = Number(matches[2]);

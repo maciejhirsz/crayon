@@ -31,4 +31,4 @@ var RelativePoint = crayon.RelativePoint = (function () {
     );
 
     return RelativePoint;
-});
+})();

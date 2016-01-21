@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rippl - performance example</title>
+    <title>crayon - performance example</title>
     <meta charset="utf-8">
   </head>
   <body>
     <canvas id="my-canvas" width="400" height="400"></canvas>
 
-    <script src="../rippl.min.js"></script>
+    <script src="../crayon.min.js"></script>
     <script>
 
-      var canvas = new rippl.Canvas({ id: "my-canvas" });
+      var canvas = new crayon.Canvas({ id: "my-canvas" });
 
-      var i, limit = 500;
+      var i, limit = 2000;
       var counter, sprite, sprites = [];
 
       for(i=0; i<limit; i+=1){
-        sprite = new rippl.Sprite({
+        sprite = new crayon.Sprite({
           src: 'img/html5.png',
           x: 200 + (Math.random() - 0.5) * 400,
           y: 200 + (Math.random() - 0.5) * 400,
@@ -26,7 +26,7 @@
         sprites.push(sprite);
       }
 
-      counter = new rippl.Text({
+      counter = new crayon.Text({
         label: "FPS: 0",
         align: 'left',
         bold: true,
@@ -44,7 +44,7 @@
       var fps, totalTime, lastTime = Date.now();
       var times = [0, 0, 0, 0, 0, 0];
 
-      rippl.timer.on('frame', function(time) {
+      crayon.timer.on('frame', function(time) {
 
         times.shift();
         times.push(time - lastTime);
